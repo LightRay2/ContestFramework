@@ -1,0 +1,146 @@
+D:\docum\_PROJECTS\Space\Fire\Fire\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\docum\_PROJECTS\Space\Fire\Fire\obj\x86\Debug\Game2D.Form1.resources
+D:\docum\_PROJECTS\Space\Fire\Fire\obj\x86\Debug\Game2D.Properties.Resources.resources
+D:\docum\_PROJECTS\Space\Fire\Fire\obj\x86\Debug\GenerateResource.read.1.tlog
+D:\docum\_PROJECTS\Space\Fire\Fire\obj\x86\Debug\GenerateResource.write.1.tlog
+D:\docum\_PROJECTS\Space\Fire\Fire\bin\Debug\Game2D.exe
+D:\docum\_PROJECTS\Space\Fire\Fire\bin\Debug\Game2D.pdb
+D:\docum\_PROJECTS\Space\Fire\Fire\obj\x86\Debug\Game2D.exe
+D:\docum\_PROJECTS\Space\Fire\Fire\obj\x86\Debug\Game2D.pdb
+D:\docum\_PROJECTS\Space\2DFramework\Game2D\obj\x86\Debug\Game2D.exe
+D:\docum\_PROJECTS\Space\2DFramework\Game2D\obj\x86\Debug\Game2D.pdb
+D:\docum\_PROJECTS\Space\2DFramework\Game2D\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\docum\_PROJECTS\Space\2DFramework\Game2D\obj\x86\Debug\Game2D.Form1.resources
+D:\docum\_PROJECTS\Space\2DFramework\Game2D\obj\x86\Debug\Game2D.Properties.Resources.resources
+D:\docum\_PROJECTS\Space\2DFramework\Game2D\obj\x86\Debug\GenerateResource.read.1.tlog
+D:\docum\_PROJECTS\Space\2DFramework\Game2D\obj\x86\Debug\GenerateResource.write.1.tlog
+D:\docum\_PROJECTS\Space\2DFramework\Game2D\bin\Debug\Game2D.exe
+D:\docum\_PROJECTS\Space\2DFramework\Game2D\bin\Debug\Game2D.pdb
+D:\docum\_PROJECTS\CSharp\2DFramework\Game2D\obj\x86\Debug\Game2D.exe
+D:\docum\_PROJECTS\CSharp\2DFramework\Game2D\obj\x86\Debug\Game2D.pdb
+C:\Users\LightRay\Dropbox\2DFramework\Game2D\obj\x86\Debug\Game2D.exe
+C:\Users\LightRay\Dropbox\2DFramework\Game2D\obj\x86\Debug\Game2D.pdb
+C:\Users\LightRay\Dropbox\Denis\2DFramework\Game2D\obj\x86\Debug\Game2D.exe
+C:\Users\LightRay\Dropbox\Denis\2DFramework\Game2D\obj\x86\Debug\Game2D.pdb
+C:\Users\LightRay\Dropbox\Denis\XO\Game2D\obj\x86\Debug\Game2D.exe
+C:\Users\LightRay\Dropbox\Denis\XO\Game2D\obj\x86\Debug\Game2D.pdb
+C:\Users\LightRay\Dropbox\Denis\XO\Game2D\bin\Debug\Game2D.exe.config
+C:\Users\LightRay\Dropbox\Denis\XO\Game2D\obj\x86\Debug\Game2D.csprojResolveAssemblyReference.cache
+C:\Users\LightRay\Dropbox\Denis\XO\Game2D\obj\x86\Debug\Game2D.Form1.resources
+C:\Users\LightRay\Dropbox\Denis\XO\Game2D\obj\x86\Debug\Game2D.Properties.Resources.resources
+C:\Users\LightRay\Dropbox\Denis\XO\Game2D\obj\x86\Debug\Game2D.csproj.GenerateResource.Cache
+C:\Users\LightRay\Dropbox\Denis\XO\Game2D\bin\Debug\Game2D.exe
+C:\Users\LightRay\Dropbox\Denis\XO\Game2D\bin\Debug\Game2D.pdb
+C:\D\Lost\Мои документы\Dropbox\Denis\XO\Game2D\bin\Debug\Game2D.exe.config
+C:\D\Lost\Мои документы\Dropbox\Denis\XO\Game2D\obj\x86\Debug\Game2D.exe
+C:\D\Lost\Мои документы\Dropbox\Denis\XO\Game2D\obj\x86\Debug\Game2D.pdb
+C:\D\Lost\Мои документы\Dropbox\Denis\XO\Game2D\bin\Debug\Game2D.exe
+C:\D\Lost\Мои документы\Dropbox\Denis\XO\Game2D\bin\Debug\Game2D.pdb
+C:\D\Lost\Мои документы\Dropbox\Denis\XO\Game2D\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\D\Lost\Мои документы\Dropbox\Denis\XO\Game2D\obj\x86\Debug\Game2D.Form1.resources
+C:\D\Lost\Мои документы\Dropbox\Denis\XO\Game2D\obj\x86\Debug\Game2D.Properties.Resources.resources
+C:\D\Lost\Мои документы\Dropbox\Denis\XO\Game2D\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\D\Lost\Мои документы\Dropbox\Denis\XO\Game2D\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\D\Lost\Мои документы\Dropbox\Denis\___TemplateForGame\Game2D\bin\Debug\Game2D.exe.config
+C:\D\Lost\Мои документы\Dropbox\Denis\___TemplateForGame\Game2D\obj\x86\Debug\Game2D.exe
+C:\D\Lost\Мои документы\Dropbox\Denis\___TemplateForGame\Game2D\obj\x86\Debug\Game2D.pdb
+C:\Users\Brandstein\Dropbox\Denis\___TemplateForGame\Game2D\bin\Debug\Game2D.exe.config
+C:\Users\Brandstein\Dropbox\Denis\___TemplateForGame\Game2D\obj\x86\Debug\Game2D.exe
+C:\Users\Brandstein\Dropbox\Denis\___TemplateForGame\Game2D\obj\x86\Debug\Game2D.pdb
+C:\D\Lost\Мои документы\Dropbox\Denis\CombineWar\Game2D\bin\Debug\Game2D.exe.config
+C:\D\Lost\Мои документы\Dropbox\Denis\CombineWar\Game2D\obj\x86\Debug\Game2D.exe
+C:\D\Lost\Мои документы\Dropbox\Denis\CombineWar\Game2D\obj\x86\Debug\Game2D.pdb
+C:\D\Lost\Мои документы\Dropbox\Denis\CombineWar\Game2D\bin\Debug\Game2D.exe
+C:\D\Lost\Мои документы\Dropbox\Denis\CombineWar\Game2D\bin\Debug\Game2D.pdb
+C:\D\Lost\Мои документы\Dropbox\Denis\CombineWar\Game2D\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\D\Lost\Мои документы\Dropbox\Denis\CombineWar\Game2D\obj\x86\Debug\Game2D.Form1.resources
+C:\D\Lost\Мои документы\Dropbox\Denis\CombineWar\Game2D\obj\x86\Debug\Game2D.Properties.Resources.resources
+C:\D\Lost\Мои документы\Dropbox\Denis\CombineWar\Game2D\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\D\Lost\Мои документы\Dropbox\Denis\CombineWar\Game2D\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\Brandstein\Dropbox\Denis\CombineWar\Game2D\bin\Debug\Game2D.exe.config
+C:\Users\Brandstein\Dropbox\Denis\CombineWar\Game2D\obj\x86\Debug\Game2D.exe
+C:\Users\Brandstein\Dropbox\Denis\CombineWar\Game2D\obj\x86\Debug\Game2D.pdb
+C:\Users\Brandstein\Dropbox\Denis\CombineWar\Game2D\bin\Debug\Game2D.exe
+C:\Users\Brandstein\Dropbox\Denis\CombineWar\Game2D\bin\Debug\Game2D.pdb
+C:\Users\Brandstein\Dropbox\Denis\CombineWar\Game2D\obj\x86\Debug\Game2D.csprojResolveAssemblyReference.cache
+C:\Users\Brandstein\Dropbox\Denis\CombineWar\Game2D\obj\x86\Debug\Game2D.Form1.resources
+C:\Users\Brandstein\Dropbox\Denis\CombineWar\Game2D\obj\x86\Debug\Game2D.Properties.Resources.resources
+C:\Users\Brandstein\Dropbox\Denis\CombineWar\Game2D\obj\x86\Debug\Game2D.csproj.GenerateResource.Cache
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar\Game2D\bin\Debug\Game2D.exe.config
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar\Game2D\obj\x86\Debug\Game2D.exe
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar\Game2D\obj\x86\Debug\Game2D.pdb
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar\Game2D\bin\Debug\Game2D.exe
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar\Game2D\bin\Debug\Game2D.pdb
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar\Game2D\obj\x86\Debug\Game2D.csprojResolveAssemblyReference.cache
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar\Game2D\obj\x86\Debug\Game2D.Form1.resources
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar\Game2D\obj\x86\Debug\Game2D.Properties.Resources.resources
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar\Game2D\obj\x86\Debug\Game2D.csproj.GenerateResource.Cache
+C:\Users\Brandstein\Dropbox\Denis\CombineWar2\Game2D\bin\Debug\Game2D.exe.config
+C:\Users\Brandstein\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.exe
+C:\Users\Brandstein\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.pdb
+C:\Users\Brandstein\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.Form1.resources
+C:\Users\Brandstein\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.Properties.Resources.resources
+C:\Users\Brandstein\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.csproj.GenerateResource.Cache
+C:\Users\Brandstein\Dropbox\Denis\CombineWar2\Game2D\bin\Debug\Game2D.exe
+C:\Users\Brandstein\Dropbox\Denis\CombineWar2\Game2D\bin\Debug\Game2D.pdb
+C:\Users\LightRay\Dropbox\Denis\CombineWar2\Game2D\bin\Debug\Game2D.exe.config
+C:\Users\LightRay\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.exe
+C:\Users\LightRay\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.pdb
+C:\Users\Brandstein\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.csprojResolveAssemblyReference.cache
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar2\Game2D\bin\Debug\Game2D.exe.config
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar2\Game2D\obj\x86\Debug\Game2D.exe
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar2\Game2D\obj\x86\Debug\Game2D.pdb
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar2\Game2D\bin\Debug\Game2D.exe
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar2\Game2D\bin\Debug\Game2D.pdb
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar2\Game2D\obj\x86\Debug\Game2D.csprojResolveAssemblyReference.cache
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar2\Game2D\obj\x86\Debug\Game2D.Form1.resources
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar2\Game2D\obj\x86\Debug\Game2D.Properties.Resources.resources
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\CombineWar2\Game2D\obj\x86\Debug\Game2D.csproj.GenerateResource.Cache
+C:\Users\Brandstein\Dropbox\Denis\temp\CombineWar2\Game2D\bin\Debug\Game2D.exe.config
+C:\Users\Brandstein\Dropbox\Denis\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.exe
+C:\Users\Brandstein\Dropbox\Denis\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.pdb
+C:\Users\Brandstein\Dropbox\Denis\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.csprojResolveAssemblyReference.cache
+C:\Users\Brandstein\Dropbox\Denis\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.Form1.resources
+C:\Users\Brandstein\Dropbox\Denis\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.Properties.Resources.resources
+C:\Users\Brandstein\Dropbox\Denis\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.csproj.GenerateResource.Cache
+C:\Users\Brandstein\Dropbox\Denis\temp\CombineWar2\Game2D\bin\Debug\Game2D.exe
+C:\Users\Brandstein\Dropbox\Denis\temp\CombineWar2\Game2D\bin\Debug\Game2D.pdb
+C:\Users\LightRay\Dropbox\Denis\temp\CombineWar2\Game2D\bin\Debug\Game2D.exe.config
+C:\Users\LightRay\Dropbox\Denis\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.exe
+C:\Users\LightRay\Dropbox\Denis\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.pdb
+C:\Users\LightRay\Dropbox\Denis\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.csprojResolveAssemblyReference.cache
+C:\Users\LightRay\Dropbox\Denis\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.Form1.resources
+C:\Users\LightRay\Dropbox\Denis\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.Properties.Resources.resources
+C:\Users\LightRay\Dropbox\Denis\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.csproj.GenerateResource.Cache
+C:\Users\LightRay\Dropbox\Denis\temp\CombineWar2\Game2D\bin\Debug\Game2D.exe
+C:\Users\LightRay\Dropbox\Denis\temp\CombineWar2\Game2D\bin\Debug\Game2D.pdb
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\temp\CombineWar2\Game2D\bin\Debug\Game2D.exe.config
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.exe
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.pdb
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\temp\CombineWar2\Game2D\bin\Debug\Game2D.exe
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\temp\CombineWar2\Game2D\bin\Debug\Game2D.pdb
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.csprojResolveAssemblyReference.cache
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.Form1.resources
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.Properties.Resources.resources
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\temp\CombineWar2\Game2D\obj\x86\Debug\Game2D.csproj.GenerateResource.Cache
+C:\Users\Brandstein\Documents\Visual Studio 2013\Projects\temp\CombineWar2\Game2D\obj\x86\Debug\MagicStorm.FormMain.resources
+C:\Users\Brandstein\Dropbox\Denis\temp\CombineWar2\Game2D\obj\x86\Debug\MagicStorm.FormMain.resources
+C:\Users\LightRay\Dropbox\Denis\temp\CombineWar2\Game2D\obj\x86\Debug\MagicStorm.FormMain.resources
+C:\Users\Brandstein\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\MagicStorm.FormMain.resources
+C:\Users\LightRay\Dropbox\Denis\CombineWar2\Game2D\bin\Debug\Game2D.exe
+C:\Users\LightRay\Dropbox\Denis\CombineWar2\Game2D\bin\Debug\Game2D.pdb
+C:\Users\LightRay\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.csprojResolveAssemblyReference.cache
+C:\Users\LightRay\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.Form1.resources
+C:\Users\LightRay\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\MagicStorm.FormMain.resources
+C:\Users\LightRay\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.Properties.Resources.resources
+C:\Users\LightRay\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.csproj.GenerateResource.Cache
+W:\Dropbox\Denis\CombineWar2\Game2D\bin\Debug\Game2D.exe.config
+W:\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.exe
+W:\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.pdb
+W:\Dropbox\Denis\CombineWar2\Game2D\bin\Debug\Game2D.exe
+W:\Dropbox\Denis\CombineWar2\Game2D\bin\Debug\Game2D.pdb
+W:\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.csprojResolveAssemblyReference.cache
+W:\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.Form1.resources
+W:\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\MagicStorm.FormMain.resources
+W:\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.Properties.Resources.resources
+W:\Dropbox\Denis\CombineWar2\Game2D\obj\x86\Debug\Game2D.csproj.GenerateResource.Cache
