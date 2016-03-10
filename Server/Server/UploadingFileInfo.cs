@@ -23,7 +23,7 @@ namespace Server
         public bool AddPartAndCheckFinish(byte[] part, int number)
         {
             bytes[number] = part;
-            bool finished = bytes.Count(x => x == null) == partCount;
+            bool finished = bytes.Count(x => x == null) == 0;
             return finished;
         }
        

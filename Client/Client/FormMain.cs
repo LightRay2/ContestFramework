@@ -1,10 +1,12 @@
 ﻿using Framework;
 using Microsoft.AspNet.SignalR.Client;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -35,6 +37,11 @@ namespace Client
             checkHumanOne.DataBindings.Add("Checked", settings, "FirstIsHuman");
             checkHumanTwo.DataBindings.Add("Checked", settings, "SecondIsHuman");
             edtFileToServer.DataBindings.Add("Text", settings, "FileToServer");
+            btnRefreshServer_Click(null, null);
+
+            btnAddGames.Visible = false;
+
+            grd.DataSource = gameList;
         }
 
         
@@ -74,11 +81,14 @@ namespace Client
             
         }
 
-        IHubProxy hubProxy;
+        public static IHubProxy hubProxy;
         int myIdOnServer = -1;
-        int myFielId = -1;
+        bool ImAdmin = false;
+        int uploadingFileIdOnServer = -1;
         byte[][] currentFile;
         int currentFilePart = 0;
+        List<ServerGame> gameList;
+        List<ServerPlayer> playerList;
         public void ConnectToServer()
         {
             HubConnection hubConnection;
@@ -86,16 +96,26 @@ namespace Client
             hubConnection = new HubConnection(settings.ServerAddress);
             hubProxy = hubConnection.CreateHubProxy("MainHub");
             hubProxy.On("hello", () => Invoke(new Action(() => this.Text = "Success")));
-            hubProxy.On("authorizeResult", (myId) => this.myIdOnServer = myId);
-            hubProxy.On("fileId", (myFileId) => UploadFileToServer(myFielId));
-            hubProxy.On("message", (text) => Invoke(new Action(() => this.edtServerMessages.Items.Add(text))));
-            
+            hubProxy.On("authorizeResult", new Action<int, bool>((myId, isAdmin) => { this.myIdOnServer = (int)myId; ImAdmin = isAdmin; this.Invoke(new Action(()=> btnAddGames.Visible = ImAdmin ));}));
+            hubProxy.On("fileId", (myFileId) => UploadFileToServer((int)myFileId));
+            hubProxy.On("message", (text) => AddServerMessage(text));
+            hubProxy.On("setRoomState", (x)=>{
+                gameList = JsonConvert.DeserializeObject<List<ServerGame>>(x.gameList.ToString());
+                playerList = JsonConvert.DeserializeObject<List<ServerPlayer>>(x.playerList.ToString());
+                this.Invoke(new Action(() => this.RefreshGameFrid()));
+            });
             //если тут вылез эксепшн, вероятно, Core.Config.serverAddress некорректен
             hubConnection.Start().Wait();
            // hubProxy.Invoke("Hello");
 
         }
 
+        public void AddServerMessage(string text)
+        {
+            text = DateTime.Now.ToShortTimeString() + ": " + text;
+            edtServerMessages.Invoke(new Action(() => 
+                this.edtServerMessages.Text = text+ Environment.NewLine+ this.edtServerMessages.Text ));
+        }
        
 
         private void btnRefreshServer_Click(object sender, EventArgs e)
@@ -112,13 +132,16 @@ namespace Client
 
         private void btnFileToServerDialog_Click(object sender, EventArgs e)
         {
-            
+            if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                settings.FileToServer = openFileDialog1.FileName;
+            }
 
         }
 
         private void UploadFileToServer(int myFielId)
         {
-            this.myFielId = myFielId;
+            this.uploadingFileIdOnServer = myFielId;
             for (int i = 0; i < currentFile.Length; i++)
             {
                 hubProxy.Invoke("LoadFilePart", myFielId, i, currentFile[i]);
@@ -158,13 +181,39 @@ namespace Client
         {
             if (frmEnterLoginAndPassword.e.ShowDialog(settings.ServerLogin, settings.ServerPassword) == System.Windows.Forms.DialogResult.OK)
             {
-                settings.ServerLogin = frmEnterLoginAndPassword.login;
-                settings.ServerPassword = frmEnterLoginAndPassword.password;
+                settings.ServerLogin = frmEnterLoginAndPassword.e.login;
+                settings.ServerPassword = frmEnterLoginAndPassword.e.password;
             }
         }
 
-        
+        private void btnAddGames_Click(object sender, EventArgs e)
+        {
+            frmCreateGamesOnServer.e.ShowDialog(playerList.Select(x => Tuple.Create(x.Id, x.fileName)).ToList(), this);
+        }
 
+        private void edtRefreshRoom_Click(object sender, EventArgs e)
+        {
+            hubProxy.Invoke("GetRoomState", 0);
+            AddServerMessage("Обновление...");
+           
+        }
+
+        void RefreshGameFrid()
+        {
+            grd.DataSource = gameList;
+            grd.Refresh();
+
+
+        }
+
+        private void btnConnectToGame_Click(object sender, EventArgs e)
+        {
+            if(grd.SelectedRows.Count == 0)
+                return;
+            int id = (grd.SelectedRows[0].DataBoundItem as ServerGame).Id;
+            hubProxy.Invoke("ConnectToGame", id);
+            AddServerMessage("Подключение к игре ...");
+        }
         
     }
 }

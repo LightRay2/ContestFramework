@@ -26,7 +26,7 @@ namespace Client
             InitializeComponent();
         }
 
-        public static string login, password;
+        public string login, password;
 
         public DialogResult ShowDialog(string login, string password){
 
@@ -35,23 +35,23 @@ namespace Client
             var result = this.ShowDialog();
             if(result == System.Windows.Forms.DialogResult.OK)
             {
-                login = this.edtServerLogin.Text;
-                password = this.edtServerPassword.Text;
+                this.login = this.edtServerLogin.Text;
+                this.password = this.edtServerPassword.Text;
             }
             return result;
         }
 
-        private void btnOk_Click(object sender, EventArgs e)
-        {
-            this.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.Hide();
-        }
+        //private void btnOk_Click(object sender, EventArgs e)
+        //{
+        //    this.DialogResult = System.Windows.Forms.DialogResult.OK;
+        //    this.Hide();
+        //}
 
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.Hide();
-        }
+        //private void btnCancel_Click(object sender, EventArgs e)
+        //{
+        //    this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+        //    this.Hide();
+        //}
 
     }
 }

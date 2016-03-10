@@ -18,6 +18,11 @@ namespace Server
         {
             
         }
+
+        public static void AddClientToGame(Client client, int gameId)
+        {
+            
+        }
     }
 
     public class RoomState

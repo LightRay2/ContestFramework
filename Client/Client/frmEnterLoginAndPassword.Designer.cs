@@ -34,6 +34,7 @@
             this.edtServerPassword = new System.Windows.Forms.TextBox();
             this.btnOk = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+
             this.SuspendLayout();
             // 
             // edtServerLogin
@@ -77,7 +78,8 @@
             this.btnOk.TabIndex = 4;
             this.btnOk.Text = "OK";
             this.btnOk.UseVisualStyleBackColor = true;
-            this.btnOk.Click += new System.EventHandler(this.btnOk_Click);
+           // this.btnOk.Click += new System.EventHandler(this.btnOk_Click);
+            this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
             // 
             // btnCancel
             // 
@@ -87,7 +89,8 @@
             this.btnCancel.TabIndex = 5;
             this.btnCancel.Text = "Отмена";
             this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            //this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             // 
             // frmEnterLoginAndPassword
             // 

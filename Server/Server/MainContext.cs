@@ -25,6 +25,7 @@ namespace Server
          public virtual DbSet<ServerGame> ServerGame { get; set; }
          public virtual DbSet<ServerPlayer> ServerPlayer { get; set; }
          public virtual DbSet<ServerUser> ServerUser { get; set; }
+        public virtual DbSet<ServerGameServerPlayer> ServerGameServerPlayer{get;set;}
     }
 
     //public class MyEntity

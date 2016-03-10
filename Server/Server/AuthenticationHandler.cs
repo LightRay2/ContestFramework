@@ -19,7 +19,7 @@ namespace Server
         {
             using (var db = new MainContext())
             {
-                var databaseUser = db.ServerUser.FirstOrDefault(x => x.Name == login && x.Password == password);
+                var databaseUser = db.ServerUser.FirstOrDefault(x => x.Name.ToLower() == login.ToLower() && x.Password == password);
                 if (databaseUser == null)
                     return false;
                 var client = new Client
