@@ -140,5 +140,10 @@ namespace Client
             }
             return turn;
         }
+
+        public string GetCurrentSituation(State state)
+        {
+            return "Сыграно ходов: " + state.roundNumber;
+        }
     }
 }

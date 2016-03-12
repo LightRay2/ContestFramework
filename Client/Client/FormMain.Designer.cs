@@ -57,6 +57,7 @@
             this.clmRoomName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmPlayers = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmState = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.btnDeleteGame = new System.Windows.Forms.Button();
             this.tabControl.SuspendLayout();
             this.tabLocal.SuspendLayout();
             this.tabServer.SuspendLayout();
@@ -176,6 +177,7 @@
             // tabServer
             // 
             this.tabServer.AutoScroll = true;
+            this.tabServer.Controls.Add(this.btnDeleteGame);
             this.tabServer.Controls.Add(this.btnConnectToGame);
             this.tabServer.Controls.Add(this.edtRefreshRoom);
             this.tabServer.Controls.Add(this.btnAddGames);
@@ -345,6 +347,16 @@
             this.clmState.Name = "clmState";
             this.clmState.ReadOnly = true;
             // 
+            // btnDeleteGame
+            // 
+            this.btnDeleteGame.Location = new System.Drawing.Point(278, 384);
+            this.btnDeleteGame.Name = "btnDeleteGame";
+            this.btnDeleteGame.Size = new System.Drawing.Size(196, 23);
+            this.btnDeleteGame.TabIndex = 15;
+            this.btnDeleteGame.Text = "Удалить выделенную игру";
+            this.btnDeleteGame.UseVisualStyleBackColor = true;
+            this.btnDeleteGame.Click += new System.EventHandler(this.btnDeleteGame_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -395,6 +407,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn clmPlayers;
         private System.Windows.Forms.DataGridViewTextBoxColumn clmState;
         private System.Windows.Forms.Button btnConnectToGame;
+        private System.Windows.Forms.Button btnDeleteGame;
     }
 }
 

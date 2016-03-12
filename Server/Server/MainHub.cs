@@ -7,6 +7,7 @@ using Framework;
 using System.Threading.Tasks;
 using System.IO;
 using System.Data.Entity;
+using Newtonsoft.Json;
 
 namespace Server
 {
@@ -111,7 +112,7 @@ namespace Server
             }
         }
 
-        public void AddGame(List<int> playerIdList, DateTime date)
+        public void AddGame(List<int> playerIdList, DateTime date, FormMainSettings settings)
         {
             var client = Manager.ClientList[Context.ConnectionId];
             if (client == null && client.IsAdmin == false)
@@ -123,9 +124,12 @@ namespace Server
                 var serverGame= new ServerGame{
                     DateStart = date,
                      Name = "игра",
-                      RoomId = -1
+                      RoomId = -1,
+                      StartSettings = settings,
+                      state = EServerGameState.waitForStart
                 };
-                
+                serverGame.StartSettings.SaveToFile = false;
+                settings.JavaPath = null; //todo server java path
               //  db.ServerGame.Add(serverGame);
                 int num = 0;
                 foreach (var id in playerIdList)
@@ -148,13 +152,63 @@ namespace Server
             Clients.Caller.message("Игра добавлена");
         }
 
+        public void RemoveGame(int gameId)
+        {
+            var client = Manager.ClientList[Context.ConnectionId];
+            if (client == null && client.IsAdmin == false)
+                return;
+
+            using (var db = new MainContext())
+            {
+                var game = db.ServerGame.Find(gameId);
+                if (game != null)
+                {
+                    db.ServerGame.Remove(game);
+                    db.SaveChanges();
+                    Clients.Caller.message("Игра удалена из базы данных");
+                }
+            }
+        }
+
         public void ConnectToGame(int gameId)
         {
             var client = Manager.ClientList[Context.ConnectionId];
             if (client == null && client.IsAdmin == false)
                 return;
 
-            Manager.AddClientToGame(client, gameId);
+            
+            
+                using (var db = new MainContext())
+                {
+                    var serverGame = db.ServerGame.Find(gameId);
+                    if (serverGame != null)
+                    {
+                        RunningGame game;
+                        if (serverGame.state == EServerGameState.running)
+                        {
+                            if( Manager.runningGames.TryGetValue(gameId, out game))
+                            {
+                                game.AddWatcher(client);
+                            }
+                        }
+                        else if (serverGame.state == EServerGameState.finish)
+                        {
+                            var allRounds = JsonConvert.DeserializeObject<List<object>>(serverGame.JsonGameData);
+                            int num = 0;
+                            foreach (var round in allRounds)
+                            {
+                                Clients.Caller.roundFinished(num, round);
+                                num++;
+                            }
+                        }
+                        else if(serverGame.state == EServerGameState.waitForStart)
+                        {
+                            Manager.clientListWaitingForGameStart.TryAdd( client,serverGame.Id); 
+                        }
+
+                    }
+                }
+            
             Clients.Caller.message("Вы присоединились к игре");
         }
     }

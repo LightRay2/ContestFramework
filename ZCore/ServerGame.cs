@@ -7,6 +7,7 @@ using System.Text;
 
 namespace Framework
 {
+    public enum EServerGameState { waitForStart, running, finish}
     public class ServerGame
     {
         public ServerGame(){
@@ -17,6 +18,7 @@ namespace Framework
 
         public string Name { get; set; }
         public DateTime DateStart { get; set; }
+        public EServerGameState state { get; set; }
 
         /// <summary>
         /// что-то, что сохраняется на каждом ходу и обновляется у клиентов, например , счет и текущий номер хода
@@ -34,5 +36,8 @@ namespace Framework
         public string participants { get { return string.Join(" - ", players.Select(x => x.fileName));}  }
        [JsonIgnore]
         public virtual ICollection<ServerGameServerPlayer> ServerGameServerPlayer { get; set; }
+
+        
+       public FormMainSettings StartSettings { get; set; }
     }
 }

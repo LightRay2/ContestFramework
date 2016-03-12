@@ -18,11 +18,13 @@ namespace Framework
     {
         public static Random  Rand= new Random();
         public static bool IsWorking = false;
-        public static bool TryRunAsSingleton(IGame<TState, TTurn, TRound, TPlayer> game, List<FormMainSettings> settings)
+        static ConcurrentDictionary<int, object> _roundsFromServer;
+        public static bool TryRunAsSingleton(IGame<TState, TTurn, TRound, TPlayer> game, List<FormMainSettings> settings, ConcurrentDictionary<int, object> roundsFromServer=null)
         {
             if (IsWorking)
                 return false;
             IsWorking = true;
+            _roundsFromServer = roundsFromServer;
 
             _instance = new GameCore<TState, TTurn, TRound, TPlayer>();
 
@@ -35,6 +37,7 @@ namespace Framework
             new Form1(_instance.Process).ShowDialog();
             return true;
         }
+
 
         static GameCore<TState, TTurn, TRound, TPlayer> _instance;
         static GameCore()
@@ -103,7 +106,22 @@ namespace Framework
             switch (phase)
             {
                 case EProcessPhase.getTurnsOfNextRound:
-                    bool nextRoundExists = allRounds.TryGetValue(_currentState.roundNumber, out _currentRound);
+                    bool nextRoundExists=false;
+                    if (_roundsFromServer == null)
+                    {
+                        nextRoundExists = allRounds.TryGetValue(_currentState.roundNumber, out _currentRound);
+                    }
+                    else
+                    {
+                        object tmp;
+                        if (_roundsFromServer.TryGetValue(_currentState.roundNumber, out tmp))
+                        {
+                            nextRoundExists = true;
+                        }
+                        _currentRound = (TRound)tmp;
+                    }
+                    
+                        
                     if (!nextRoundExists)
                     {
                         _currentRound = new TRound();
@@ -221,5 +239,45 @@ namespace Framework
             if (animationStage > 1)
                 animationStage = 1;
         }
+
+        public static string RunOnServerOrGetError(IGame<TState, TTurn, TRound, TPlayer> game, FormMainSettings settings, Action<object, string> RoundPlayed )
+        {
+            TState state = new TState();
+            state.roundNumber = -1;
+            state.Init(settings);
+
+            if (state.players.Count == 0)
+                return "Игра без игроков невозможна";
+
+            while(!state.GameFinished)
+            {
+                state.roundNumber++;
+                var round = new TRound();
+                round.Random = new System.Random(Rand.Next());
+                round.turns = new List<TTurn>();
+
+                List<TPlayer> order = game.GetTurnOrderForNextRound(state);
+                while(round.turns.Count < order.Count){
+                    TPlayer player = order[round.turns.Count];
+                    ExternalProgramExecuter epe =
+                                new ExternalProgramExecuter(player.programAddress, "input.txt", "output.txt", settings.JavaPath);
+
+                            string input = game.GetInputFile(state, player);
+                            string output;
+                            string comment;
+
+                            ExecuteResult res = epe.Execute(input, 2, out output, out comment);
+                            var turn = game.GetProgramTurn(state, player,output, res, comment);
+                            round.turns.Add(turn);
+                }
+                game.ProcessRound(ref state, round);
+
+                RoundPlayed(round, game.GetCurrentSituation(state));
+            }
+
+            return "Ok";
+        }
+
+        
     }
 }

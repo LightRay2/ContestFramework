@@ -15,6 +15,7 @@ namespace Framework
         public event PropertyChangedEventHandler PropertyChanged;
         static string saveLoadPath = Vars.RoamingPath + "MainFormSettings.xml";
         bool loading = true;
+        public bool SaveToFile = true;
         /// <summary>
         /// не нужно вызывать, лучше static LoadOrCreate
         /// </summary>
@@ -44,8 +45,11 @@ namespace Framework
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
-            bool success = Serialize.TryWriteToXmlFile<FormMainSettings>(saveLoadPath, this);
-            Log.CheckIfDebug(success);
+            if (SaveToFile)
+            {
+                bool success = Serialize.TryWriteToXmlFile<FormMainSettings>(saveLoadPath, this);
+                Log.CheckIfDebug(success);
+            }
         }
 
         // ================сами свойства===========================

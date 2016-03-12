@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Collections.Concurrent;
 
 namespace Client
 {
@@ -37,11 +38,16 @@ namespace Client
             checkHumanOne.DataBindings.Add("Checked", settings, "FirstIsHuman");
             checkHumanTwo.DataBindings.Add("Checked", settings, "SecondIsHuman");
             edtFileToServer.DataBindings.Add("Text", settings, "FileToServer");
-            btnRefreshServer_Click(null, null);
+          //  btnRefreshServer_Click(null, null);
 
-            btnAddGames.Visible = false;
+            
 
             grd.DataSource = gameList;
+        }
+
+        void SetAdminButtonsVisibility(bool visible)
+        {
+            btnAddGames.Visible = btnDeleteGame.Visible = visible;
         }
 
         
@@ -96,7 +102,7 @@ namespace Client
             hubConnection = new HubConnection(settings.ServerAddress);
             hubProxy = hubConnection.CreateHubProxy("MainHub");
             hubProxy.On("hello", () => Invoke(new Action(() => this.Text = "Success")));
-            hubProxy.On("authorizeResult", new Action<int, bool>((myId, isAdmin) => { this.myIdOnServer = (int)myId; ImAdmin = isAdmin; this.Invoke(new Action(()=> btnAddGames.Visible = ImAdmin ));}));
+            hubProxy.On("authorizeResult", new Action<int, bool>((myId, isAdmin) => { this.myIdOnServer = (int)myId; ImAdmin = isAdmin; this.Invoke(new Action(()=> SetAdminButtonsVisibility(isAdmin) ));}));
             hubProxy.On("fileId", (myFileId) => UploadFileToServer((int)myFileId));
             hubProxy.On("message", (text) => AddServerMessage(text));
             hubProxy.On("setRoomState", (x)=>{
@@ -104,11 +110,13 @@ namespace Client
                 playerList = JsonConvert.DeserializeObject<List<ServerPlayer>>(x.playerList.ToString());
                 this.Invoke(new Action(() => this.RefreshGameFrid()));
             });
+            hubProxy.On("roundFinished", new Action<int, int, dynamic>((gameId, roundNumber, x) => RoundFinished(JsonConvert.DeserializeObject<object>(x)));
             //если тут вылез эксепшн, вероятно, Core.Config.serverAddress некорректен
             hubConnection.Start().Wait();
            // hubProxy.Invoke("Hello");
 
         }
+
 
         public void AddServerMessage(string text)
         {
@@ -211,9 +219,35 @@ namespace Client
             if(grd.SelectedRows.Count == 0)
                 return;
             int id = (grd.SelectedRows[0].DataBoundItem as ServerGame).Id;
+            serverGameId = id;
+            roundsFromServer.Clear();
             hubProxy.Invoke("ConnectToGame", id);
             AddServerMessage("Подключение к игре ...");
         }
+
+        public void RunGameFromServer(ServerGame game)
+        {
+            game.StartSettings.JavaPath = settings.JavaPath;//todo javapath on client if needed !
+            GameCore<State, Turn, Round, Player>.TryRunAsSingleton(new Game(),new List<FormMainSettings>{ game.StartSettings}, roundsFromServer);
+        }
+
+        //todo remove played games
+        int serverGameId = -1;
+        ConcurrentDictionary<int, object> roundsFromServer = new ConcurrentDictionary<int, object>();
+        void RoundFinished(int gameId, int roundNumber, object round)
+        {
+            if (gameId != serverGameId)
+                return;
+            roundsFromServer.TryAdd(roundNumber, round);
+        }
+
+        private void btnDeleteGame_Click(object sender, EventArgs e)
+        {
+            int id = (grd.SelectedRows[0].DataBoundItem as ServerGame).Id;
+            hubProxy.Invoke("RemoveGame", id);
+        }
+
+        
         
     }
 }

@@ -12,6 +12,7 @@ namespace Server
             Client t;
             if (!Manager.ClientList.TryGetValue(hubConnectionId, out t))
                 return null;
+            t.connectionId = hubConnectionId;
             return t;
         }
 

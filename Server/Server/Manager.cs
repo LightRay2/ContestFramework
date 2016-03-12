@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Framework;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,38 +11,24 @@ namespace Server
     public class Manager
     {
         public static ConcurrentDictionary<string, Client> ClientList = new ConcurrentDictionary<string, Client>();
-        public static ConcurrentDictionary<int, GameState> runningGames =
-            new ConcurrentDictionary<int, GameState>();
+        public static ConcurrentDictionary<int, RunningGame> runningGames =
+            new ConcurrentDictionary<int, RunningGame>();
+        //todo повторное подключение = ошибка словаря?
+        /// <summary>
+        /// id игры
+        /// вынимать отсюда только после переключения состоние игра на Старт
+        /// </summary>
+        public static ConcurrentDictionary<Client, int> clientListWaitingForGameStart =
+            new ConcurrentDictionary<Client, int>(); //todo что делать, если игрок перезашел и уже не ждет игру?
 
         public static ConcurrentDictionary<int, UploadingFileInfo> uploadingFiles = new ConcurrentDictionary<int, UploadingFileInfo>();
 
-        public static void JoinGame(Client client, int gameId)
-        {
-            
-        }
+        public static Microsoft.AspNet.SignalR.IHubContext hubContext = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MainHub>();
 
-        public static void AddClientToGame(Client client, int gameId)
-        {
-            
-        }
+        
     }
 
-    public class RoomState
-    {
-        public int id { get; set; }
-        public string name { get; set; }
-        public List<GameState> games = new List<GameState>();
-    }
-
-    public class GameState
-    {
-        public int id { get; set; }
-        public List<Client> players = new List<Client>();
-        public DateTime DateStart { get; set; }
-        public string Name { get; set; }
-        public string GameInfo { get; set; }
-
-    }
+    
 
     public enum EClientState { none, watchGame }
     public class Client
@@ -53,6 +41,8 @@ namespace Server
         public string Name { get; set; }
 
         public bool IsAdmin { get; set; }
+
+        public string connectionId { get; set; }
     }
 
 }

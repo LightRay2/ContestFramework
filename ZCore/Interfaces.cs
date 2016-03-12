@@ -25,6 +25,7 @@ namespace Framework
         string GetInputFile(TState state, TPlayer player);
         TTurn TryGetHumanTurn(TState state, TPlayer player, IGetKeyboardState keyboard);
         TTurn GetProgramTurn(TState state, TPlayer player, string output, ExecuteResult executionResult, string exitCode);
+        string GetCurrentSituation(TState state);
     }
 
     public interface IState<TPlayer> where TPlayer : IPlayer
