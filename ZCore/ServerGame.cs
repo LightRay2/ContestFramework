@@ -33,11 +33,16 @@ namespace Framework
         public List<ServerPlayer> players { get; set; }
 
         [NotMapped]
-        public string participants { get { return string.Join(" - ", players.Select(x => x.fileName));}  }
+        public string participants { get { return ""; } } //todo // string.Join(" - ", players.Select(x => x.fileName)); } }
        [JsonIgnore]
         public virtual ICollection<ServerGameServerPlayer> ServerGameServerPlayer { get; set; }
 
-        
+        [NotMapped]
        public FormMainSettings StartSettings { get; set; }
+        [JsonIgnore]
+        public  string StartSettingsJson{
+            get{ return StartSettings == null? null: JsonConvert.SerializeObject(  StartSettings);}
+            set { StartSettings = value == null? null: JsonConvert.DeserializeObject<FormMainSettings>(value); }
+        }
     }
 }

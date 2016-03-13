@@ -122,9 +122,10 @@ namespace Client
         public Turn TryGetHumanTurn(State state, Player player, Framework.Opengl.IGetKeyboardState keyboard)
         {
             player.frameNumberHumanDoingTurn = state.frameNumber;
-            if (keyboard.GetActionTime(EKeyboardAction.Unit1) == 1)
+
+            if (GlInput.KeyTime(System.Windows.Forms.Keys.D1) == 1)
                 return new Turn { moveCount = 1 };
-            if (keyboard.GetActionTime(EKeyboardAction.Unit2) == 1)
+            if (GlInput.KeyTime(System.Windows.Forms.Keys.D2) == 1)
                 return new Turn { moveCount = 2 };
 
             return null;
@@ -143,7 +144,7 @@ namespace Client
 
         public string GetCurrentSituation(State state)
         {
-            return "Сыграно ходов: " + state.roundNumber;
+            return "Сыграно ходов: " + (state.roundNumber+1).ToString();
         }
     }
 }

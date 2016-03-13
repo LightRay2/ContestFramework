@@ -29,7 +29,7 @@ namespace Server
             using (var db = new MainContext())
             {
                 var time = DateTime.Now;
-                gamesToStart = db.ServerGame.Where(x => x.state == EServerGameState.waitForStart && x.DateStart >= time).ToList();
+                gamesToStart = db.ServerGame.Where(x => x.state == EServerGameState.waitForStart && x.DateStart <= time).ToList();
                 
                 //сначала запускаем, потом меняем состояние
                 foreach (var game in gamesToStart)

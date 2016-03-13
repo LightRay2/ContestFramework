@@ -41,6 +41,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Server\packages\Newtonsoft.Json.8.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>OpenGL\OpenTK\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK.GLControl, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>OpenGL\OpenTK\OpenTK.GLControl.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -91,6 +99,16 @@
     <Compile Include="OpenglFramework\MainController.cs" />
     <Compile Include="OpenglFramework\OpenglInitializer.cs" />
     <Compile Include="OpenglFramework\Painter.cs" />
+    <Compile Include="OpenGL\FramePainter.cs" />
+    <Compile Include="OpenGL\GameController.cs" />
+    <Compile Include="OpenGL\GameForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OpenGL\GameForm.Designer.cs">
+      <DependentUpon>GameForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OpenGL\GlInput.cs" />
+    <Compile Include="OpenGL\Initializer.cs" />
     <Compile Include="ServerGameServerPlayer.cs" />
     <Compile Include="ServerPlayer.cs" />
     <Compile Include="ServerUser.cs" />
@@ -107,6 +125,9 @@
   <ItemGroup>
     <EmbeddedResource Include="OpenglFramework\Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OpenGL\GameForm.resx">
+      <DependentUpon>GameForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +153,24 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="OpenglFramework\HowItWorks.txt" />
+    <Content Include="OpenGL\OpenTK\OpenTK.Compatibility.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="OpenGL\OpenTK\OpenTK.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="OpenGL\OpenTK\OpenTK.GLControl.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="OpenGL\OpenTK\OpenTK.GLControl.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="OpenGL\OpenTK\OpenTK.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="OpenGL\OpenTK\OpenTK.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ZHelper\ZHelper.csproj">

@@ -190,6 +190,7 @@ namespace Server
                             {
                                 game.AddWatcher(client);
                             }
+                            Clients.Caller.runGameFromServer(serverGame);
                         }
                         else if (serverGame.state == EServerGameState.finish)
                         {
@@ -197,13 +198,15 @@ namespace Server
                             int num = 0;
                             foreach (var round in allRounds)
                             {
-                                Clients.Caller.roundFinished(num, round);
+                                Clients.Caller.roundFinished(gameId, num, round);
                                 num++;
                             }
+                            Clients.Caller.runGameFromServer(serverGame);
                         }
                         else if(serverGame.state == EServerGameState.waitForStart)
                         {
                             Manager.clientListWaitingForGameStart.TryAdd( client,serverGame.Id); 
+                            //todo give him time
                         }
 
                     }

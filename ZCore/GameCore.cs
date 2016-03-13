@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections.Concurrent;
+using Newtonsoft.Json;
+using System.Windows.Forms;
 
 namespace Framework
 {
@@ -34,7 +36,10 @@ namespace Framework
             if (!_instance.TryRunNextGame())
                 return false;
 
-            new Form1(_instance.Process).ShowDialog();
+            var gameForm = new  GameForm(_instance.Process);
+            //todo keyboard
+            gameForm.FormClosed += new FormClosedEventHandler((o,e)=>IsWorking = false);
+            gameForm.ShowDialog();
             return true;
         }
 
@@ -118,7 +123,7 @@ namespace Framework
                         {
                             nextRoundExists = true;
                         }
-                        _currentRound = (TRound)tmp;
+                        _currentRound = JsonConvert.DeserializeObject<TRound> (tmp.ToString());
                     }
                     
                         

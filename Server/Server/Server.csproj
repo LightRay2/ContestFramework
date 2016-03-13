@@ -112,13 +112,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthenticationHandler.cs" />
-    <Compile Include="GameInSeparateThread.cs" />
     <Compile Include="MainContext.cs" />
     <Compile Include="MainHub.cs" />
     <Compile Include="Manager.cs" />
     <Compile Include="Migrations\201603101946414_one.cs" />
     <Compile Include="Migrations\201603101946414_one.Designer.cs">
       <DependentUpon>201603101946414_one.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201603131553245_two.cs" />
+    <Compile Include="Migrations\201603131553245_two.Designer.cs">
+      <DependentUpon>201603131553245_two.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="OWINStartup.cs" />
@@ -144,6 +147,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201603101946414_one.resx">
       <DependentUpon>201603101946414_one.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201603131553245_two.resx">
+      <DependentUpon>201603131553245_two.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

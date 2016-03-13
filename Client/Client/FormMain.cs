@@ -38,7 +38,7 @@ namespace Client
             checkHumanOne.DataBindings.Add("Checked", settings, "FirstIsHuman");
             checkHumanTwo.DataBindings.Add("Checked", settings, "SecondIsHuman");
             edtFileToServer.DataBindings.Add("Text", settings, "FileToServer");
-          //  btnRefreshServer_Click(null, null);
+            btnRefreshServer_Click(null, null);
 
             
 
@@ -95,6 +95,7 @@ namespace Client
         int currentFilePart = 0;
         List<ServerGame> gameList;
         List<ServerPlayer> playerList;
+        bool connectedToServer = false;
         public void ConnectToServer()
         {
             HubConnection hubConnection;
@@ -110,9 +111,18 @@ namespace Client
                 playerList = JsonConvert.DeserializeObject<List<ServerPlayer>>(x.playerList.ToString());
                 this.Invoke(new Action(() => this.RefreshGameFrid()));
             });
-            hubProxy.On("roundFinished", new Action<int, int, dynamic>((gameId, roundNumber, x) => RoundFinished(JsonConvert.DeserializeObject<object>(x)));
+            hubProxy.On("roundFinished", new Action<int, int, dynamic>((gameId, roundNumber, x) => RoundFinished(gameId, roundNumber,JsonConvert.DeserializeObject<object>(x.ToString()))));
+            hubProxy.On("runGameFromServer", (game) => RunGameFromServer(JsonConvert.DeserializeObject<ServerGame>(game.ToString())));
             //если тут вылез эксепшн, вероятно, Core.Config.serverAddress некорректен
-            hubConnection.Start().Wait();
+            try
+            {
+                connectedToServer = true;
+                hubConnection.Start().Wait();
+            }
+            catch (Exception ex)
+            {
+               // ZHelper.Log.LogOrThrow(ex);
+            }
            // hubProxy.Invoke("Hello");
 
         }
@@ -133,7 +143,8 @@ namespace Client
                 btmChangeLoginAndPassword_Click(null, null);
             }
             ConnectToServer();
-            hubProxy.Invoke("AuthorizeAndGetMyId", settings.ServerLogin, settings.ServerPassword );
+            if(connectedToServer )
+                hubProxy.Invoke("AuthorizeAndGetMyId", settings.ServerLogin, settings.ServerPassword );
         }
 
         
@@ -152,7 +163,8 @@ namespace Client
             this.uploadingFileIdOnServer = myFielId;
             for (int i = 0; i < currentFile.Length; i++)
             {
-                hubProxy.Invoke("LoadFilePart", myFielId, i, currentFile[i]);
+                if (connectedToServer)
+                    hubProxy.Invoke("LoadFilePart", myFielId, i, currentFile[i]);
             }
         }
 
@@ -179,7 +191,8 @@ namespace Client
 
                 }
 
-                hubProxy.Invoke("StartUploadingAndGetId", Path.GetFileName(settings.FileToServer), partCount);
+                if (connectedToServer)
+                    hubProxy.Invoke("StartUploadingAndGetId", Path.GetFileName(settings.FileToServer), partCount);
             }
             else
                 MessageBox.Show("Файл не найден");
@@ -196,12 +209,13 @@ namespace Client
 
         private void btnAddGames_Click(object sender, EventArgs e)
         {
-            frmCreateGamesOnServer.e.ShowDialog(playerList.Select(x => Tuple.Create(x.Id, x.fileName)).ToList(), this);
+            frmCreateGamesOnServer.e.ShowDialog(playerList.Select(x => Tuple.Create(x.Id, x.fileName, x)).ToList(), this);
         }
 
         private void edtRefreshRoom_Click(object sender, EventArgs e)
         {
-            hubProxy.Invoke("GetRoomState", 0);
+            if (connectedToServer)
+                hubProxy.Invoke("GetRoomState", 0);
             AddServerMessage("Обновление...");
            
         }
@@ -221,7 +235,8 @@ namespace Client
             int id = (grd.SelectedRows[0].DataBoundItem as ServerGame).Id;
             serverGameId = id;
             roundsFromServer.Clear();
-            hubProxy.Invoke("ConnectToGame", id);
+            if (connectedToServer)
+                hubProxy.Invoke("ConnectToGame", id);
             AddServerMessage("Подключение к игре ...");
         }
 
@@ -244,7 +259,8 @@ namespace Client
         private void btnDeleteGame_Click(object sender, EventArgs e)
         {
             int id = (grd.SelectedRows[0].DataBoundItem as ServerGame).Id;
-            hubProxy.Invoke("RemoveGame", id);
+            if (connectedToServer)
+                hubProxy.Invoke("RemoveGame", id);
         }
 
         

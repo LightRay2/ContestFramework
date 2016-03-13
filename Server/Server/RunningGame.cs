@@ -13,7 +13,7 @@ namespace Server
 {
     public class RunningGame
     {
-        public List<Client> watcherList;
+        public List<Client> watcherList = new List<Client>();
          int gameId;
         ConcurrentDictionary<int, object> roundList = new ConcurrentDictionary<int, object>();
 
@@ -73,7 +73,7 @@ namespace Server
                     if (game != null)
                     {
                         game.state = EServerGameState.finish;
-                        game.JsonGameData = JsonConvert.SerializeObject(this.roundList);
+                        game.JsonGameData = JsonConvert.SerializeObject(this.roundList.ToList().OrderBy(x=>x.Key).Select(x=>x.Value).ToList());
                         db.SaveChanges();
                     }
 
