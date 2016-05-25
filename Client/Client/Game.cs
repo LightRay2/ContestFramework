@@ -1,5 +1,6 @@
 ﻿using Framework;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -57,8 +58,15 @@ namespace Client
         public string name { get; set; }
         public long frameNumberHumanDoingTurn = -1;
     }
+    public class GameParams{
+
+    }
     public class Game : IGame<State, Turn, Round, Player>
     {
+        public void RunGame(object gameParams, ConcurrentDictionary<int, object> roundList = null)
+        {
+         //   GameCore<State, Turn, Round, Player>.TryRunAsSingleton(this, gameParams, roundList);
+        }
 
         public void DrawAll(ref Frame frame, State state, double stage, Framework.Opengl.IGetKeyboardState keyboard)
         {

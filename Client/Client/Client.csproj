@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+    <Compile Include="ContestApplication.cs" />
     <Compile Include="frmCreateGamesOnServer.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -72,8 +73,41 @@
       <DependentUpon>frmEnterLoginAndPassword.cs</DependentUpon>
     </Compile>
     <Compile Include="Game.cs" />
+    <Compile Include="FormState.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServerActions.cs" />
+    <Compile Include="ServerCall.cs" />
+    <Compile Include="StartForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StartForm.Designer.cs">
+      <DependentUpon>StartForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ucConnectServer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ucConnectServer.Designer.cs">
+      <DependentUpon>ucConnectServer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ucPlayerList.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ucPlayerList.Designer.cs">
+      <DependentUpon>ucPlayerList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ucRunGame - Copy.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ucRunGame - Copy.Designer.cs">
+      <DependentUpon>ucRunGame - Copy.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ucRunGame.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ucRunGame.Designer.cs">
+      <DependentUpon>ucRunGame.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="frmCreateGamesOnServer.resx">
       <DependentUpon>frmCreateGamesOnServer.cs</DependentUpon>
     </EmbeddedResource>
@@ -93,6 +127,21 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="StartForm.resx">
+      <DependentUpon>StartForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ucConnectServer.resx">
+      <DependentUpon>ucConnectServer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ucPlayerList.resx">
+      <DependentUpon>ucPlayerList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ucRunGame - Copy.resx">
+      <DependentUpon>ucRunGame - Copy.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ucRunGame.resx">
+      <DependentUpon>ucRunGame.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

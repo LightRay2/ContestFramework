@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="ClientClasses.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="ContestHelper.cs" />
     <Compile Include="ExternalProgramExecuter.cs" />
     <Compile Include="FormMainSettings.cs" />
     <Compile Include="FrameHelper.cs" />

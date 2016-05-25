@@ -39,6 +39,7 @@
             this.edtAddressTwo = new System.Windows.Forms.TextBox();
             this.edtAddressOne = new System.Windows.Forms.TextBox();
             this.tabServer = new System.Windows.Forms.TabPage();
+            this.btnDeleteGame = new System.Windows.Forms.Button();
             this.btnConnectToGame = new System.Windows.Forms.Button();
             this.edtRefreshRoom = new System.Windows.Forms.Button();
             this.btnAddGames = new System.Windows.Forms.Button();
@@ -57,7 +58,6 @@
             this.clmRoomName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmPlayers = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmState = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.btnDeleteGame = new System.Windows.Forms.Button();
             this.tabControl.SuspendLayout();
             this.tabLocal.SuspendLayout();
             this.tabServer.SuspendLayout();
@@ -199,6 +199,16 @@
             this.tabServer.Text = "Зайти на сервер";
             this.tabServer.UseVisualStyleBackColor = true;
             // 
+            // btnDeleteGame
+            // 
+            this.btnDeleteGame.Location = new System.Drawing.Point(278, 384);
+            this.btnDeleteGame.Name = "btnDeleteGame";
+            this.btnDeleteGame.Size = new System.Drawing.Size(196, 23);
+            this.btnDeleteGame.TabIndex = 15;
+            this.btnDeleteGame.Text = "Удалить выделенную игру";
+            this.btnDeleteGame.UseVisualStyleBackColor = true;
+            this.btnDeleteGame.Click += new System.EventHandler(this.btnDeleteGame_Click);
+            // 
             // btnConnectToGame
             // 
             this.btnConnectToGame.Location = new System.Drawing.Point(33, 384);
@@ -240,12 +250,14 @@
             // 
             // btmChangeLoginAndPassword
             // 
+            this.btmChangeLoginAndPassword.BackColor = System.Drawing.Color.Transparent;
+            this.btmChangeLoginAndPassword.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btmChangeLoginAndPassword.Location = new System.Drawing.Point(471, 14);
             this.btmChangeLoginAndPassword.Name = "btmChangeLoginAndPassword";
             this.btmChangeLoginAndPassword.Size = new System.Drawing.Size(75, 53);
             this.btmChangeLoginAndPassword.TabIndex = 10;
             this.btmChangeLoginAndPassword.Text = "Изменить имя и пароль";
-            this.btmChangeLoginAndPassword.UseVisualStyleBackColor = true;
+            this.btmChangeLoginAndPassword.UseVisualStyleBackColor = false;
             this.btmChangeLoginAndPassword.Click += new System.EventHandler(this.btmChangeLoginAndPassword_Click);
             // 
             // label2
@@ -346,16 +358,6 @@
             this.clmState.HeaderText = "Текущее состояние";
             this.clmState.Name = "clmState";
             this.clmState.ReadOnly = true;
-            // 
-            // btnDeleteGame
-            // 
-            this.btnDeleteGame.Location = new System.Drawing.Point(278, 384);
-            this.btnDeleteGame.Name = "btnDeleteGame";
-            this.btnDeleteGame.Size = new System.Drawing.Size(196, 23);
-            this.btnDeleteGame.TabIndex = 15;
-            this.btnDeleteGame.Text = "Удалить выделенную игру";
-            this.btnDeleteGame.UseVisualStyleBackColor = true;
-            this.btnDeleteGame.Click += new System.EventHandler(this.btnDeleteGame_Click);
             // 
             // FormMain
             // 

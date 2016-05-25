@@ -240,7 +240,7 @@ namespace Framework
        
         private void UpdateAnimationStage()
         {
-            animationStage += 1.0 / Vars.FramesPerTurn;
+            animationStage += 1.0 / FrameworkSettings.FramesPerTurn;
             if (animationStage > 1)
                 animationStage = 1;
         }

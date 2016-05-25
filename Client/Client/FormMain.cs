@@ -180,12 +180,12 @@ namespace Client
             {
                 currentFilePart = 0;
                 var allBytes = File.ReadAllBytes(settings.FileToServer);
-                int partCount = (int)Math.Ceiling((double)allBytes.Length / Vars.FileUploadBufferSize - 0.000000000001);
+                int partCount = (int)Math.Ceiling((double)allBytes.Length / FrameworkSettings.InnerSettings.FileUploadBufferSize - 0.000000000001);
                 currentFile = new byte[partCount][];
-                for (int i = 0; i < allBytes.Length; i += Vars.FileUploadBufferSize)
+                for (int i = 0; i < allBytes.Length; i += FrameworkSettings.InnerSettings.FileUploadBufferSize)
                 {
-                    int partNumber = i / Vars.FileUploadBufferSize;
-                    int size = Math.Min(Vars.FileUploadBufferSize, allBytes.Length - i);
+                    int partNumber = i / FrameworkSettings.InnerSettings.FileUploadBufferSize;
+                    int size = Math.Min(FrameworkSettings.InnerSettings.FileUploadBufferSize, allBytes.Length - i);
                     currentFile[partNumber] = new byte[size];
                     Array.Copy(allBytes, i, currentFile[partNumber], 0, size);
 
