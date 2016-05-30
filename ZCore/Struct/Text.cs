@@ -12,7 +12,7 @@ namespace Framework
         /// <summary>
         /// Позиция центра текста
         /// </summary>
-        public Vector2 pos;
+        public Vector2Old pos;
         /// <summary>
         /// ширина и высота всего текста
         /// </summary>
@@ -31,13 +31,13 @@ namespace Framework
             height = letterHeight * this.lines.Count;
             this.font = font;
 
-            pos = new Vector2(loc.x+width/2, loc.y+height/2, 0);
+            pos = new Vector2Old(loc.x+width/2, loc.y+height/2, 0);
         }
 
         /// <summary>
         /// Задается позиция центра, ширина и высота всего текста
         /// </summary>
-        public Text(EFont font, Vector2 pos, double textWidth, double textHeight, params string[] lines)
+        public Text(EFont font, Vector2Old pos, double textWidth, double textHeight, params string[] lines)
         {
             this.lines = new List<string>(lines);
             this.pos = pos;
@@ -49,9 +49,9 @@ namespace Framework
         /// <summary>
         /// Чтобы отрисовать, нужно сначала координаты сдвинуть и повернуть на pos
         /// </summary>
-        public List<Sprite> GetSpritesWithRelativePos()
+        public List<SpriteOld> GetSpritesWithRelativePos()
         {
-            List<Sprite> res = new List<Sprite>();
+            List<SpriteOld> res = new List<SpriteOld>();
             double letterWidth = width/maxLineLength();
             double letterHeight = height/lines.Count;
 
@@ -60,12 +60,12 @@ namespace Framework
                 {
                     if (Config.FontLetters.Contains(lines[i][j]))
                     {
-                        Vector2 translation = new Vector2(0,0,-width / 2 + j * letterWidth,
+                        Vector2Old translation = new Vector2Old(0,0,-width / 2 + j * letterWidth,
                             -height / 2 + i * letterHeight);
                         translation.Rotate(this.pos.angleDeg);
 
-                        Sprite toAdd = new Sprite(ESprite.end, letterWidth, letterHeight,
-                            new Vector2(pos.x+ translation.vx , pos.y+translation.vy, pos.angleDeg),
+                        SpriteOld toAdd = new SpriteOld(ESprite.end, letterWidth, letterHeight,
+                            new Vector2Old(pos.x+ translation.vx , pos.y+translation.vy, pos.angleDeg),
                             Config.FontLetters.IndexOf(lines[i][j]));
                         toAdd.texture = font.ToString();
                         /*

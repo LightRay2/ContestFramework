@@ -23,6 +23,8 @@ namespace Framework
 
         public int MatchAddLimitPerDay { get; set; }
 
-        public string PlayersSeparatedBySpace
+        public string UserIDSeparatedBySpace { get;set; }
+
+        
     }
 }

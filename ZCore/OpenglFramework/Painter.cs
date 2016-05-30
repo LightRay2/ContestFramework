@@ -24,7 +24,7 @@ namespace Framework.Opengl
             Gl.glRotated(-frame.camera.angleDeg, 0, 0,1);
             if (frame.sprites != null)
             {
-                foreach (Sprite sprite in frame.sprites.OrderBy(x=>Config.Sprites[x.name.ToString()].depth))
+                foreach (SpriteOld sprite in frame.sprites.OrderBy(x=>Config.Sprites[x.name.ToString()].depth))
                 {
                     Gl.glPushMatrix();
                     Gl.glTranslated(sprite.pos.x, sprite.pos.y, 0);
@@ -41,7 +41,7 @@ namespace Framework.Opengl
                     Gl.glPushMatrix();
                    // Gl.glTranslated(text.pos.x, text.pos.y, 0);
                     //Gl.glRotated(text.pos.angleDeg , 0, 0, 1);
-                    foreach (Sprite sprite in text.GetSpritesWithRelativePos())
+                    foreach (SpriteOld sprite in text.GetSpritesWithRelativePos())
                     {
 
                         Gl.glPushMatrix();
@@ -60,7 +60,7 @@ namespace Framework.Opengl
             Glut.glutSwapBuffers();
         }
 
-        private static void DrawTexture(Sprite sprite, int textureCode)
+        private static void DrawTexture(SpriteOld sprite, int textureCode)
         {
            // if (IsSpriteOutScreen(sprite)) return; наверное опенгл и сам это делает
 
@@ -90,7 +90,7 @@ namespace Framework.Opengl
 
         }
 
-        static bool IsSpriteOutScreen(Sprite sprite)
+        static bool IsSpriteOutScreen(SpriteOld sprite)
         {
             double radius = Math.Sqrt(sprite.width*sprite.width + sprite.height * sprite.height) / 2;
 

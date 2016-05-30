@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Board.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="ContestApplication.cs" />
     <Compile Include="frmCreateGamesOnServer.cs">

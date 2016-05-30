@@ -38,8 +38,6 @@ namespace Client
                 loadedSettings = new FormState();
             loadedSettings.loading = false;
 
-            //тут можно что то заполнить, если заполнено неверно
-
             return loadedSettings;
         }
 

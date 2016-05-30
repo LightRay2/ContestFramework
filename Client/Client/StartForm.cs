@@ -27,7 +27,7 @@ namespace Client
         {
            
 
-            FrameworkSettings.PlayersPerGame = 3;
+            FrameworkSettings.PlayersPerGame = 4;
             formState = FormState.LoadOrCreate();
 
             #region  data bindings to editors
@@ -45,6 +45,16 @@ namespace Client
                 }
             };
             refreshTimer.Start();
+
+            gvMatches.Rows.Add(DateTime.Now.AddMinutes(10), "Lightray - Inspiration", "24-12");
+            gvMatches.Rows.Add(DateTime.Now.AddMinutes(-1), "Lightray - abc04", "Идет 97 ход");
+            gvMatches.Rows.Add(DateTime.Now.AddMinutes(-10), "Lightray - Inspiration", "9-17"); 
+            gvMatches.Rows.Add(DateTime.Now.AddMinutes(-20), "Lightray - abc04", "3-5");
+
+            gvMatches.Rows[0].DefaultCellStyle.BackColor = Color.Bisque;
+            gvMatches.Rows[1].DefaultCellStyle.BackColor = Color.Khaki;
+            gvMatches.Rows[2].DefaultCellStyle.BackColor = Color.LightGreen;
+            gvMatches.Rows[3].DefaultCellStyle.BackColor = Color.LightGreen;
         }
         #endregion
 
@@ -230,7 +240,7 @@ namespace Client
         private void btnRun_Click(object sender, EventArgs e)
         {
             //todo run game and check java and count of programs
-
+            GameCore<State, Turn, Round, Player>.TryRunAsSingleton(new Board(), new List<object> { formState }, null);
             //after all
             formState.GameParamsList.Clear();
         }

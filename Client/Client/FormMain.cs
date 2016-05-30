@@ -81,9 +81,9 @@ namespace Client
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            GameCore<State, Turn, Round, Player>.TryRunAsSingleton(
-                new Game(),
-                new List<FormMainSettings> { settings });
+            //GameCore<State, Turn, Round, Player>.TryRunAsSingleton(
+            //    new Game(),
+            //    new List<FormMainSettings> { settings });
             
         }
 
@@ -243,7 +243,7 @@ namespace Client
         public void RunGameFromServer(ServerGame game)
         {
             game.StartSettings.JavaPath = settings.JavaPath;//todo javapath on client if needed !
-            GameCore<State, Turn, Round, Player>.TryRunAsSingleton(new Game(),new List<FormMainSettings>{ game.StartSettings}, roundsFromServer);
+            //GameCore<State, Turn, Round, Player>.TryRunAsSingleton(new Game(),new List<FormMainSettings>{ game.StartSettings}, roundsFromServer);
         }
 
         //todo remove played games

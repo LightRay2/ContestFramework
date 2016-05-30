@@ -4,13 +4,27 @@ using System.Linq;
 using System.Text;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using QuickFont;
+using System.Drawing;
+using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace Framework
 {
     class FramePainter
     {
-        public static void DrawFrame(Frame frame, Dictionary<string, int> spriteCodes)
+        static TextManager _textManager = new TextManager();
+        public static void DrawFrame(Control control, Frame frame, Dictionary<string, int> spriteCodes)
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadIdentity();
+            var rect = frame.cameraViewport;
+            GL.Ortho(rect.left, rect.right, rect.bottom, rect.top, -1, 1); // Bottom-left corner pixel has coordinate (0, 0)
+            GL.Rotate(frame.cameraRotationDeg, 0, 0, 1);
+     
+
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             GL.Enable(EnableCap.Texture2D);
@@ -20,11 +34,10 @@ namespace Framework
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadIdentity();
 
-            GL.Translate(-frame.camera.x, -frame.camera.y, 0);
-            GL.Rotate(-frame.camera.angleDeg, 0, 0, 1);
+            
             if (frame.sprites != null)
             {
-                foreach (Sprite sprite in frame.sprites.OrderBy(x => Config.Sprites[x.name.ToString()].depth))
+                foreach (SpriteOld sprite in frame.sprites.OrderBy(x => Config.Sprites[x.name.ToString()].depth))
                 {
                     GL.PushMatrix();
                     GL.Translate(sprite.pos.x, sprite.pos.y, 0);
@@ -41,7 +54,7 @@ namespace Framework
                     GL.PushMatrix();
                     // GL.Translated(text.pos.x, text.pos.y, 0);
                     //GL.Rotated(text.pos.angleDeg , 0, 0, 1);
-                    foreach (Sprite sprite in text.GetSpritesWithRelativePos())
+                    foreach (SpriteOld sprite in text.GetSpritesWithRelativePos())
                     {
 
                         GL.PushMatrix();
@@ -55,13 +68,24 @@ namespace Framework
                 }
             }
 
+
             GL.Disable(EnableCap.Texture2D);
 
+
+            QFont.Begin();
+            var fontState = _textManager.LoadOrCheckFont("Arial", 24, FontStyle.Regular, "Привет");
+            fontState.QFont.Options.Colour =Color.White;
+            fontState.QFont.Print("Привет", (Vector2)new Vector2d(0, 0));
+            //  var sizeOnbitmap = fontState.QFont.Measure(text.TextString);
+            //  var realSize = new Vector2d(sizeOnbitmap.Width / scale, sizeOnbitmap.Height / scale);
+            QFont.End();
             GL.Finish();
            // Glut.glutSwapBuffers();
+            double ms = stopwatch.ElapsedMilliseconds;
+            double ticks = stopwatch.ElapsedTicks;
         }
 
-        private static void DrawTexture(Sprite sprite, int textureCode)
+        private static void DrawTexture(SpriteOld sprite, int textureCode)
         {
             // if (IsSpriteOutScreen(sprite)) return; наверное опенгл и сам это делает
 

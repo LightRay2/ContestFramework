@@ -19,18 +19,18 @@ namespace Framework
         where TRound :IRound<TTurn,TPlayer>
 
     {
-        void DrawAll(ref Frame frame, TState state, double stage, IGetKeyboardState keyboard);
-        void ProcessRound(ref TState state, TRound round);
+        void DrawAll(Frame frame, TState state, double stage, IGetKeyboardState keyboard);
+        void ProcessRound(TState state, TRound round);
         List<TPlayer> GetTurnOrderForNextRound(TState state);
         string GetInputFile(TState state, TPlayer player);
         TTurn TryGetHumanTurn(TState state, TPlayer player, IGetKeyboardState keyboard);
-        TTurn GetProgramTurn(TState state, TPlayer player, string output, ExecuteResult executionResult, string exitCode);
+        TTurn GetProgramTurn(TState state, TPlayer player, string output, ExecuteResult executionResult, string executionResultRussianComment);
         string GetCurrentSituation(TState state);
     }
 
     public interface IState<TPlayer> where TPlayer : IPlayer
     {
-        void Init(FormMainSettings settings);
+        void Init(object settings);
         int roundNumber { get; set; }
         int frameNumber { get; set; }
         List<TPlayer> players { get; }

@@ -7,6 +7,7 @@ using System.Threading;
 
 namespace Framework
 {
+    //если добавляем, не забываем ниже
     public enum ExecuteResult
     {
         Ok,                // все хорошо
@@ -27,6 +28,24 @@ namespace Framework
 
     public class ExternalProgramExecuter
     {
+        public static int MAX_LENGTH_OF_OUTPUT_STRING = 10000;
+        public static string ExecuteResultToString(ExecuteResult result)
+        {
+            switch (result)
+            {
+                case ExecuteResult.Ok: return "OK";
+                case ExecuteResult.InternalError: return "ошибка в процессе выполнения внешней программы";
+                case ExecuteResult.TimeOut: return "слишком длительное время выполнения внешней программы";
+                case ExecuteResult.WriteInputError: return "шибка записи входных данных для внешней программы";
+                case ExecuteResult.NoOutput: return "отсутствует файл выходных данных";
+                case ExecuteResult.ReadOutputError: return "ошибка в процессе чтения выходных данных";
+                case ExecuteResult.EmptyOutput: return "пустой файл выходных данных";
+                case ExecuteResult.NotStarted: return "не удалось запустить внешнюю программу";
+                case ExecuteResult.OutputTooBig: return "слишком большой файл";
+                case ExecuteResult.OtherError: return "неизвестная ошибка";
+                default:return "неизвестная ошибка";
+            }
+        } 
         /*
           Интервал, с которым опрашивается состояние запущенного внешнего процесса (в миллисекундах)
         */
@@ -192,7 +211,7 @@ namespace Framework
                                 {
                                     if (outputFileContent == null || outputFileContent.Trim() == "")
                                         return ExecuteResult.EmptyOutput;
-                                    if (outputFileContent.Length > 10000)
+                                    if (outputFileContent.Length > MAX_LENGTH_OF_OUTPUT_STRING)
                                     {
                                         outputFileContent = "";
                                         return ExecuteResult.OutputTooBig;

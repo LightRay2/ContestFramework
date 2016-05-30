@@ -5,14 +5,14 @@ using System.Text;
 
 namespace Framework
 {
-    public struct Sprite
+    public struct SpriteOld
     {
 
         public ESprite name;
         public int frame;
         public int frameCount;
         public double width, height;
-        public Vector2 pos;
+        public Vector2Old pos;
 
         /// <summary>
         /// это поле менять не желательно, само выставится как надо
@@ -24,7 +24,7 @@ namespace Framework
         /// <param name="width">ширина</param>
         /// <param name="height">высота</param>
         /// <param name="pos">Где находится спрайт и угол поворота</param>
-        public Sprite(ESprite name, double width, double height, Vector2 pos, int frame=0)
+        public SpriteOld(ESprite name, double width, double height, Vector2Old pos, int frame=0)
         {
             if (name != ESprite.end)
                 this.frameCount = Config.Sprites[name.ToString()].horFrames *

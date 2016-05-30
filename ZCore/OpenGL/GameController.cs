@@ -54,7 +54,7 @@ namespace Framework
 
             GlInput.EveryFrameStartRefresh();
             Frame frame = _processMethod(_keyboardState);
-            FramePainter.DrawFrame(frame, _textureCodes);
+            FramePainter.DrawFrame(control, frame, _textureCodes);
             control.SwapBuffers();
 
             previousStateDrawed = true; //справились с рисованием

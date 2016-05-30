@@ -110,14 +110,21 @@
     </Compile>
     <Compile Include="OpenGL\GlInput.cs" />
     <Compile Include="OpenGL\Initializer.cs" />
+    <Compile Include="OpenGL\TextManager.cs" />
     <Compile Include="ServerGameServerPlayer.cs" />
     <Compile Include="ServerPlayer.cs" />
     <Compile Include="ServerUser.cs" />
     <Compile Include="Struct\Frame.cs" />
+    <Compile Include="Struct\GeometryExtensions.cs" />
+    <Compile Include="Struct\ISprite.cs" />
+    <Compile Include="Struct\ISpriteSpecial.cs" />
     <Compile Include="Struct\Point2.cs" />
-    <Compile Include="Struct\Sprite.cs" />
+    <Compile Include="Struct\Rect.cs" />
+    <Compile Include="Struct\SpecialDraw.cs" />
+    <Compile Include="Struct\SpriteList.cs" />
+    <Compile Include="Struct\SpriteOld.cs" />
     <Compile Include="Struct\Text.cs" />
-    <Compile Include="Struct\Vector2.cs" />
+    <Compile Include="Struct\Vector2Old.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerGame.cs" />
     <Compile Include="ServerRoom.cs" />
@@ -174,6 +181,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\ECOCENTER\gis-proto\GIS-proto\QuickFont\QuickFont\QuickFont.csproj">
+      <Project>{bbece6fc-ef63-40f8-a734-a500d1dfc1af}</Project>
+      <Name>QuickFont</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ZHelper\ZHelper.csproj">
       <Project>{b70dd426-1112-4864-af44-62043cb55bc8}</Project>
       <Name>ZHelper</Name>

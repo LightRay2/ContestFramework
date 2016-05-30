@@ -21,7 +21,7 @@ namespace Framework
         public static Random  Rand= new Random();
         public static bool IsWorking = false;
         static ConcurrentDictionary<int, object> _roundsFromServer;
-        public static bool TryRunAsSingleton(IGame<TState, TTurn, TRound, TPlayer> game, List<FormMainSettings> settings, ConcurrentDictionary<int, object> roundsFromServer=null)
+        public static bool TryRunAsSingleton(IGame<TState, TTurn, TRound, TPlayer> game, List<object> settings, ConcurrentDictionary<int, object> roundsFromServer=null)
         {
             if (IsWorking)
                 return false;
@@ -54,7 +54,7 @@ namespace Framework
 
         int _currentGameNumber = -1;
         bool PauseButtonPressed = false;
-        List<FormMainSettings> _settings;
+        List<object> _settings;
         TRound _currentRound;
 
         ConcurrentDictionary<int, TRound> allRounds;
@@ -141,7 +141,7 @@ namespace Framework
                     }
                     break;
                 case EProcessPhase.processRound:
-                    _game.ProcessRound(ref _currentState, _currentRound);
+                    _game.ProcessRound(_currentState, _currentRound);
                     GoToPhase(EProcessPhase.waitUntilAnimationFinished);
                     return;
                 case EProcessPhase.waitUntilAnimationFinished:
@@ -194,14 +194,14 @@ namespace Framework
                         else
                         {
                             ExternalProgramExecuter epe =
-                                new ExternalProgramExecuter(player.programAddress, "input.txt", "output.txt", _settings[_currentGameNumber].JavaPath);
+                                new ExternalProgramExecuter(player.programAddress, "input.txt", "output.txt", null);//todo java path
 
                             string input = _game.GetInputFile(_currentState, player);
                             string output;
-                            string comment;
+                            string comment; //exitCode, нигде не используется
 
                             ExecuteResult res = epe.Execute(input, 2, out output, out comment);
-                            var turn = _game.GetProgramTurn(_currentState, player,output, res, comment);
+                            var turn = _game.GetProgramTurn(_currentState, player,output, res, ExternalProgramExecuter.ExecuteResultToString(res));
                             _currentRound.turns.Add(turn);
                         }
                     }
@@ -231,7 +231,7 @@ namespace Framework
             }
 
             Frame frame = new Frame();
-            _game.DrawAll(ref frame, _currentState, animationStage, keyboard);
+            _game.DrawAll(frame, _currentState, animationStage, keyboard);
             _currentState.frameNumber++;
             return frame;
         }
@@ -272,10 +272,10 @@ namespace Framework
                             string comment;
 
                             ExecuteResult res = epe.Execute(input, 2, out output, out comment);
-                            var turn = game.GetProgramTurn(state, player,output, res, comment);
+                            var turn = game.GetProgramTurn(state, player,output, res,  ExternalProgramExecuter.ExecuteResultToString(res));
                             round.turns.Add(turn);
                 }
-                game.ProcessRound(ref state, round);
+                game.ProcessRound(state, round);
 
                 RoundPlayed(round, game.GetCurrentSituation(state));
             }

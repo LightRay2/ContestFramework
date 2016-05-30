@@ -8,7 +8,7 @@ namespace Framework
     /// <summary>
     /// вектор с заданным началом, плюс реализованы вспомогательные функции
     /// </summary>
-    public struct Vector2
+    public struct Vector2Old
     {
         //координаты начала и вектор
         public double x, y, vx, vy ;
@@ -30,7 +30,7 @@ namespace Framework
         /// x,y - начало
         /// vx,vy - сам вектор
         /// </summary>
-        public Vector2(double x, double y, double vx, double vy)
+        public Vector2Old(double x, double y, double vx, double vy)
         {
             this.vx = vx;
             this.vy = vy;
@@ -40,7 +40,7 @@ namespace Framework
         /// <summary>
         /// задаем начало и направление(в градусах). Вектор будет храниться в нормализованном виде
         /// </summary>
-        public Vector2(double x, double y, double angleDeg=0)
+        public Vector2Old(double x, double y, double angleDeg=0)
         {
             this.x = x;
             this.y = y;
@@ -63,7 +63,7 @@ namespace Framework
         public void Rotate(double angleDeg)
         {
             double len = this.Length();
-            this = new Vector2(x, y, (this.angleDeg + angleDeg) % 360);
+            this = new Vector2Old(x, y, (this.angleDeg + angleDeg) % 360);
             vx *= len; vy *= len;
         }
         public double Length()
