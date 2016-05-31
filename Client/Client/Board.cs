@@ -1,4 +1,5 @@
 ﻿using Framework;
+using OpenTK;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -115,9 +116,17 @@ namespace Client
     }
     public class Board : IGame<State, Turn, Round, Player>
     {
+        enum EFont { small, big}
+        enum ESprite { board10, Design }
+        public void LoadSpritesAndFonts()
+        {
+            FontList.Load(EFont.small, "Arial", 12, Color.Azure, FontStyle.Strikeout, 1);
+            SpriteList.LoadDefaultSize(ESprite.board10);
+            SpriteList.LoadDefaultSize(ESprite.Design);
+        }
         public void RunGame(object gameParams, ConcurrentDictionary<int, object> roundList = null)
         {
-               GameCore<State, Turn, Round, Player>.TryRunAsSingleton(this, new List<object>(){ gameParams}, roundList);
+            GameCore<State, Turn, Round, Player>.TryRunAsSingleton(this, new List<object>(){ gameParams}, roundList);
         }
 
         public void DrawAll(Frame frame, State state, double stage, Framework.Opengl.IGetKeyboardState keyboard)
@@ -125,9 +134,13 @@ namespace Client
             //total 509 509
             //49 49
             //8 10 (x y)
-            frame.CameraViewport(-120, -120, 1040, 754);
-            frame.CameraRotation(30);
-            
+            frame.CameraViewport(800, 600);
+            frame.TextCustom(EFont.small, "маленький текст o k очень много текста длинный тест", new Vector2d(0.0, 0), new Vector2d(200, 200), Align.justify, 200);
+            frame.TextCustom(EFont.small, "маленький текст o k очень много текста длинный тест", new Vector2d(0.5, 0.5), new Vector2d(200, 200), Align.justify, 200, 3);
+            frame.TextCustom(EFont.small, "маленький текст o k очень много текста длинный тест", new Vector2d(1.0, 0.2), new Vector2d(200, 500), Align.justify, 200);
+          //  frame.SpriteCustom(ESprite.board10, 0, 0, 0, 0, 0, SpecialDraw.All(1, 1, 0, 2, 0.5));
+            frame.SpriteCustom(ESprite.Design, 0, 0, 0, 0, 0, SpecialDraw.All(1, 1, 0, 2, 0.5));
+
             //for (int i = 0; i < Config2.TileCount; i++)
             //{
             //    double x = 10 + i * Config2.TileSize;
@@ -404,6 +417,8 @@ namespace Client
                 turn.shortTotalComment = "Error";
             }
             return turn;
+
+            string r = "■ ►";
         }
 
         public string GetCurrentSituation(State state)

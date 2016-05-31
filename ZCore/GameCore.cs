@@ -37,6 +37,8 @@ namespace Framework
                 return false;
 
             var gameForm = new  GameForm(_instance.Process);
+            game.LoadSpritesAndFonts();
+
             //todo keyboard
             gameForm.FormClosed += new FormClosedEventHandler((o,e)=>IsWorking = false);
             gameForm.ShowDialog();

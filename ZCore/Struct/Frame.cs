@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using QuickFont;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,10 +7,12 @@ using System.Text;
 
 namespace Framework
 {
+    public enum Align { left, right, center, justify };
+    
     /// <summary>
     /// Кадр, который игра обязана вернуть контроллеру для отрисовки
     /// </summary>
-    public class Frame
+    public class Frame //todo скрыть все всопмогательное в неявный интерейс
     {
         public Rect2d cameraViewport = new Rect2d(0,0,800, 600);
         public double cameraRotationDeg;
@@ -61,6 +64,30 @@ namespace Framework
         {
             cameraRotationDeg = angleDegrees;
         }
+
+        //----text-----
+        public List<Tuple<Enum, string, Vector2d, Vector2d, QFontAlignment, double?, double?>> textList =
+            new List<Tuple<Enum, string, Vector2d, Vector2d, QFontAlignment, double?, double?>>();
+        public void TextTopLeft(Enum font, string text, Vector2d position, QFontAlignment align = QFontAlignment.Left, double? widthLimit = null, double? depth = null)
+        {
+            
+        }
+        public void TextTopLeft(Enum font, string text, double x, double y, double? widthLimit = null, double? depth = null)
+        {
+
+        }
+        public void TextBottomLeft(Enum font, string text, Vector2d position, double? widthLimit = null, double? depth = null)
+        {
+
+        }
+        public void TextCenter(Enum font, string text, Vector2d position, double? widthLimit = null, double? depth = null)
+        {
+
+        }
+        public void TextCustom(Enum font, string text, Vector2d origin, Vector2d position, Align align = Align.left, double? widthLimit = null, double? depth=null)
+        {
+            textList.Add(Tuple.Create(font, text, origin, position, (QFontAlignment)(int)align, widthLimit, depth));
+        }
         //-------------------------------
 
         public void SpriteTopLeft(ISprite sprite){}
@@ -85,16 +112,7 @@ namespace Framework
         public void SpriteBottomLeft(Enum sprite, Vector2d position, Vector2d direction) { }
         public void SpriteBottomLeft(Enum sprite, Vector2d position, double angleInDegrees, SpecialDraw specialDraw) { }
 
-        public void SpriteCustomPoint(double originPointX, double originPointY, ISprite sprite) { }
-        public void SpriteCustomPoint(double originPointX, double originPointY, ISpriteSpecial sprite) { }
-        public void SpriteCustomPoint(Enum sprite, double originPointX, double originPointY, double x, double y) { }
-        public void SpriteCustomPoint(Enum sprite, double originPointX, double originPointY, double x, double y, double angleInDegrees) { }
-        public void SpriteCustomPoint(Enum sprite, double originPointX, double originPointY, double x, double y, Vector2d direction) { }
-        public void SpriteCustomPoint(Enum sprite, double originPointX, double originPointY, double x, double y, double angleInDegrees, SpecialDraw specialDraw) { }
-        public void SpriteCustomPoint(Enum sprite, double originPointX, double originPointY, Vector2d position) { }
-        public void SpriteCustomPoint(Enum sprite, double originPointX, double originPointY, Vector2d position, double angleInDegrees) { }
-        public void SpriteCustomPoint(Enum sprite, double originPointX, double originPointY, Vector2d position, Vector2d direction) { }
-        public void SpriteCustomPoint(Enum sprite, double originPointX, double originPointY, Vector2d position, double angleInDegrees, SpecialDraw specialDraw) { }
+        
 
         public void SpriteCenter(ISprite sprite) { }
         public void SpriteCenter(ISpriteSpecial sprite) { }
@@ -113,6 +131,22 @@ namespace Framework
             if(specialDraw != null){
 
             }
+        }
+
+        public void SpriteCustom(double originPointX, double originPointY, ISprite sprite) { }
+        public void SpriteCustom(double originPointX, double originPointY, ISpriteSpecial sprite) { }
+        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y) { }
+        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y, double angleInDegrees) { }
+        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y, Vector2d direction) { }
+        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position, double angleInDegrees, SpecialDraw specialDraw) { }
+        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position) { }
+        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position, double angleInDegrees) { }
+        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position, Vector2d direction) { }
+        public List<Tuple<Enum, Vector2d, Vector2d, double, SpecialDraw>> spriteList
+            = new List<Tuple<Enum, Vector2d, Vector2d, double, SpecialDraw>>();
+        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y, double angleInDegrees, SpecialDraw specialDraw) 
+        {
+            spriteList.Add(Tuple.Create(sprite, new Vector2d(originPointX, originPointY), new Vector2d(x,y),angleInDegrees, specialDraw));
         }
 
     }

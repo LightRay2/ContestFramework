@@ -19,6 +19,7 @@ namespace Framework
         where TRound :IRound<TTurn,TPlayer>
 
     {
+        void LoadSpritesAndFonts();
         void DrawAll(Frame frame, TState state, double stage, IGetKeyboardState keyboard);
         void ProcessRound(TState state, TRound round);
         List<TPlayer> GetTurnOrderForNextRound(TState state);

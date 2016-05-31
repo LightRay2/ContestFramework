@@ -114,6 +114,7 @@
     <Compile Include="ServerGameServerPlayer.cs" />
     <Compile Include="ServerPlayer.cs" />
     <Compile Include="ServerUser.cs" />
+    <Compile Include="Struct\FontList.cs" />
     <Compile Include="Struct\Frame.cs" />
     <Compile Include="Struct\GeometryExtensions.cs" />
     <Compile Include="Struct\ISprite.cs" />

@@ -6,6 +6,9 @@ using System.Text;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Windows.Forms;
+using System.Drawing.Drawing2D;
+using System.IO;
 
 namespace Framework
 {
@@ -27,13 +30,40 @@ namespace Framework
                  control.Width, control.Height); // Use all of the glControl painting area
         }
 
-        public static Dictionary<string, int> LoadTextures()
+        public static void LoadTextures(Dictionary<Enum, SpriteList> dict)
+        {
+            var availableFormats = new string[] { "BMP", "GIF", "EXIG", "JPG", "PNG", "TIFF" };
+            var pathList = new List<string>();
+            foreach (var format in availableFormats)
+            {
+                pathList.AddRange(System.IO.Directory.GetFiles(Application.StartupPath, "*." + format.ToLower(), System.IO.SearchOption.AllDirectories));
+            }
+            //todo потестить большими и маленькими буквами разширение
+           
+            foreach (var item in dict.ToList()) //todo реализовать поддержку гифок
+            {
+                var path = pathList
+                    .FirstOrDefault(p=> Path.GetFileNameWithoutExtension(p) ==item.Key.ToString());
+                if(path == null)
+                    throw new Exception(string.Format("Файл с именем {0} не найден в директории приложения и поддиректориях. Разрешенные форматы изображений: BMP, GIF, EXIG, JPG, PNG and TIFF"));
+                
+                Vector2d realSize, loadedSize;
+                int texNumber = LoadTexture(path, out realSize, out loadedSize);
+                item.Value.InitialSize = realSize;
+                item.Value.ScaleToPowerOf2 = loadedSize.DivEach(realSize);
+                item.Value.OpenglTexture = texNumber;
+                dict.Remove(item.Key);
+                dict.Add(item.Key, item.Value);
+            }
+        }
+
+        public static Dictionary<string, int> LoadTexturesOld()
         {
             Dictionary<string, int> res = new Dictionary<string, int>();
             foreach (var tex in Config.Sprites)
             {
-                Vector2d realSize; //todo что нибудь с этим сделать
-                int code = LoadTexture(Config.Sprites[tex.Key].file, out realSize);
+                Vector2d realSize, loadedSize; //todo что нибудь с этим сделать
+                int code = LoadTexture(Config.Sprites[tex.Key].file, out realSize,out loadedSize);
                 if (code != -1) res.Add(tex.Key, code);
             }
             return res;
@@ -41,7 +71,7 @@ namespace Framework
         #endregion
 
         #region private texture load and make
-        public static int LoadTexture(string filename, out Vector2d realSize)
+        public static int LoadTexture(string filename, out Vector2d realSize, out Vector2d loadedSize)
         {
             if (String.IsNullOrEmpty(filename))
                 throw new ArgumentException(filename);
@@ -55,9 +85,17 @@ namespace Framework
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
 
-            Bitmap bmp = LoadAsArgb(filename);
+            var powersOf2 = new List<int>{2};
+            for(int i =0; i  < 20 ; i++) powersOf2.Add(powersOf2.Last() * 2);
+
+            Bitmap unstretchedBmp = LoadAsArgb(filename);
+            realSize = new Vector2d(unstretchedBmp.Width, unstretchedBmp.Height);
+            var bmp = ResizeImage(unstretchedBmp,
+                powersOf2.Min(x => x < unstretchedBmp.Width ? int.MaxValue : x),
+                powersOf2.Min(x => x < unstretchedBmp.Height ? int.MaxValue : x));
             bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
-            realSize = new Vector2d(bmp.Width, bmp.Height);
+
+            loadedSize = new Vector2d(bmp.Width, bmp.Height);
 
             BitmapData bmp_data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
@@ -84,7 +122,37 @@ namespace Framework
         }
 
 
-       
+        /// <summary>
+        /// Resize the image to the specified width and height.
+        /// </summary>
+        /// <param name="image">The image to resize.</param>
+        /// <param name="width">The width to resize to.</param>
+        /// <param name="height">The height to resize to.</param>
+        /// <returns>The resized image.</returns>
+        public static Bitmap ResizeImage(Image image, int width, int height)
+        {
+            var destRect = new Rectangle(0, 0, width, height);
+            var destImage = new Bitmap(width, height);
+
+            destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+            using (var graphics = Graphics.FromImage(destImage))
+            {
+                graphics.CompositingMode = CompositingMode.SourceCopy;
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                using (var wrapMode = new ImageAttributes())
+                {
+                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                    graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+                }
+            }
+
+            return destImage;
+        }
         #endregion
     }
 }

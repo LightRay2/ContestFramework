@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 
@@ -63,6 +64,11 @@ namespace Client
     //}
     public class Game : IGame<State, Turn, Round, Player>
     {
+        enum EFont { small, big }
+        public void LoadSpritesAndFonts()
+        {
+            FontList.Load(EFont.small, "Arial", 12, Color.Azure, FontStyle.Strikeout, 1);
+        }
         public void RunGame(object gameParams, ConcurrentDictionary<int, object> roundList = null)
         {
          //   GameCore<State, Turn, Round, Player>.TryRunAsSingleton(this, gameParams, roundList);

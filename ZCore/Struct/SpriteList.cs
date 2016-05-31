@@ -7,13 +7,15 @@ using System.Text;
 namespace Framework
 {
     
-    class SpriteList
+    public class SpriteList
     {
         public static Dictionary<Enum, SpriteList> All = new Dictionary<Enum, SpriteList>();
 
         public Enum SpriteEnum { get; set; }
-        public Vector2d Size { get; set; }
-        public int FrameCount { get; set; }
+        public Vector2d? Size { get; set; }
+        public Vector2d? ScaleFromOriginal { get; set; }
+        public int FrameCountHorizontal { get; set; }
+        public int FrameCountVertical { get; set; }
         public double Depth { get; set; }
         public double Opacity { get; set; }
 
@@ -29,61 +31,52 @@ namespace Framework
         public Vector2d ScaleToPowerOf2 { get; set; }
         public int OpenglTexture { get; set; }
         private SpriteList() { }
-        public static void Load(Enum sprite, Vector2d size, int frameCount=1 , double depth = 0, double opacity=0)
+        public static void LoadDefaultSize(Enum sprite, int frameCountHorizontal=1, int frameCountVertical=1 , double depth = 0, double opacity=0)
         {
             var s = new SpriteList();
-            var file = s.FindImageInProjectFolder(sprite.ToString());
-            s.LoadTexture(file);
+            s.SpriteEnum = sprite;
+            s.FrameCountHorizontal = frameCountHorizontal;
+            s.FrameCountVertical = frameCountVertical;
+            s.Depth = depth;
+            s.Opacity = opacity;
+            All.Add(sprite, s);
+        }
+
+        public static void LoadSetSize(Enum sprite, Vector2d size, int frameCountHorizontal = 1, int frameCountVertical = 1, double depth = 0, double opacity = 0)
+        {
+            var s = new SpriteList();
             s.SpriteEnum = sprite;
             s.Size = size;
-            s.FrameCount = frameCount;
+            s.FrameCountHorizontal = frameCountHorizontal;
+            s.FrameCountVertical = frameCountVertical;
             s.Depth = depth;
             s.Opacity = opacity;
             All.Add(sprite, s);
         }
 
-        public static void Load(Enum sprite, double scaleFromOriginal, int frameCount = 1, double depth = 0, double opacity = 0)
+        public static void LoadSetScale(Enum sprite, double scaleFromOriginal = 1, int frameCountHorizontal = 1, int frameCountVertical = 1, double depth = 0, double opacity = 0)
         {
             var s = new SpriteList();
-            var file = s.FindImageInProjectFolder(sprite.ToString());
-            s.LoadTexture(file);
             s.SpriteEnum = sprite;
-            s.Size = s.InitialSize * scaleFromOriginal;
-            s.FrameCount = frameCount;
+            s.ScaleFromOriginal = new Vector2d( scaleFromOriginal);
+            s.FrameCountHorizontal = frameCountHorizontal;
+            s.FrameCountVertical = frameCountVertical;
             s.Depth = depth;
             s.Opacity = opacity;
             All.Add(sprite, s);
         }
 
-        public static void Load(Enum sprite, Vector2 scaleFromOriginal, int frameCount = 1, double depth = 0, double opacity = 0)
+        public static void LoadSetScale(Enum sprite, Vector2d scaleFromOriginal, int frameCountHorizontal = 1, int frameCountVertical = 1, double depth = 0, double opacity = 0)
         {
             var s = new SpriteList();
-            var file = s.FindImageInProjectFolder(sprite.ToString());
-            s.LoadTexture(file);
             s.SpriteEnum = sprite;
-            s.Size = s.InitialSize.MultEach((Vector2d)scaleFromOriginal);
-            s.FrameCount = frameCount;
+            s.ScaleFromOriginal = scaleFromOriginal;
+            s.FrameCountHorizontal = frameCountHorizontal;
+            s.FrameCountVertical = frameCountVertical;
             s.Depth = depth;
             s.Opacity = opacity;
             All.Add(sprite, s);
         }
 
-
-
-        string FindImageInProjectFolder(string nameWithoutExtension)
-        {
-            return ""; //or throw
-        }
-
-        void LoadTexture(string file)
-        {
-
-           
-            InitialSize = new Vector2d(0);
-            ScaleToPowerOf2 = new Vector2d(0);
-            
-
-            OpenglTexture = 2;
-        }
     }
 }

@@ -25,15 +25,15 @@ namespace Framework
             this.opacity = opacity;
         }
 
-        public static SpecialDraw All(Vector2d? size,  int? frame, double? depth, double? opacity)
+        public static SpecialDraw All(Vector2d? size = null, int? frame = null, double? depth = null, double? opacity = null)
         {
             return new SpecialDraw(size, null, frame, depth, opacity);
         }
-        public static SpecialDraw All(double scaleSize, int? frame, double? depth, double? opacity)
+        public static SpecialDraw All(double scaleSize , int? frame = null, double? depth = null, double? opacity = null)
         {
             return new SpecialDraw(null, new Vector2d(scaleSize), frame, depth, opacity);
         }
-        public static SpecialDraw All(double scaleSizeX, double scaleSizeY , int? frame, double? depth, double? opacity)
+        public static SpecialDraw All(double scaleSizeX, double scaleSizeY, int? frame = null, double? depth = null, double? opacity = null)
         {
             return new SpecialDraw(null, new Vector2d(scaleSizeX, scaleSizeY), frame, depth, opacity);
         }

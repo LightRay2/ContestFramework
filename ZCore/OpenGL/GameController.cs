@@ -33,7 +33,11 @@ namespace Framework
             //инициализация openGL
             Initializer.SetupViewport(control);
             control.Resize += new EventHandler((o, e) => Initializer.SetupViewport(o as GLControl));
-            _textureCodes = Initializer.LoadTextures();
+
+            Initializer.LoadTextures(SpriteList.All);
+            //_textureCodes = Initializer.LoadTexturesOld();
+
+
 
             //игровой круг
             _loopTimer.Start();
