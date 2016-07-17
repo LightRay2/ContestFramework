@@ -5,14 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
+using System.Windows.Input;
 
 namespace Framework
 {
     //todo инпут при долгом рисовании, по 1 секунде кадр
     public class GlInput
     {
-        static Dictionary<Keys, int> keyTime; 
-        public static int KeyTime(Keys key){
+          Dictionary<Key, int> keyTime;
+        public   int KeyTime(Key key)
+        {
             if (!keyTime.Keys.Contains(key))
                 return 0;
             return keyTime[key];
@@ -20,33 +23,43 @@ namespace Framework
         /// <summary>
         /// если мышь снаружи, то последняя позиция
         /// </summary>
-        public static Vector2d Mouse;
-        public static Vector2d MouseRelative;
-        public static int _mousePhysicalX, _mousePhysicalY;
+        public   Vector2d Mouse;
+        public   Vector2d MouseRelative;
+        public   int _mousePhysicalX, _mousePhysicalY;
 
-        static int _leftMouseTime = -1, _rightMouseTime = -1, _middleMouseTime=-1;
-        public static int LeftMouseTime{get{return _leftMouseTime >=0? _leftMouseTime : 0;}}
-        public static int RightMouseTime { get { return _rightMouseTime >= 0 ? _rightMouseTime : 0; } }
-        public static int MiddleMouseTime { get { return _middleMouseTime >= 0 ? _middleMouseTime : 0; } }
-        public static bool MouseInside;
-        static bool _setMouseLeftUp, _setMouseRightUp, _setMouseMiddleUp;
-        public static bool LeftMouseUp, RightMouseUp, MiddleMouseUp;
+          int _leftMouseTime = -1, _rightMouseTime = -1, _middleMouseTime = -1;
+        public   int LeftMouseTime { get { return _leftMouseTime >= 0 ? _leftMouseTime : 0; } }
+        public   int RightMouseTime { get { return _rightMouseTime >= 0 ? _rightMouseTime : 0; } }
+        public   int MiddleMouseTime { get { return _middleMouseTime >= 0 ? _middleMouseTime : 0; } }
+        public   bool MouseInside;
+          bool _setMouseLeftUp, _setMouseRightUp, _setMouseMiddleUp;
+        public   bool LeftMouseUp, RightMouseUp, MiddleMouseUp;
         /// <summary>
         /// -1 0 1
         /// </summary>
-        public static int Wheel;//todo сильно зависит от фокуса
-        static Control _graphicControl;
-        private static int _setWheel;
+        public   int Wheel;//todo сильно зависит от фокуса
+          Control _graphicControl;
+        private   int _setWheel;
+        public   Rect2d CameraViewport = new Rect2d(0, 0, 800, 600);
 
-        
-        public static void EveryFrameStartRefresh()
+        public   void EveryFrameStartRefresh()
         {
             MouseRelative = new Vector2d((double)_mousePhysicalX / _graphicControl.Width,
                (double)_mousePhysicalY / _graphicControl.Height);
             Mouse = GetAbsoluteCoordByRelativeOnScreen(MouseRelative);
 
-            
-            keyTime = keyTime.ToDictionary(p => p.Key, v => v.Value + 1);
+            var allKeys = GetDownKeys().ToList();
+            var newDict = new Dictionary<Key, int>();
+            allKeys.ForEach(key =>
+            {
+                if (keyTime.ContainsKey(key))
+                    newDict[key] = keyTime[key] + 1;
+                else
+                    newDict[key] = 1;
+
+            });
+            keyTime = newDict;
+
             if (_leftMouseTime != -1)
                 _leftMouseTime++;
             if (_rightMouseTime != -1)
@@ -63,33 +76,70 @@ namespace Framework
             _setWheel = 0;
         }
 
-        public static Vector2d GetAbsoluteCoordByRelativeOnScreen(Vector2d relative)
+        public   Vector2d GetAbsoluteCoordByRelativeOnScreen(Vector2d relative)
         {
-            //todo
-           // return new Vector2d(relative.X * GlCore.WIDTH / Frame.cameraScale.X + Frame.cameraOrigin.X,
-             //    relative.Y * GlCore.HEIGHT / Frame.cameraScale.Y + Frame.cameraOrigin.Y);
-            return new Vector2d(relative.X * Config.ScreenWidth,
-                 relative.Y * Config.ScreenHeight);
+            //todo не учитывается угол поворота
+            // return new Vector2d(relative.X * GlCore.WIDTH / Frame.cameraScale.X + Frame.cameraOrigin.X,
+            //    relative.Y * GlCore.HEIGHT / Frame.cameraScale.Y + Frame.cameraOrigin.Y);
+            return new Vector2d(relative.X * CameraViewport.size.X + CameraViewport.left,
+                 relative.Y * CameraViewport.size.Y + CameraViewport.top);
 
         }
 
-        public static void Init(Form form, Control graphicControl)
+        public   void Init(Form form, Control graphicControl)
         {
             form.KeyPreview = true;
-            form.KeyUp += form_KeyUp;
-            form.KeyDown += form_KeyDown;
+          //  form.KeyUp += form_KeyUp;
+           // form.KeyDown += form_KeyDown;
             form.MouseWheel += form_MouseWheel;
-            
+
             _graphicControl = graphicControl;
             _graphicControl.LostFocus += _graphicControl_LostFocus;
             _graphicControl.MouseMove += _graphicControl_MouseMove;
             _graphicControl.MouseLeave += _graphicControl_MouseLeave;
             _graphicControl.MouseDown += _graphicControl_MouseDown;
             _graphicControl.MouseUp += _graphicControl_MouseUp;
-            keyTime = new Dictionary<Keys, int>();
+            keyTime = new Dictionary<Key, int>();
         }
 
-        static void form_MouseWheel(object sender, MouseEventArgs e)
+        private   readonly byte[] DistinctVirtualKeys = Enumerable
+    .Range(0, 256)
+    .Select(KeyInterop.KeyFromVirtualKey)
+    .Where(item => item != Key.None)
+    .Distinct()
+    .Select(item => (byte)KeyInterop.VirtualKeyFromKey(item))
+    .ToArray();
+
+        /// <summary>
+        /// Gets all keys that are currently in the down state.
+        /// </summary>
+        /// <returns>
+        /// A collection of all keys that are currently in the down state.
+        /// </returns>
+        public   IEnumerable<Key> GetDownKeys()
+        {
+            var keyboardState = new byte[256];
+            GetKeyboardState(keyboardState);
+
+            var downKeys = new List<Key>();
+            for (var index = 0; index < DistinctVirtualKeys.Length; index++)
+            {
+                var virtualKey = DistinctVirtualKeys[index];
+                if ((keyboardState[virtualKey] & 0x80) != 0)
+                {
+                    downKeys.Add(KeyInterop.KeyFromVirtualKey(virtualKey));
+                }
+            }
+
+            return downKeys;
+        }
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static  extern bool GetKeyboardState(byte[] keyState);
+
+
+          void form_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (MouseInside)
             {
@@ -101,7 +151,7 @@ namespace Framework
         }
 
 
-        static void _graphicControl_MouseUp(object sender, MouseEventArgs e)
+          void _graphicControl_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
@@ -120,7 +170,7 @@ namespace Framework
             }
         }
 
-        static void _graphicControl_MouseDown(object sender, MouseEventArgs e)
+          void _graphicControl_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
                 _leftMouseTime = 0;
@@ -130,15 +180,15 @@ namespace Framework
                 _middleMouseTime = 0;
         }
 
-        
-        
 
-        static void _graphicControl_MouseLeave(object sender, EventArgs e)
+
+
+          void _graphicControl_MouseLeave(object sender, EventArgs e)
         {
             MouseInside = false;
         }
 
-        static void _graphicControl_MouseMove(object sender, MouseEventArgs e)
+          void _graphicControl_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             //todo recalc coord when wheel
             MouseInside = true;
@@ -146,22 +196,22 @@ namespace Framework
             _mousePhysicalY = e.Y;
         }
 
-        static void _graphicControl_LostFocus(object sender, EventArgs e)
+          void _graphicControl_LostFocus(object sender, EventArgs e)
         {
             keyTime.Clear();
         }
 
         //todo modifier keys
-        static void form_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (_graphicControl.Focused)
-                keyTime.Add(e.KeyCode,0);
-        }
+        //  void form_KeyDown(object sender, KeyEventArgs e)
+        //{
+        //    if (_graphicControl.Focused)
+        //        keyTime.Add(e.KeyCode, 0);
+        //}
 
-        static void form_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (_graphicControl.Focused)
-                keyTime.Remove(e.KeyData);
-        }
+        //  void form_KeyUp(object sender, KeyEventArgs e)
+        //{
+        //    if (_graphicControl.Focused)
+        //        keyTime.Remove(e.KeyData);
+        //}
     }
 }

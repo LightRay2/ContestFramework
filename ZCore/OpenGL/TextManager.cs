@@ -24,8 +24,9 @@ namespace Framework
         public Dictionary<Tuple<string, float, FontStyle>, FontState> LoadedFonts = new Dictionary<Tuple<string, float, FontStyle>, FontState>();
 
 
-        public FontState LoadOrCheckFont(string fontName, float emSize, FontStyle fontStyle, string text)
+        public FontState LoadOrCheckFont(string fontName, float emSize, FontStyle fontStyle, string textWithSpaces)
         {
+            string text = new string(textWithSpaces.Where(x => x != ' ').ToArray());
             //todo слишком большой emSize скушает много памяти
 
             bool needReload = false;
@@ -93,7 +94,7 @@ namespace Framework
                 fontBuildConfig.KerningConfig.KerningPairs =  fontState.AvailableLetterPairs;
                 fontBuildConfig.TextGenerationRenderHint = TextGenerationRenderHint.AntiAlias;
                 var font = new Font(fontName, emSize, fontStyle);
-
+                
                
                 fontState.QFont = new QFont(font,fontBuildConfig );
                 LoadedFonts.Add(key, fontState);

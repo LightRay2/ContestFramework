@@ -49,6 +49,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>OpenGL\OpenTK\OpenTK.GLControl.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -79,6 +80,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Libs\Tao.Platform.Windows.dll</HintPath>
     </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientClasses.cs" />
@@ -87,19 +89,9 @@
     <Compile Include="ExternalProgramExecuter.cs" />
     <Compile Include="FormMainSettings.cs" />
     <Compile Include="FrameHelper.cs" />
+    <Compile Include="GeomHelper.cs" />
     <Compile Include="Interfaces.cs" />
-    <Compile Include="OpenglFramework\Form1.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="OpenglFramework\Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
     <Compile Include="GameCore.cs" />
-    <Compile Include="OpenglFramework\IGetKeyboardState.cs" />
-    <Compile Include="OpenglFramework\KeyboardState.cs" />
-    <Compile Include="OpenglFramework\MainController.cs" />
-    <Compile Include="OpenglFramework\OpenglInitializer.cs" />
-    <Compile Include="OpenglFramework\Painter.cs" />
     <Compile Include="OpenGL\FramePainter.cs" />
     <Compile Include="OpenGL\GameController.cs" />
     <Compile Include="OpenGL\GameForm.cs">
@@ -114,6 +106,7 @@
     <Compile Include="ServerGameServerPlayer.cs" />
     <Compile Include="ServerPlayer.cs" />
     <Compile Include="ServerUser.cs" />
+    <Compile Include="Struct\Animator.cs" />
     <Compile Include="Struct\FontList.cs" />
     <Compile Include="Struct\Frame.cs" />
     <Compile Include="Struct\GeometryExtensions.cs" />
@@ -132,9 +125,6 @@
     <Compile Include="Vars.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="OpenglFramework\Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="OpenGL\GameForm.resx">
       <DependentUpon>GameForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -161,7 +151,6 @@
     <Content Include="Libs\Tao.Platform.Windows.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenglFramework\HowItWorks.txt" />
     <Content Include="OpenGL\OpenTK\OpenTK.Compatibility.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

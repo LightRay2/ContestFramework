@@ -38,7 +38,7 @@ namespace ZHelper
             TextReader reader = null;
             try
             {
-                var serializer = new XmlSerializer(typeof(T));
+                var serializer = XmlSerializer.FromTypes(new[] { typeof(T) })[0];// new XmlSerializer(typeof(T));
                 reader = new StreamReader(filePath);
                 returned = (T)serializer.Deserialize(reader);
             }

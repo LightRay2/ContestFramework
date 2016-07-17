@@ -6,7 +6,6 @@ using System.Windows;
 using System.Drawing;
 using System.Diagnostics;
 using OpenTK;
-using Framework.Opengl;
 
 namespace Framework
 {
@@ -20,14 +19,14 @@ namespace Framework
 
         GameForm _parentForm;
         GLControl control;
-        KeyboardState _keyboardState;
-        Func<IGetKeyboardState, Frame> _processMethod;
-        public GameController(GLControl control, Func<IGetKeyboardState, Frame> processMethod, GameForm gameForm)
+        GlInput _keyboardState;
+        Func<GlInput, Frame> _processMethod;
+        public GameController(GLControl control, Func<GlInput, Frame> processMethod, GameForm gameForm)
         {
             _parentForm = gameForm;
             this.control = control;
-            _keyboardState = new KeyboardState();
-            GlInput.Init(gameForm, control);
+            _keyboardState = new GlInput();
+            _keyboardState.Init(gameForm, control);
             _processMethod = processMethod;
 
             //инициализация openGL
@@ -56,8 +55,14 @@ namespace Framework
             if (!previousStateDrawed) return; //если вдруг не успели отрисоваться за время кадра, подождем следующего тика
              previousStateDrawed = false;
 
-            GlInput.EveryFrameStartRefresh();
+             _keyboardState.EveryFrameStartRefresh();
             Frame frame = _processMethod(_keyboardState);
+            //todo check if all sprites exist
+            _keyboardState.CameraViewport = (frame as IFramePainterInfo).cameraViewport;
+            if (Debugger.IsAttached)
+            {
+                _parentForm.Text = _keyboardState.Mouse.ToString() + " ( будет скрыто при запуске не из под студии ) ";
+            }
             FramePainter.DrawFrame(control, frame, _textureCodes);
             control.SwapBuffers();
 

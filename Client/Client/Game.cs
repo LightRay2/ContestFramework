@@ -62,7 +62,7 @@ namespace Client
     //public class GameParams{
 
     //}
-    public class Game : IGame<State, Turn, Round, Player>
+    public class Game //: IGame<State, Turn, Round, Player>
     {
         enum EFont { small, big }
         public void LoadSpritesAndFonts()
@@ -74,7 +74,7 @@ namespace Client
          //   GameCore<State, Turn, Round, Player>.TryRunAsSingleton(this, gameParams, roundList);
         }
 
-        public void DrawAll( Frame frame, State state, double stage, Framework.Opengl.IGetKeyboardState keyboard)
+        public void DrawAll( Frame frame, State state, double stage, GlInput keyboard)
         {
             //for(int i =0; i < Config2.TileCount; i++){
             //    double x = 10 + i*Config2.TileSize ;
@@ -136,7 +136,7 @@ namespace Client
             return "";
         }
 
-        public Turn TryGetHumanTurn(State state, Player player, Framework.Opengl.IGetKeyboardState keyboard)
+        public Turn TryGetHumanTurn(State state, Player player, GlInput keyboard)
         {
             //player.frameNumberHumanDoingTurn = state.frameNumber;
 

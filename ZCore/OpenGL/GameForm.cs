@@ -1,5 +1,4 @@
-﻿using Framework.Opengl;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,12 +11,26 @@ namespace Framework
 {
     public partial class GameForm : Form
     {
-        Func<IGetKeyboardState, Frame> _processMethod;
-        public GameForm(Func<IGetKeyboardState, Frame> processMethod)
+        Func<GlInput, Frame> _processMethod;
+        public GameForm(Func<GlInput, Frame> processMethod)
         {
             
             _processMethod = processMethod;
+            
             InitializeComponent();
+            if (!DesignMode)
+            {
+                this.glControl1 = new OpenTK.GLControl(new OpenTK.Graphics.GraphicsMode(32, 24, 8, 4), 1, 0, OpenTK.Graphics.GraphicsContextFlags.ForwardCompatible);
+                this.glControl1.BackColor = System.Drawing.Color.Black;
+                this.glControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+               // this.glControl1.Location = new System.Drawing.Point(0, 25);
+               // this.glControl1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+                this.glControl1.Name = "glControl1";
+              //  this.glControl1.Size = new System.Drawing.Size(928, 675);
+                this.glControl1.TabIndex = 0;
+                this.glControl1.VSync = false;
+                this.Controls.Add(this.glControl1);
+            }
         }
 
 

@@ -26,7 +26,7 @@ namespace Server
             
             new Thread(new ThreadStart(()=>{
 
-                string error = GameCore<State, Turn, Round, Player>.RunOnServerOrGetError(new Game(), game.StartSettings, RoundPlayed);
+                string error = null;//todo server GameCore<State, Turn, Round, Player>.RunOnServerOrGetError(new Game(), game.StartSettings, RoundPlayed);
 
                 if(error == "Ok")
                     this.GamePlayed();

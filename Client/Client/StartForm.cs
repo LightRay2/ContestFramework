@@ -55,6 +55,10 @@ namespace Client
             gvMatches.Rows[1].DefaultCellStyle.BackColor = Color.Khaki;
             gvMatches.Rows[2].DefaultCellStyle.BackColor = Color.LightGreen;
             gvMatches.Rows[3].DefaultCellStyle.BackColor = Color.LightGreen;
+
+            FrameworkSettings.InnerSettings.RunGameImmediately = true; //todo configuation path
+            if (FrameworkSettings.InnerSettings.RunGameImmediately)
+                btnRun_Click(null, null);
         }
         #endregion
 

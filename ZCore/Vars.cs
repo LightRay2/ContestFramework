@@ -16,6 +16,10 @@ namespace Framework
         {
             public int FileUploadBufferSize = 4096;
             public string RoamingPath;
+            /// <summary>
+            /// для дебага игры подходит
+            /// </summary>
+            public bool RunGameImmediately = false;
         }
 
         /// <summary>

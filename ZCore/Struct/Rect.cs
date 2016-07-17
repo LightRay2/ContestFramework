@@ -17,6 +17,7 @@ namespace OpenTK
         public Vector2d rightbottom { get { return new Vector2d(right, bottom); } set { right = value.X; bottom = value.Y; } }
         public Vector2d size { get { return rightbottom - lefttop; } set { rightbottom = lefttop + value; } }
         public List<Vector2d> points { get { return new List<Vector2d> { lefttop, righttop, rightbottom, leftbottom }; } }
+        public List<Vector2d> pointsClosed { get { return new List<Vector2d> { lefttop, righttop, rightbottom, leftbottom,lefttop }; } }
         public Rect2d(double x, double y, double width, double height)
         {
             this.left = x;
@@ -34,6 +35,9 @@ namespace OpenTK
         public Rect2d(double x, double y, Vector2d size) : this(new Vector2d(x,y), size){}
         public Rect2d(Vector2d origin, double width, double height) : this(origin, new Vector2d(width, height)) { }
         
+        public static Rect2d FromCenterAndSize(double centerX, double centerY, double width, double height){return Rect2d.FromCenterAndSize(new Vector2d(centerX, centerY), new Vector2d(width, height));}
+        public static Rect2d FromCenterAndSize(Vector2d center,  double width, double height){return Rect2d.FromCenterAndSize(center, new Vector2d(width, height));}
+        public static Rect2d FromCenterAndSize(double centerX, double centerY, Vector2d size) { return Rect2d.FromCenterAndSize(new Vector2d(centerX, centerY), size); }
         public static Rect2d FromCenterAndSize(Vector2d center, Vector2d size)
         {
             return new Rect2d(center - size / 2, size);

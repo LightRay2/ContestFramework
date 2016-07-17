@@ -84,6 +84,8 @@ namespace Framework
             // mipmaps automatically. In that case, use TextureMinFilter.LinearMipmapLinear to enable them.
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
 
             var powersOf2 = new List<int>{2};
             for(int i =0; i  < 20 ; i++) powersOf2.Add(powersOf2.Last() * 2);

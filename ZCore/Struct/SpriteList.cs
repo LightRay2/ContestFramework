@@ -31,7 +31,7 @@ namespace Framework
         public Vector2d ScaleToPowerOf2 { get; set; }
         public int OpenglTexture { get; set; }
         private SpriteList() { }
-        public static void LoadDefaultSize(Enum sprite, int frameCountHorizontal=1, int frameCountVertical=1 , double depth = 0, double opacity=0)
+        public static void LoadDefaultSize(Enum sprite, int frameCountHorizontal=1, int frameCountVertical=1 , double depth = 0, double opacity=1)
         {
             var s = new SpriteList();
             s.SpriteEnum = sprite;
@@ -42,7 +42,7 @@ namespace Framework
             All.Add(sprite, s);
         }
 
-        public static void LoadSetSize(Enum sprite, Vector2d size, int frameCountHorizontal = 1, int frameCountVertical = 1, double depth = 0, double opacity = 0)
+        public static void LoadSetSize(Enum sprite, Vector2d size, int frameCountHorizontal = 1, int frameCountVertical = 1, double depth = 0, double opacity = 1)
         {
             var s = new SpriteList();
             s.SpriteEnum = sprite;
@@ -54,7 +54,7 @@ namespace Framework
             All.Add(sprite, s);
         }
 
-        public static void LoadSetScale(Enum sprite, double scaleFromOriginal = 1, int frameCountHorizontal = 1, int frameCountVertical = 1, double depth = 0, double opacity = 0)
+        public static void LoadSetScale(Enum sprite, double scaleFromOriginal = 1, int frameCountHorizontal = 1, int frameCountVertical = 1, double depth = 0, double opacity = 1)
         {
             var s = new SpriteList();
             s.SpriteEnum = sprite;
@@ -66,7 +66,7 @@ namespace Framework
             All.Add(sprite, s);
         }
 
-        public static void LoadSetScale(Enum sprite, Vector2d scaleFromOriginal, int frameCountHorizontal = 1, int frameCountVertical = 1, double depth = 0, double opacity = 0)
+        public static void LoadSetScale(Enum sprite, Vector2d scaleFromOriginal, int frameCountHorizontal = 1, int frameCountVertical = 1, double depth = 0, double opacity = 1)
         {
             var s = new SpriteList();
             s.SpriteEnum = sprite;

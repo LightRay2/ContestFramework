@@ -57,11 +57,11 @@ namespace Framework
         }
         public static SpecialDraw Size(Vector2d size)
         {
-            return new SpecialDraw(null, size, null, null, null);
+            return new SpecialDraw(size, null, null, null, null);
         }
         public static SpecialDraw Size(double width, double height)
         {
-            return new SpecialDraw(null, new Vector2d(width, height), null, null, null);
+            return new SpecialDraw(new Vector2d(width, height), null, null, null, null);
         }
         /// <summary>
         /// масштаб по сравнению со стандартным (как если бы без SpecialDraw)
@@ -70,11 +70,11 @@ namespace Framework
         /// <returns></returns>
         public static SpecialDraw SizeScale(Vector2d scaleSize)
         {
-            return new SpecialDraw(scaleSize, null, null, null, null);
+            return new SpecialDraw(null, scaleSize, null, null, null);
         }
         public static SpecialDraw SizeScale(double scaleSizeX, double scaleSizeY)
         {
-            return new SpecialDraw(new Vector2d(scaleSizeX, scaleSizeY), null, null, null, null);
+            return new SpecialDraw(null, new Vector2d(scaleSizeX, scaleSizeY), null, null, null);
         }
         /// <summary>
         /// масштаб по сравнению со стандартным (как если бы без SpecialDraw)
@@ -83,7 +83,7 @@ namespace Framework
         /// <returns></returns>
         public static SpecialDraw SizeScale(double scaleSize)
         {
-            return new SpecialDraw(new Vector2d(scaleSize), null, null, null, null);
+            return new SpecialDraw(null, new Vector2d(scaleSize), null, null, null);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Framework
             get { return brightenFactor; }
             set { brightenFactor = Math.Min(4, Math.Max(1, value)); }
         }
-        public static void DrawFrame(Control control, Frame frame, Dictionary<string, int> spriteCodes)
+        public static void DrawFrame(Control control, IFramePainterInfo frame, Dictionary<string, int> spriteCodes)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -39,10 +39,14 @@ namespace Framework
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             //тут отвечаем только за глубину
+
+            //глубина, тип, индекс
             var everything = new List<Tuple<double, int, int>>();
             for (int i = 0; i < frame.spriteList.Count; i++ )
             {
                 var x = frame.spriteList[i];
+                if (SpriteList.All.ContainsKey(x.Item1) == false)
+                    throw new Exception("Спрайт с именем " + x.Item1.ToString() + " не добавлен при инициализации");
                 everything.Add(
                     Tuple.Create(x.Item5 != null && x.Item5.depth != null ? x.Item5.depth.Value : SpriteList.All[x.Item1].Depth,
                  0, i));
@@ -52,6 +56,20 @@ namespace Framework
                 everything.Add(
                 Tuple.Create(x.Item7 ?? FontList.All[x.Item1].depth,
                  1, i));
+            }
+            for (int i = 0; i < frame.polygonList.Count; i++)
+            {
+                var x = frame.polygonList[i];
+                everything.Add(
+                Tuple.Create(x.Item3,
+                 2, i));
+            }
+            for (int i = 0; i < frame.pathList.Count; i++)
+            {
+                var x = frame.pathList[i];
+                everything.Add(
+                Tuple.Create(x.Item3,
+                 3, i));
             }
 
             everything.Sort((a, b) =>
@@ -66,12 +84,17 @@ namespace Framework
                 else
                     return a.Item1.CompareTo(b.Item1);
             });
+
             foreach (var item in everything)
             {
                 if (item.Item2 == 0)
                     DrawSprite(frame, item.Item3);
                 else if (item.Item2 == 1)
                     DrawText(frame, item.Item3);
+                else if (item.Item2 == 2)
+                    DrawPolygon(frame.polygonList[item.Item3].Item1, frame.polygonList[item.Item3].Item2);
+                else if (item.Item2 == 3)
+                    DrawLineStrip(frame.pathList[item.Item3].Item1, frame.pathList[item.Item3].Item2, frame.pathList[item.Item3].Item4);
             }
 
             GL.Finish();
@@ -80,12 +103,11 @@ namespace Framework
             double ticks = stopwatch.ElapsedTicks;
         }
 
-        static void DrawSprite(Frame frame, int index)
+        static void DrawSprite(IFramePainterInfo frame, int index)
         {
             //prepare
             var sprite = frame.spriteList[index];
-            if(SpriteList.All.ContainsKey(sprite.Item1) == false)
-                throw new Exception("Спрайт с именем "+sprite.Item1.ToString() + " не добавлен при инициализации");
+            
             var settings = SpriteList.All[sprite.Item1];
             GL.Enable(EnableCap.Texture2D);
             GL.BindTexture(TextureTarget.Texture2D, settings.OpenglTexture);
@@ -95,7 +117,7 @@ namespace Framework
                 var opacity = sprite.Item5 == null || sprite.Item5.opacity == null? settings.Opacity : sprite.Item5.opacity.Value;
                 GL.Enable(EnableCap.Blend);
                 GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-                GL.Color4(sprite.Item5.opacity ?? 1,sprite.Item5.opacity ?? 1,sprite.Item5.opacity ?? 1,sprite.Item5.opacity ?? 1);
+                GL.Color4(opacity, opacity, opacity, opacity);
             }
             //go to position
             {
@@ -132,7 +154,7 @@ namespace Framework
                     size = settings.InitialSize;
 
                 //здесь размер точно не null
-                if(size == null && sprite.Item5 != null && sprite.Item5.scaleSize != null)
+                if(sprite.Item5 != null && sprite.Item5.scaleSize != null)
                     size = size.Value.MultEach(sprite.Item5.scaleSize.Value);
                 
                 var topLeft = -size.Value.MultEach(sprite.Item2);
@@ -185,25 +207,61 @@ namespace Framework
 
         }
 
-        static void DrawText(Frame frame, int index)
+        static void DrawText(IFramePainterInfo frame, int index)
         {
             QFont.Begin();
             var text = frame.textList[index];
             var font = FontList.All[text.Item1];
-            var fontState = _textManager.LoadOrCheckFont(font.fontFamily, (float)font.emSize, font.fontStyle, text.Item2);
-            fontState.QFont.Options.Colour = font.color;
-                
-            float maxWidth = text.Item6 == null ? float.MaxValue : (float)text.Item6.Value;
+            
+            //загружаем все шрифты размером 40 (для достаточной четкости), а потом растягиваем перед выводом
 
-            var sizeOnbitmap = fontState.QFont.Measure(text.Item2, maxWidth, text.Item5);
-            var realSize =(new Vector2d(sizeOnbitmap.Width, sizeOnbitmap.Height));// rect.size
+            float defaultEmSize = 40.0f;
+            var fontState = _textManager.LoadOrCheckFont(font.fontFamily, defaultEmSize /*(float)font.emSize*/, font.fontStyle, text.Item2);
+            fontState.QFont.Options.Colour = font.color;
+
+            double maxWidth = text.Item6 == null ? double.MaxValue : text.Item6.Value;
+
+            var fontInfo = new Font(font.fontFamily, defaultEmSize, font.fontStyle, GraphicsUnit.Pixel);
+            var fontHeight = fontInfo.Height;
+            double userWantsHeightInPixels = font.emSize;
+            double scale = userWantsHeightInPixels / fontInfo.Height;
+            double userWantsMaxWidthInPixels = maxWidth / scale; //* weHavePerPixel.X;
+            var sizeOnbitmap = fontState.QFont.Measure(text.Item2, (float)userWantsMaxWidthInPixels, text.Item5); //todo размер шрифта , если выбираем маленький вьюпорт, не тот
+            var realSize =(new Vector2d(sizeOnbitmap.Width, sizeOnbitmap.Height))*scale;// rect.size 
                 //.DivEach(new Vector2d(control.Width, control.Height))
                 //.MultEach(new Vector2d(sizeOnbitmap.Width, sizeOnbitmap.Height));
 
             //  if (maxWidth != null)
             //      maxWidth *= (rect.size.X / control.Width);
-            fontState.QFont.Print(text.Item2, maxWidth, text.Item5, (Vector2)(text.Item4 - text.Item3.MultEach(realSize)));
+           // GL.Scale()
+            GL.PushMatrix();
+            var pos = (text.Item4 - text.Item3.MultEach(realSize));
+            GL.Translate(pos.X, pos.Y , 0);
+            GL.Scale(scale, scale, 1);
+            fontState.QFont.Print(text.Item2, (float)userWantsMaxWidthInPixels, text.Item5);
+            GL.PopMatrix();
             QFont.End();
+        }
+
+        public static void DrawPolygon(List<Vector2d> points, Color color)
+        {
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+
+            GL.Begin(PrimitiveType.Polygon);
+            GL.Color4(color);
+            points.ForEach(p => GL.Vertex2((Vector2)p));
+            GL.End();
+        }
+
+        public static void DrawLineStrip(List<Vector2d> points, Color color, double lineWidth)
+        {
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+
+            GL.LineWidth((float)lineWidth);
+            GL.Begin(PrimitiveType.LineStrip);
+            GL.Color4(color);
+            points.ForEach(p => GL.Vertex2((Vector2)p));
+            GL.End();
         }
 
         private static void DrawTexture(SpriteOld sprite, int textureCode)
