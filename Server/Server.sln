@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{DC8838B8-FD4B-4A71-8BCC-F50F47B0D10A}"
 EndProject
@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZHelper", "..\ZHelper\ZHelp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZFramework", "..\ZCore\ZFramework.csproj", "{6798CE22-32A4-4813-A926-E808F868C9B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickFont", "..\..\ECOCENTER\gis-proto\GIS-proto\QuickFont\QuickFont\QuickFont.csproj", "{BBECE6FC-EF63-40F8-A734-A500D1DFC1AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickFont", "..\QuickFont\QuickFont\QuickFont.csproj", "{BBECE6FC-EF63-40F8-A734-A500D1DFC1AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

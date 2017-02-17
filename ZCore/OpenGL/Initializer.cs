@@ -45,7 +45,7 @@ namespace Framework
                 var path = pathList
                     .FirstOrDefault(p=> Path.GetFileNameWithoutExtension(p) ==item.Key.ToString());
                 if(path == null)
-                    throw new Exception(string.Format("Файл с именем {0} не найден в директории приложения и поддиректориях. Разрешенные форматы изображений: BMP, GIF, EXIG, JPG, PNG and TIFF"));
+                    throw new Exception(string.Format("Файл с именем {0} не найден в директории приложения и поддиректориях. Разрешенные форматы изображений: BMP, GIF, EXIG, JPG, PNG and TIFF", path));
                 
                 Vector2d realSize, loadedSize;
                 int texNumber = LoadTexture(path, out realSize, out loadedSize);

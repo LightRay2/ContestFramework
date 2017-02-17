@@ -163,15 +163,12 @@
     <Content Include="OpenGL\OpenTK\OpenTK.GLControl.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenGL\OpenTK\OpenTK.pdb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="OpenGL\OpenTK\OpenTK.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ECOCENTER\gis-proto\GIS-proto\QuickFont\QuickFont\QuickFont.csproj">
+    <ProjectReference Include="..\QuickFont\QuickFont\QuickFont.csproj">
       <Project>{bbece6fc-ef63-40f8-a734-a500d1dfc1af}</Project>
       <Name>QuickFont</Name>
     </ProjectReference>
