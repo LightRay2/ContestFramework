@@ -156,23 +156,23 @@ namespace Client
             FontList.Load(EFont.teamBig3, "Times New Roman", 27, Color.FromArgb(114, 91, 200), FontStyle.Bold);
             FontList.Load(EFont.teamBig4, "Times New Roman", 27, Color.FromArgb(150, 147, 61), FontStyle.Bold);
 
-            SpriteList.LoadSetSize(ESprite.board10, new Vector2d(431, 452));
-            SpriteList.LoadDefaultSize(ESprite.background);
-            SpriteList.LoadDefaultSize(ESprite.Design);
+            SpriteList.Load(ESprite.board10, defaultSizeExact:  new Vector2d(431, 452));
+         //   SpriteList.Load(ESprite.background);
+            SpriteList.Load(ESprite.Design);
 
-            SpriteList.LoadSetSize(ESprite.red, new Vector2d(40, 40));
-            SpriteList.LoadSetSize(ESprite.green, new Vector2d(40, 40));
-            SpriteList.LoadSetSize(ESprite.violet, new Vector2d(40, 40));
-            SpriteList.LoadSetSize(ESprite.yellow, new Vector2d(40, 40));
+            SpriteList.Load(ESprite.red, defaultSizeExact: new Vector2d(40, 40));
+            SpriteList.Load(ESprite.green, defaultSizeExact: new Vector2d(40, 40));
+            SpriteList.Load(ESprite.violet, defaultSizeExact: new Vector2d(40, 40));
+            SpriteList.Load(ESprite.yellow, defaultSizeExact: new Vector2d(40, 40));
 
-            SpriteList.LoadDefaultSize(ESprite.redRect);
-            SpriteList.LoadDefaultSize(ESprite.greenRect);
-            SpriteList.LoadDefaultSize(ESprite.violetRect);
-            SpriteList.LoadDefaultSize(ESprite.yellowRect);
+            SpriteList.Load(ESprite.redRect);
+            SpriteList.Load(ESprite.greenRect);
+            SpriteList.Load(ESprite.violetRect);
+            SpriteList.Load(ESprite.yellowRect);
 
-            SpriteList.LoadSetSize(ESprite.humanDestination, new Vector2d(43, 43));
-            SpriteList.LoadSetSize(ESprite.humanSource, new Vector2d(43, 43));
-            SpriteList.LoadSetSize(ESprite.humanPointer, new Vector2d(43, 43));
+            SpriteList.Load(ESprite.humanDestination, defaultSizeExact: new Vector2d(43, 43));
+            SpriteList.Load(ESprite.humanSource, defaultSizeExact: new Vector2d(43, 43));
+            SpriteList.Load(ESprite.humanPointer, defaultSizeExact: new Vector2d(43, 43));
         }
         public void RunGame(object gameParams, ConcurrentDictionary<int, object> roundList = null)
         {
@@ -183,6 +183,10 @@ namespace Client
 
         public void DrawAll(Frame frame, State state, double stage, double totalStage, bool humanMove, GlInput input)
         {
+            //you can preload sprites or not
+
+
+
             //total 509 509
             //49 49
             //8 10 (x y)
@@ -193,8 +197,7 @@ namespace Client
             //  frame.SpriteCustom(ESprite.board10, 0, 0, 0, 0, 0, SpecialDraw.All(1, 1, 0, 2, 0.5));
             //frame.SpriteCustom(ESprite.Design, 0.5, 0.5, 400, 400, 30, SpecialDraw.All(0.6, 0.6, 1, -2, 1));
 
-
-
+            
 
 
             var boardTopLeft = new Vector2d(66, 73);
@@ -205,12 +208,11 @@ namespace Client
             double teamNamesHeight = 45;
 
             //доска и шашки
-            frame.SpriteTopLeft(ESprite.background, 0, 0);
+            frame.SpriteCorner(ESprite.background, 0, 0);
 
 
 
-
-            frame.SpriteTopLeft(ESprite.board10, boardTopLeft);
+            frame.SpriteCorner(ESprite.board10, boardTopLeft);
             
 
             var firstTileCenter = corner + tileSize / 2;
@@ -234,7 +236,7 @@ namespace Client
                 state.teamTurn == 2 ? new Vector2d(2) :
                 new Vector2d(8, 2);
             
-            frame.SpriteCenter(spritePlayerRects[state.teamTurn], corner + tileSize.MultEach(center), SpecialDraw.All(tileSize * 4, opacity: 0.7));
+            frame.SpriteCenter(spritePlayerRects[state.teamTurn], corner + tileSize.MultEach(center), sizeExact: tileSize * 4, opacity: 0.7);
             
             
 
@@ -262,7 +264,7 @@ namespace Client
                         var to = firstTileCenter + tileSize.MultEach(PointToVector(state.RotatePoint(toPoint,  state.teamTurn,0)));
                         var position = from + (to - from) * curPartOfSingleMove;
                         frame.SpriteCenter(spritePlayers[player.team],
-                            position, SpecialDraw.Depth(1));//рисуем выше всех
+                            position, depth:1);//рисуем выше всех
                     }
                     else
                     {
@@ -279,7 +281,7 @@ namespace Client
             double fromBoardToFarthest = 62;
             double sideProtrusion = 40;
 
-            var boardSize = SpriteList.All[ESprite.board10].Size.Value;
+            var boardSize = SpriteList.All[ESprite.board10].DefaultDrawSettings.sizeExact.Value;
             
             Vector2d[] textPosition = new []{
                 boardTopLeft - new Vector2d(sideProtrusion, fromBoardToNearest),
@@ -340,12 +342,12 @@ namespace Client
                 var tileDestination = state.RotatePoint(state.players[state.teamTurn].humanDestination, 0, state.teamTurn);
                 if (state.players[state.teamTurn].humanSelectsDestination == true)
                 {
-                    frame.SpriteCenter(ESprite.humanSource, firstTileCenter + tileSize.MultEach(new Vector2d(tileSource.Y, tileSource.X)), SpecialDraw.Opacity(opacity));
-                    frame.SpriteCenter(ESprite.humanPointer, firstTileCenter + tileSize.MultEach(new Vector2d(tileDestination.Y, tileDestination.X)), SpecialDraw.Opacity(opacity));
+                    frame.SpriteCenter(ESprite.humanSource, firstTileCenter + tileSize.MultEach(new Vector2d(tileSource.Y, tileSource.X)), opacity:opacity);
+                    frame.SpriteCenter(ESprite.humanPointer, firstTileCenter + tileSize.MultEach(new Vector2d(tileDestination.Y, tileDestination.X)), opacity: opacity);
                 }
                 else
                 {
-                    frame.SpriteCenter(ESprite.humanPointer, firstTileCenter + tileSize.MultEach(new Vector2d(tileSource.Y, tileSource.X)), SpecialDraw.Opacity(opacity));
+                    frame.SpriteCenter(ESprite.humanPointer, firstTileCenter + tileSize.MultEach(new Vector2d(tileSource.Y, tileSource.X)), opacity:opacity);
 
                 }
 
@@ -354,7 +356,7 @@ namespace Client
                 if (state.field[tileSource.X, tileSource.Y] != null && state.field[tileSource.X, tileSource.Y].team == state.teamTurn)
                 {
                     var allPossible = GetAllPossibleDestinations(state.field, tileSource);
-                    allPossible.ForEach(p => frame.SpriteCenter(ESprite.humanDestination, firstTileCenter + tileSize.MultEach(new Vector2d(p.Y, p.X)), SpecialDraw.Opacity(opacity)));
+                    allPossible.ForEach(p => frame.SpriteCenter(ESprite.humanDestination, firstTileCenter + tileSize.MultEach(new Vector2d(p.Y, p.X)), opacity:opacity));
                 }
             }
 

@@ -14,7 +14,7 @@ namespace Framework
     {
         Rect2d cameraViewport { get; set; }
         double cameraRotationDeg { get; set; }
-        List<Tuple<Enum, Vector2d, Vector2d, double, SpecialDraw>> spriteList { get; set; }
+        List<SpriteDrawSettings> spriteList { get; set; }
         List<Tuple<Enum, string, Vector2d, Vector2d, QFontAlignment, double?, double?>> textList { get; set; }
         List<Tuple<List<Vector2d>, Color, double>> polygonList { get; set; }
         List<Tuple<List<Vector2d>, Color, double, double>> pathList { get; set; }
@@ -30,12 +30,12 @@ namespace Framework
             ((IFramePainterInfo)this).cameraRotationDeg = 0;
             ((IFramePainterInfo)this).pathList = new List<Tuple<List<Vector2d>,Color,double,double>>();
             ((IFramePainterInfo)this).polygonList = new List<Tuple<List<Vector2d>,Color,double>>();
-            ((IFramePainterInfo)this).spriteList = new List<Tuple<Enum,Vector2d,Vector2d,double,SpecialDraw>>();
+            ((IFramePainterInfo)this).spriteList = new List<SpriteDrawSettings>();
             ((IFramePainterInfo)this).textList = new List<Tuple<Enum, string, Vector2d, Vector2d, QFontAlignment, double?, double?>>();
         }
         Rect2d IFramePainterInfo.cameraViewport { get; set; }
         double IFramePainterInfo.cameraRotationDeg { get; set; }
-        List<Tuple<Enum, Vector2d, Vector2d, double, SpecialDraw>> IFramePainterInfo.spriteList { get; set; }
+        List<SpriteDrawSettings> IFramePainterInfo.spriteList { get; set; }
         List<Tuple<Enum, string, Vector2d, Vector2d, QFontAlignment, double?, double?>> IFramePainterInfo.textList { get; set; }
         /// <summary>
         /// точки, цвет, глубина, толщина
@@ -107,53 +107,143 @@ namespace Framework
         }
         //-------------------------------
 
-        public void SpriteTopLeft(ISprite sprite){}
-        public void SpriteTopLeft(ISpriteSpecial sprite){}
-        public void SpriteTopLeft(Enum sprite, double x, double y) { SpriteCustom(sprite, 0.0, 0.0, x, y, 0, null); }
-        public void SpriteTopLeft(Enum sprite, double x, double y, double angleInDegrees) { }
-        public void SpriteTopLeft(Enum sprite, double x, double y, SpecialDraw specialDraw) { }
-        public void SpriteTopLeft(Enum sprite, double x, double y, Vector2d direction) { }
-        public void SpriteTopLeft(Enum sprite, double x, double y, double angleInDegrees, SpecialDraw specialDraw) { }
-        public void SpriteTopLeft(Enum sprite, double x, double y, Vector2d direction, SpecialDraw specialDraw) { }
-        public void SpriteTopLeft(Enum sprite, Vector2d position) { SpriteCustom(sprite, 0.0, 0.0, position.X, position.Y, 0, null); }
-        public void SpriteTopLeft(Enum sprite, Vector2d position, double angleInDegrees) { }
-        public void SpriteTopLeft(Enum sprite, Vector2d position, Vector2d direction) { }
-        public void SpriteTopLeft(Enum sprite, Vector2d position, SpecialDraw specialDraw) { }
-        public void SpriteTopLeft(Enum sprite, Vector2d position, double angleInDegrees, SpecialDraw specialDraw) { }
-        public void SpriteTopLeft(Enum sprite, Vector2d position, Vector2d direction, SpecialDraw specialDraw) { }
+        //public void SpriteTopLeft(ISprite sprite){}
+        //public void SpriteTopLeft(ISpriteSpecial sprite){}
+        //public void SpriteTopLeft(Enum sprite, double x, double y) { SpriteCustom(sprite, 0.0, 0.0, x, y, 0, null); }
+        //public void SpriteTopLeft(Enum sprite, double x, double y, double angleInDegrees) { }
+        //public void SpriteTopLeft(Enum sprite, double x, double y, SpecialDraw specialDraw) { }
+        //public void SpriteTopLeft(Enum sprite, double x, double y, Vector2d direction) { }
+        //public void SpriteTopLeft(Enum sprite, double x, double y, double angleInDegrees, SpecialDraw specialDraw) { }
+        //public void SpriteTopLeft(Enum sprite, double x, double y, Vector2d direction, SpecialDraw specialDraw) { }
+        //public void SpriteTopLeft(Enum sprite, Vector2d position) { SpriteCustom(sprite, 0.0, 0.0, position.X, position.Y, 0, null); }
+        //public void SpriteTopLeft(Enum sprite, Vector2d position, double angleInDegrees) { }
+        //public void SpriteTopLeft(Enum sprite, Vector2d position, Vector2d direction) { }
+        //public void SpriteTopLeft(Enum sprite, Vector2d position, SpecialDraw specialDraw) { }
+        //public void SpriteTopLeft(Enum sprite, Vector2d position, double angleInDegrees, SpecialDraw specialDraw) { }
+        //public void SpriteTopLeft(Enum sprite, Vector2d position, Vector2d direction, SpecialDraw specialDraw) { }
 
-        public void SpriteCenter(ISprite sprite) { }
-        public void SpriteCenter(ISpriteSpecial sprite) { }
-        public void SpriteCenter(Enum sprite, Vector2d position) { SpriteCustom(sprite, 0.5, 0.5, position.X, position.Y, 0, null); }
-        public void SpriteCenter(Enum sprite, Vector2d position, SpecialDraw specialDraw) { SpriteCustom(sprite, 0.5, 0.5, position.X, position.Y, 0, specialDraw); }
-        public void SpriteCenter(Enum sprite, Vector2d position, double angleInDegrees) { }
-        public void SpriteCenter(Enum sprite, Vector2d position, Vector2d direction) { }
-        public void SpriteCenter(Enum sprite, Vector2d position, double angleInDegrees, SpecialDraw specialDraw) { }
-        public void SpriteCenter(Enum sprite, Vector2d position, Vector2d direction, SpecialDraw specialDraw) { SpriteCustom(sprite, 0.5, 0.5, position.X, position.Y, direction.AngleDeg(), specialDraw); }
-        public void SpriteCenter(Enum sprite, double x, double y) { }
-        public void SpriteCenter(Enum sprite, double x, double y, double angleInDegrees) { }
-        public void SpriteCenter(Enum sprite, double x, double y, SpecialDraw specialDraw) { }
-        public void SpriteCenter(Enum sprite, double x, double y, Vector2d direction) { }
-        public void SpriteCenter(Enum sprite, double x, double y, Vector2d direction, SpecialDraw specialDraw) { }
-        public void SpriteCenter(Enum sprite, double x, double y, double angleInDegrees, SpecialDraw specialDraw)  { }
-
-        public void SpriteCustom(double originPointX, double originPointY, ISprite sprite) { }
-        public void SpriteCustom(double originPointX, double originPointY, ISpriteSpecial sprite) { }
-        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y) { }
-        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y, double angleInDegrees) { }
-        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y, Vector2d direction) { }
-        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y, SpecialDraw specialDraw){ }
-        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position, double angleInDegrees, SpecialDraw specialDraw) { }
-        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position, Vector2d direction, SpecialDraw specialDraw) { SpriteCustom(sprite, originPointX, originPointY, position.X, position.Y, direction.AngleDeg() , specialDraw);}
-        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position) { SpriteCustom(sprite, originPointX, originPointY, position.X, position.Y, 0, null); }
-        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position, double angleInDegrees) { }
-        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position, SpecialDraw specialDraw) { SpriteCustom(sprite, originPointX, originPointY, position.X, position.Y, 0, specialDraw); }
-        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position, Vector2d direction) {/* SpriteCustom(sprite, originPointX, originPointY, position.X, position.Y, )*/ }
-        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y, Vector2d direction, SpecialDraw specialDraw) { }
-        public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y, double angleInDegrees, SpecialDraw specialDraw) 
+        public void SpriteCorner(Enum ESprite,
+           double x, double y,
+           double? angleDeg = null, Vector2d? angleLookToPoint = null,
+           Vector2d? sizeExact = null, double? sizeOnlyWidth = null, double? sizeOnlyHeight = null,
+           double? depth = null,
+           double? opacity = null,
+           int? frameNumber = null
+           )
         {
-            ((IFramePainterInfo)this).spriteList.Add(Tuple.Create(sprite, new Vector2d(originPointX, originPointY), new Vector2d(x, y), angleInDegrees, specialDraw));
+            SpriteCustomAnchor(ESprite, 0, 0, x, y, angleDeg, angleLookToPoint, sizeExact, sizeOnlyWidth, sizeOnlyHeight,
+                depth, opacity, frameNumber);
         }
+        public void SpriteCorner(Enum ESprite,
+            Vector2d position,
+            double? angleDeg = null, Vector2d? angleLookToPoint = null,
+            Vector2d? sizeExact = null, double? sizeOnlyWidth = null, double? sizeOnlyHeight = null,
+            double? depth = null,
+            double? opacity = null,
+            int? frameNumber = null
+            )
+        {
+            SpriteCustomAnchor(ESprite, 0, 0, position.X, position.Y, angleDeg, angleLookToPoint, sizeExact, sizeOnlyWidth, sizeOnlyHeight,
+                depth, opacity, frameNumber);
+        }
+
+        public void SpriteCenter(Enum ESprite,
+            double x, double y,
+            double? angleDeg = null, Vector2d? angleLookToPoint = null,
+            Vector2d? sizeExact = null, double? sizeOnlyWidth = null, double? sizeOnlyHeight = null,
+            double? depth=null,
+            double? opacity=null,
+            int? frameNumber = null
+            )
+        {
+            SpriteCustomAnchor(ESprite, 0.5, 0.5, x,y, angleDeg, angleLookToPoint, sizeExact, sizeOnlyWidth, sizeOnlyHeight,
+                depth, opacity, frameNumber);
+        }
+        public void SpriteCenter(Enum ESprite,
+            Vector2d position,
+            double? angleDeg = null, Vector2d? angleLookToPoint = null,
+            Vector2d? sizeExact = null, double? sizeOnlyWidth = null, double? sizeOnlyHeight = null,
+            double? depth = null,
+            double? opacity = null,
+            int? frameNumber = null
+            )
+        {
+            SpriteCustomAnchor(ESprite, 0.5, 0.5, position.X, position.Y, angleDeg, angleLookToPoint, sizeExact, sizeOnlyWidth, sizeOnlyHeight,
+                depth, opacity, frameNumber);
+        }
+
+        public void SpriteCustomAnchor(Enum ESprite,
+            double anchorX, double anchorY,
+           double x, double y,
+           double? angleDeg = null, Vector2d? angleLookToPoint = null,
+           Vector2d? sizeExact = null, double? sizeOnlyWidth = null, double? sizeOnlyHeight = null,
+           double? depth = null,
+           double? opacity = null,
+           int? frameNumber = null
+           )
+        {
+            ((IFramePainterInfo)this).spriteList.Add(new Framework.SpriteDrawSettings
+            {
+                angleDeg = angleDeg,
+                angleLookToPoint = angleLookToPoint,
+                depth = depth,
+                frameNumber = frameNumber,
+                opacity = opacity,
+                anchorX = anchorX,
+                anchorY = anchorY,
+                sizeExact = sizeExact,
+                sizeOnlyHeight = sizeOnlyHeight,
+                sizeOnlyWidth = sizeOnlyWidth,
+                SpriteEnum = ESprite,
+                x = x,
+                y = y
+            });
+        }
+        public void SpriteCustomAnchor(Enum ESprite,
+             double anchorX, double anchorY,
+            Vector2d position,
+            double? angleDeg = null, Vector2d? angleLookToPoint = null,
+            Vector2d? sizeExact = null, double? sizeOnlyWidth = null, double? sizeOnlyHeight = null,
+            double? depth = null,
+            double? opacity = null,
+            int? frameNumber = null
+            )
+        {
+            SpriteCustomAnchor(ESprite, anchorX, anchorY, position.X, position.Y, angleDeg, angleLookToPoint, sizeExact, sizeOnlyWidth, sizeOnlyHeight,
+                depth, opacity, frameNumber);
+        }
+        //public void SpriteCenter(ISprite sprite) { }
+        //public void SpriteCenter(ISpriteSpecial sprite) { }
+        //public void SpriteCenter(Enum sprite, Vector2d position) { SpriteCustom(sprite, 0.5, 0.5, position.X, position.Y, 0, null); }
+        //public void SpriteCenter(Enum sprite, Vector2d position, SpecialDraw specialDraw) { SpriteCustom(sprite, 0.5, 0.5, position.X, position.Y, 0, specialDraw); }
+        //public void SpriteCenter(Enum sprite, Vector2d position, double angleInDegrees) { }
+        //public void SpriteCenter(Enum sprite, Vector2d position, Vector2d direction) { }
+        //public void SpriteCenter(Enum sprite, Vector2d position, double angleInDegrees, SpecialDraw specialDraw) { }
+        //public void SpriteCenter(Enum sprite, Vector2d position, Vector2d direction, SpecialDraw specialDraw) { SpriteCustom(sprite, 0.5, 0.5, position.X, position.Y, direction.AngleDeg(), specialDraw); }
+        //public void SpriteCenter(Enum sprite, double x, double y) { }
+        //public void SpriteCenter(Enum sprite, double x, double y, double angleInDegrees) { }
+        //public void SpriteCenter(Enum sprite, double x, double y, SpecialDraw specialDraw) { }
+        //public void SpriteCenter(Enum sprite, double x, double y, Vector2d direction) { }
+        //public void SpriteCenter(Enum sprite, double x, double y, Vector2d direction, SpecialDraw specialDraw) { }
+        //public void SpriteCenter(Enum sprite, double x, double y, double angleInDegrees, SpecialDraw specialDraw)  { }
+
+        //public void SpriteCustom(double originPointX, double originPointY, ISprite sprite) { }
+        //public void SpriteCustom(double originPointX, double originPointY, ISpriteSpecial sprite) { }
+        //public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y) { }
+        //public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y, double angleInDegrees) { }
+        //public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y, Vector2d direction) { }
+        //public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y, SpecialDraw specialDraw){ }
+        //public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position, double angleInDegrees, SpecialDraw specialDraw) { }
+        //public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position, Vector2d direction, SpecialDraw specialDraw) { SpriteCustom(sprite, originPointX, originPointY, position.X, position.Y, direction.AngleDeg() , specialDraw);}
+        //public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position) { SpriteCustom(sprite, originPointX, originPointY, position.X, position.Y, 0, null); }
+        //public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position, double angleInDegrees) { }
+        //public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position, SpecialDraw specialDraw) { SpriteCustom(sprite, originPointX, originPointY, position.X, position.Y, 0, specialDraw); }
+        //public void SpriteCustom(Enum sprite, double originPointX, double originPointY, Vector2d position, Vector2d direction) {/* SpriteCustom(sprite, originPointX, originPointY, position.X, position.Y, )*/ }
+        //public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y, Vector2d direction, SpecialDraw specialDraw) { }
+        //public void SpriteCustom(Enum sprite, double originPointX, double originPointY, double x, double y, double angleInDegrees, SpecialDraw specialDraw) 
+        //{
+        //    ((IFramePainterInfo)this).spriteList.Add(Tuple.Create(sprite, new Vector2d(originPointX, originPointY), new Vector2d(x, y), angleInDegrees, specialDraw));
+        //}
 
 
         //polygon and line strip
