@@ -12,8 +12,57 @@ using System.Windows.Input;
 
 namespace Client
 {
-    public class State : IState<Player, Round, Turn>
+
+    public class Round : IRound<Turn, Player>
     {
+        public List<Turn> turns { get; set; }
+        public Random random { get; set; }
+        public double totalStage { get; set; }
+        public string nameForTimeLine { get; set; }
+    }
+
+    public class Turn : ITurn<Player>
+    {
+        public string input { get; set; }
+        public string output { get; set; }
+        public Player player { get; set; }
+
+        public int moveCount;
+        public Tuple<Point, Point> firstValidCommand;
+        public List<string> commandComments = new List<string>();
+
+
+        public string totalComment { get; set; }
+
+        public string shortTotalComment { get; set; }
+
+        public Color colorOnTimeLine { get; set; }
+        public Color colorStatusOnTimeLine { get; set; }
+        public string nameOnTimeLine { get; set; }
+    }
+
+    public class Player : IPlayer
+    {
+        public int team;
+        public bool humanSelectsDestination;
+        public Point humanSource, humanDestination;
+        public int movingOnRound = -1;
+        public Point movingOnRoundTile;
+
+        public string programAddress { get; set; }
+        public bool controlledByHuman { get; set; }
+        public string name { get; set; }
+    }
+    public class GameParams
+    {
+
+    }
+    /// <summary>
+    /// Везде point.X соответствует номеру строки
+    /// </summary>
+    public class Board : IGame<FormState, Turn, Round, Player>
+    {
+        #region game state
         public int roundNumber { get; set; }
         public int frameNumber { get; set; }
         public List<Player> players { get; set; }
@@ -23,16 +72,20 @@ namespace Client
         /// <summary>
         /// 0,0 - левый верхний угол и база первого игрока (i=1), второй игрок против часовой стрелке
         /// </summary>
-        public Player[,] field = new Player[10, 10];
+        Player[,] field = new Player[10, 10];
         int currentCorner = 0;
-        public int maxDistanceToWin;
-        public int teamTurn = 3;//и сразу переключится на 0
-        public List<Point> movePath;
-        public Animator<double> playerAnimator;
-        public int lastPlayerMadeTurns = -1;
-        public void Init(object settingsObject)
+        int maxDistanceToWin;
+        int teamTurn = 3;//и сразу переключится на 0
+        List<Point> movePath;
+        Animator<double> playerAnimator;
+        int lastPlayerMadeTurns = -1;
+        GamePurpose _purpose;
+        public Board(FormState settings, GamePurpose purpose)
         {
-            var settings = (FormState)settingsObject;
+            _purpose = purpose;
+            if (_purpose == GamePurpose.LoadSpritesAndFonts)
+                return;
+
             players = settings.ProgramAddressesInMatch
                 .Select(index => settings.ProgramAddressesAll[index])
                 .Select(address => new Player
@@ -94,64 +147,17 @@ namespace Client
             field = rotated;
 
         }
-    }
-
-    public class Round : IRound<Turn, Player>
-    {
-        public List<Turn> turns { get; set; }
-        public Random random { get; set; }
-        public double totalStage { get; set; }
-        public string nameForTimeLine { get; set; }
-    }
-
-    public class Turn : ITurn<Player>
-    {
-        public string input { get; set; }
-        public string output { get; set; }
-        public Player player { get; set; }
-
-        public int moveCount;
-        public Tuple<Point, Point> firstValidCommand;
-        public List<string> commandComments = new List<string>();
+        #endregion
 
 
-        public string totalComment { get; set; }
 
-        public string shortTotalComment { get; set; }
-
-        public Color colorOnTimeLine { get; set; }
-        public Color colorStatusOnTimeLine { get; set; }
-        public string nameOnTimeLine { get; set; }
-    }
-
-    public class Player : IPlayer
-    {
-        public int team;
-        public bool humanSelectsDestination;
-        public Point humanSource, humanDestination;
-        public int movingOnRound = -1;
-        public Point movingOnRoundTile;
-
-        public string programAddress { get; set; }
-        public bool controlledByHuman { get; set; }
-        public string name { get; set; }
-    }
-    public class GameParams
-    {
-
-    }
-    /// <summary>
-    /// Везде point.X соответствует номеру строки
-    /// </summary>
-    public class Board : IGame<State, Turn, Round, Player>
-    {
         enum EFont { regular, teamSmall3, teamSmall4, teamSmall1, teamSmall2, teamBig1, teamBig2, teamBig4, teamBig3, timeline }
         enum ESprite { board10, Design, background, green, red, yellow, violet, humanSource, humanDestination, humanPointer, greenRect, redRect, yellowRect, violetRect }
         public void LoadSpritesAndFonts()
         {
             FontList.Load(EFont.regular, "Arial", 20, Color.Black,
                 FontStyle.Regular);
-            FontList.Load(EFont.teamSmall1, "Times New Roman", 15, Color.FromArgb(64,178,119),  FontStyle.Bold);
+            FontList.Load(EFont.teamSmall1, "Times New Roman", 15, Color.FromArgb(64, 178, 119), FontStyle.Bold);
             FontList.Load(EFont.teamSmall2, "Times New Roman", 15, Color.FromArgb(188, 64, 66), FontStyle.Bold);
             FontList.Load(EFont.teamSmall3, "Times New Roman", 15, Color.FromArgb(114, 91, 200), FontStyle.Bold);
             FontList.Load(EFont.teamSmall4, "Times New Roman", 15, Color.FromArgb(150, 147, 61), FontStyle.Bold);
@@ -162,8 +168,8 @@ namespace Client
 
             FontList.Load(EFont.timeline, "Times New Roman", 12, Color.Black, FontStyle.Regular);
 
-            SpriteList.Load(ESprite.board10, defaultSizeExact:  new Vector2d(431, 452));
-         //   SpriteList.Load(ESprite.background);
+            SpriteList.Load(ESprite.board10, defaultSizeExact: new Vector2d(431, 452));
+            //   SpriteList.Load(ESprite.background);
             SpriteList.Load(ESprite.Design);
 
             SpriteList.Load(ESprite.red, defaultSizeExact: new Vector2d(40, 40));
@@ -180,14 +186,10 @@ namespace Client
             SpriteList.Load(ESprite.humanSource, defaultSizeExact: new Vector2d(43, 43));
             SpriteList.Load(ESprite.humanPointer, defaultSizeExact: new Vector2d(43, 43));
         }
-        public void RunGame(object gameParams, ConcurrentDictionary<int, object> roundList = null)
-        {
-            GameCore<State, Turn, Round, Player>.TryRunAsSingleton(this, new List<object>() { gameParams }, roundList);
-        }
 
         Vector2d PointToVector(Point point) { return new Vector2d(point.X, point.Y); }
 
-        public void DrawAll(Frame frame, State state, double stage, double totalStage, bool humanMove, GlInput input)
+        public void DrawAll(Frame frame, double stage, double totalStage, bool humanMove, GlInput input)
         {
             //todo implement as out parameter
             //statusBarText = "";
@@ -228,7 +230,7 @@ namespace Client
 
             var firstTileCenter = corner + tileSize / 2;
             var spritePlayers = new List<ESprite>{
-                ESprite.green, 
+                ESprite.green,
                 ESprite.red,
                 ESprite.violet,
                 ESprite.yellow
@@ -237,42 +239,42 @@ namespace Client
                 ESprite.greenRect,
                 ESprite.redRect,
                 ESprite.violetRect,
-                
+
                 ESprite.yellowRect
             };
 
             //подсвечиваем противоположный от ходящего уголок
-            var center = state.teamTurn == 0 ? new Vector2d(8) :
-                state.teamTurn == 1 ? new Vector2d(2, 8) :
-                state.teamTurn == 2 ? new Vector2d(2) :
+            var center = this.teamTurn == 0 ? new Vector2d(8) :
+                this.teamTurn == 1 ? new Vector2d(2, 8) :
+                this.teamTurn == 2 ? new Vector2d(2) :
                 new Vector2d(8, 2);
 
-            frame.SpriteCenter(spritePlayerRects[state.teamTurn], corner + tileSize.MultEach(center), sizeExact: tileSize * 4, opacity: 0.7);
+            frame.SpriteCenter(spritePlayerRects[this.teamTurn], corner + tileSize.MultEach(center), sizeExact: tileSize * 4, opacity: 0.7);
 
 
 
-            state.RotateField(0);
+            this.RotateField(0);
             for (int row = 0; row < 10; row++)
             {
                 for (int col = 0; col < 10; col++)
                 {
-                    var player = state.field[row, col];
+                    var player = this.field[row, col];
                     if (player == null)
                         continue;
-                    var movingOnRoundTileInPlayer0 = state.RotatePoint(player.movingOnRoundTile, 0, state.teamTurn);
-                    if (player.movingOnRound == state.roundNumber &&
+                    var movingOnRoundTileInPlayer0 = this.RotatePoint(player.movingOnRoundTile, 0, this.teamTurn);
+                    if (player.movingOnRound == this.roundNumber &&
                         movingOnRoundTileInPlayer0.X == row && movingOnRoundTileInPlayer0.Y == col)
                     {
                         //значит на этом ходу шашка перемещается, ее рисуем между клетками и выше всех
-                        double curPartOfPath = state.playerAnimator.Get(stage);
+                        double curPartOfPath = this.playerAnimator.Get(stage);
 
-                        int index = (int)curPartOfPath.ToRange(0, state.movePath.Count - 2);
+                        int index = (int)curPartOfPath.ToRange(0, this.movePath.Count - 2);
 
-                        double curPartOfSingleMove = curPartOfPath - index;//- index * (totalStage / (state.movePath.Count - 1));
-                        var fromPoint = new Point(state.movePath[index].Y, state.movePath[index].X);
-                        var toPoint = new Point(state.movePath[index + 1].Y, state.movePath[index + 1].X);
-                        var from = firstTileCenter + tileSize.MultEach(PointToVector(state.RotatePoint(fromPoint, state.teamTurn, 0)));
-                        var to = firstTileCenter + tileSize.MultEach(PointToVector(state.RotatePoint(toPoint, state.teamTurn, 0)));
+                        double curPartOfSingleMove = curPartOfPath - index;//- index * (totalStage / (this.movePath.Count - 1));
+                        var fromPoint = new Point(this.movePath[index].Y, this.movePath[index].X);
+                        var toPoint = new Point(this.movePath[index + 1].Y, this.movePath[index + 1].X);
+                        var from = firstTileCenter + tileSize.MultEach(PointToVector(this.RotatePoint(fromPoint, this.teamTurn, 0)));
+                        var to = firstTileCenter + tileSize.MultEach(PointToVector(this.RotatePoint(toPoint, this.teamTurn, 0)));
                         var position = from + (to - from) * curPartOfSingleMove;
                         frame.SpriteCenter(spritePlayers[player.team],
                             position, depth: 1);//рисуем выше всех
@@ -302,21 +304,21 @@ namespace Client
             };
 
             //top names
-            frame.TextBottomLeft(EFont.teamSmall3, state.players[2].name,
+            frame.TextBottomLeft(EFont.teamSmall3, this.players[2].name,
                 boardTopLeft - new Vector2d(sideProtrusion, fromBoardToNearest),
                   boardSize.X + sideProtrusion * 2, Align.left);
-            frame.TextBottomLeft(EFont.teamSmall4, state.players[3].name,
+            frame.TextBottomLeft(EFont.teamSmall4, this.players[3].name,
                 boardTopLeft - new Vector2d(sideProtrusion, fromBoardToNearest),
                   boardSize.X + sideProtrusion * 2, Align.right);
             //bottom names
-            frame.TextBottomLeft(EFont.teamSmall2, state.players[1].name,
+            frame.TextBottomLeft(EFont.teamSmall2, this.players[1].name,
                 boardTopLeft + new Vector2d(0, boardSize.Y) + new Vector2d(-sideProtrusion, fromBoardToFarthest),
                   boardSize.X + sideProtrusion * 2, Align.left);
-            frame.TextBottomLeft(EFont.teamSmall1, state.players[0].name,
+            frame.TextBottomLeft(EFont.teamSmall1, this.players[0].name,
                 boardTopLeft + new Vector2d(0, boardSize.Y) + new Vector2d(-sideProtrusion, fromBoardToFarthest),
                   boardSize.X + sideProtrusion * 2, Align.right);
 
-            var scores = state.players.Select(x => { state.RotateField(x.team); return GetDistanceToWin(state.field, x); }).ToList();
+            var scores = this.players.Select(x => { this.RotateField(x.team); return GetDistanceToWin(this.field, x); }).ToList();
             //top scores
             frame.TextTopLeft(EFont.teamBig3, scores[2].ToString(),
                 boardTopLeft - new Vector2d(sideProtrusion, fromBoardToFarthest),
@@ -333,7 +335,7 @@ namespace Client
                   boardSize.X + sideProtrusion * 2, Align.right);
 
             //turn number
-            frame.TextCenter(EFont.regular, string.Format("- {0} -", state.lastPlayerMadeTurns),
+            frame.TextCenter(EFont.regular, string.Format("- {0} -", this.lastPlayerMadeTurns),
                 boardTopLeft.X + boardSize.X / 2, boardTopLeft.Y / 2);
             #endregion
 
@@ -349,9 +351,9 @@ namespace Client
             if (humanMove)
             {
                 double opacity = 0.7;
-                var tileSource = state.RotatePoint(state.players[state.teamTurn].humanSource, 0, state.teamTurn);
-                var tileDestination = state.RotatePoint(state.players[state.teamTurn].humanDestination, 0, state.teamTurn);
-                if (state.players[state.teamTurn].humanSelectsDestination == true)
+                var tileSource = this.RotatePoint(this.players[this.teamTurn].humanSource, 0, this.teamTurn);
+                var tileDestination = this.RotatePoint(this.players[this.teamTurn].humanDestination, 0, this.teamTurn);
+                if (this.players[this.teamTurn].humanSelectsDestination == true)
                 {
                     frame.SpriteCenter(ESprite.humanSource, firstTileCenter + tileSize.MultEach(new Vector2d(tileSource.Y, tileSource.X)), opacity: opacity);
                     frame.SpriteCenter(ESprite.humanPointer, firstTileCenter + tileSize.MultEach(new Vector2d(tileDestination.Y, tileDestination.X)), opacity: opacity);
@@ -363,10 +365,10 @@ namespace Client
                 }
 
 
-                state.RotateField(0);
-                if (state.field[tileSource.X, tileSource.Y] != null && state.field[tileSource.X, tileSource.Y].team == state.teamTurn)
+                this.RotateField(0);
+                if (this.field[tileSource.X, tileSource.Y] != null && this.field[tileSource.X, tileSource.Y].team == this.teamTurn)
                 {
-                    var allPossible = GetAllPossibleDestinations(state.field, tileSource);
+                    var allPossible = GetAllPossibleDestinations(this.field, tileSource);
                     allPossible.ForEach(p => frame.SpriteCenter(ESprite.humanDestination, firstTileCenter + tileSize.MultEach(new Vector2d(p.Y, p.X)), opacity: opacity));
                 }
             }
@@ -393,7 +395,7 @@ namespace Client
 
             //    #region old commented
             //    //double prevStart = 0;
-            //    //var roundList = state.rounds
+            //    //var roundList = this.rounds
             //    //    .Select(r => 
             //    //    {
             //    //        var duration = Math.Max(0.1, r.totalStage);//чтобы можно было ход мышкой выбрать
@@ -401,7 +403,7 @@ namespace Client
             //    //        prevStart = res.start;
             //    //        return res;
             //    //    }).ToList();
-            //    //double currentPos = roundList[ state.roundNumber].start + stage;
+            //    //double currentPos = roundList[ this.roundNumber].start + stage;
             //    #endregion
 
             //    #region прямоугольник и клетки
@@ -411,7 +413,7 @@ namespace Client
             //        currentTopTime = 0;
 
             //    double zeroY = rect.top - currentTopTime * currentHeightPerRound;
-            //    for (int i = 0; i < state.rounds.Count; i++)
+            //    for (int i = 0; i < this.rounds.Count; i++)
             //    {
             //        double top = zeroY + i * currentHeightPerRound;
             //        double bottom = top + currentHeightPerRound;
@@ -431,14 +433,14 @@ namespace Client
             //            roundVisibleRects.Add(Tuple.Create(i, new Rect2d(rect.left, realTop, rect.size.X, realBottom - realTop)));
             //            if (realBottom - realTop >= minDistBetweenLines)
             //            {
-            //                frame.TextCenter(EFont.regular, state.rounds[i].nameForTimeLine,
+            //                frame.TextCenter(EFont.regular, this.rounds[i].nameForTimeLine,
             //                    (rect.right + rect.left) / 2, (realTop + realBottom) / 2);
             //            }
             //        }
             //    }
             //    #endregion
 
-            //    double currentPos = state.roundNumber + (stage / totalStage).ToRange(0, 1);
+            //    double currentPos = this.roundNumber + (stage / totalStage).ToRange(0, 1);
             //    var currentPosY = zeroY + currentPos * currentHeightPerRound;
             //    if (currentPosY.IsInRange(rect.top, rect.bottom, true))
             //    {
@@ -478,8 +480,8 @@ namespace Client
             //            //нужно оставить то, что под мышкой, на месте, и при этом изменить height
             //            double k = 1 + input.Wheel / 10.0;
             //            double mousePosTime = (input.Mouse.Y - zeroY) / currentHeightPerRound;
-            //            if (mousePosTime > state.rounds.Count && input.Wheel > 0)
-            //                mousePosTime = state.rounds.Count;
+            //            if (mousePosTime > this.rounds.Count && input.Wheel > 0)
+            //                mousePosTime = this.rounds.Count;
             //            currentHeightPerRound *= k;
             //            double curDist = mousePosTime - currentTopTime;
             //            currentTopTime = mousePosTime - curDist / k;
@@ -503,7 +505,7 @@ namespace Client
                 double tileStatusWidth = 10;
                 var fullTimeLineRect = new Rect2d(frameWidth - _tileWidth, 0, _tileWidth, frameHeight);
                 //if(_indexOfLastViewedTile != -1){
-                    var turns = state.rounds.SelectMany(x=>x.turns).ToList();
+                var turns = this.rounds.SelectMany(x => x.turns).ToList();
                 if (turns.Count > 0)
                 {
                     _indexOfLastViewedTile = turns.Count - 1;
@@ -511,19 +513,19 @@ namespace Client
                     DrawTimeLine(frame, input, turns, _firstTurnOffset, _indexOfLastViewedTile,
                         new Vector2d(frameWidth - _tileWidth, 0), frameHeight, _tileWidth, _tileHeight, tileStatusWidth, EDirections.down);
                 }
-               // }
+                // }
             }
             #endregion
         }
 
-       
-        public enum EDirections{down, right}
+
+        public enum EDirections { down, right }
         void DrawTimeLine(Frame frame, GlInput input, List<Turn> turns, double firstTurnOffset, int indexOfLastViewedTile,
             Vector2d positionOfFirstTile, double maxLength, double tileWidth, double tileLength, double statusNearTileWidth, EDirections direction)
         {
             #region implementation
             //todo all variables named for down direction and only down is implemented
-            
+
             //draw last two
             var timeLineX = positionOfFirstTile.X;
             {
@@ -549,7 +551,7 @@ namespace Client
                     var statusColor = input.ButtonUnderMouse(buttonName) ? InvertedColor(lastViewedTurn.colorStatusOnTimeLine) : lastViewedTurn.colorStatusOnTimeLine;//todo input
                     rect = rect - Vector2d.UnitY * tileLength * 1.5;
                     statusRect = statusRect - Vector2d.UnitY * tileLength * 1.5;
-                    frame.Polygon(lastViewedTurn.colorOnTimeLine, rect );
+                    frame.Polygon(lastViewedTurn.colorOnTimeLine, rect);
                     frame.Polygon(statusColor, statusRect);
                     frame.TextCenter(EFont.timeline, lastViewedTurn.nameOnTimeLine, rect.center);
                     input.Button(rect, buttonName);
@@ -564,7 +566,7 @@ namespace Client
                 {
                     var turn = turns[i];
                     var rect = new Rect2d(timeLineX, firstTurnOffset + i * tileLength, tileWidth, tileLength);
-                    
+
                     if (rect.bottom <= positionOfFirstTile.Y || rect.bottom > positionOfFirstTile.Y + maxLength)
                         continue;
 
@@ -572,7 +574,7 @@ namespace Client
                     string buttonName = string.Format("__timeline{0}", i);
                     var statusColor = input.ButtonUnderMouse(buttonName) ? InvertedColor(turn.colorStatusOnTimeLine) : turn.colorStatusOnTimeLine;//todo input
                     frame.Polygon(turn.colorOnTimeLine, rect);
-                    frame.Polygon(statusColor, statusRect );
+                    frame.Polygon(statusColor, statusRect);
                     frame.TextCenter(EFont.timeline, turn.nameOnTimeLine, rect.center);
                     input.Button(rect, buttonName);
                 }
@@ -584,7 +586,7 @@ namespace Client
         int _indexOfLastViewedTile = -1;
         double _tileWidth = 30;
         double _tileHeight = 30;
-        double _timelineSpeed=0;
+        double _timelineSpeed = 0;
         double TIMELINE_SPEED_DECREASE_PER_TICK = 1;
         void ManageTimelineByInput(Frame frame, GlInput input, Rect2d fullTimelineRect, int turnCount)
         {
@@ -601,11 +603,11 @@ namespace Client
                 _timelineSpeed = input.MouseDelta.Y;
             }
 
-            
+
             if (input.Wheel != 0 && GeomHelper.PointInSimpleRect(input.Mouse, fullTimelineRect))
             {
                 _timelineSpeed = 0;
-                _firstTurnOffset += input.Wheel * _tileWidth;   
+                _firstTurnOffset += input.Wheel * _tileWidth;
             }
 
             _firstTurnOffset += _timelineSpeed;
@@ -621,7 +623,7 @@ namespace Client
 
             //correction  - must be <=0 and at least one tile should be visible
 
-            _firstTurnOffset = _firstTurnOffset.ToRange(-turnCount * _tileHeight +_tileHeight, 0);
+            _firstTurnOffset = _firstTurnOffset.ToRange(-turnCount * _tileHeight + _tileHeight, 0);
         }
 
         Color InvertedColor(Color color)
@@ -642,10 +644,10 @@ namespace Client
 
         void InitTimeLine()
         {
-            minDistBetweenLines= rect.size.Y / 8;
-                ;
-                mouseDropMaxDistance = minDistBetweenLines / 6;
-                currentHeightPerRound = minDistBetweenLines * 1.1;
+            minDistBetweenLines = rect.size.Y / 8;
+            ;
+            mouseDropMaxDistance = minDistBetweenLines / 6;
+            currentHeightPerRound = minDistBetweenLines * 1.1;
             initialized = true;
         }
         bool initialized = false;
@@ -660,15 +662,15 @@ namespace Client
             return new Point(a.X - b.X, a.Y - b.Y);
         }
 
-        public Turn TryGetHumanTurn(State state, Player player, GlInput input)//todo keyboard to input
+        public Turn TryGetHumanTurn(Player player, GlInput input)//todo keyboard to input
         {
-            state.RotateField(player.team);
+            this.RotateField(player.team);
 
             var keys = new Dictionary<Key, Point>{
-                {Key.Left , PointDifference(state.RotatePoint( new Point(0, -1), player.team, 0) ,state.RotatePoint( new Point(0, 0), player.team, 0))},
-                {Key.Right , PointDifference(state.RotatePoint( new Point(0, 1), player.team, 0),state.RotatePoint( new Point(0, 0), player.team, 0))},
-                {Key.Up , PointDifference(state.RotatePoint( new Point(-1,0), player.team, 0),state.RotatePoint( new Point(0, 0), player.team, 0))},
-                {Key.Down , PointDifference(state.RotatePoint( new Point(1, 0), player.team, 0),state.RotatePoint( new Point(0, 0), player.team, 0))}
+                {Key.Left , PointDifference(this.RotatePoint( new Point(0, -1), player.team, 0) ,this.RotatePoint( new Point(0, 0), player.team, 0))},
+                {Key.Right , PointDifference(this.RotatePoint( new Point(0, 1), player.team, 0),this.RotatePoint( new Point(0, 0), player.team, 0))},
+                {Key.Up , PointDifference(this.RotatePoint( new Point(-1,0), player.team, 0),this.RotatePoint( new Point(0, 0), player.team, 0))},
+                {Key.Down , PointDifference(this.RotatePoint( new Point(1, 0), player.team, 0),this.RotatePoint( new Point(0, 0), player.team, 0))}
             };
             if (player.humanSelectsDestination)
             {
@@ -676,7 +678,7 @@ namespace Client
                 if (input.KeyTime(Key.Enter) == 1)
                 {
                     player.humanSelectsDestination = false;
-                    if (GetAllPossibleDestinations(state.field, player.humanSource).Contains(player.humanDestination))
+                    if (GetAllPossibleDestinations(this.field, player.humanSource).Contains(player.humanDestination))
                     {
                         return new Turn
                         {
@@ -687,7 +689,7 @@ namespace Client
                             shortTotalComment = "1 из 1",
                             colorOnTimeLine = Color.Gray,
                             colorStatusOnTimeLine = Color.Red,
-                             nameOnTimeLine = state.roundNumber.ToString()
+                            nameOnTimeLine = this.roundNumber.ToString()
                         };
                     }
                 }
@@ -726,9 +728,9 @@ namespace Client
             return null;
         }
 
-        public Turn GetProgramTurn(State state, Player player, string output, ExecuteResult executionResult, string executionResultRussianComment)
+        public Turn GetProgramTurn(Player player, string output, ExecuteResult executionResult, string executionResultRussianComment)
         {
-            state.RotateField(player.team);
+            this.RotateField(player.team);
             var turn = new Turn { output = output };
 
             if (executionResult == ExecuteResult.Ok)
@@ -757,13 +759,13 @@ namespace Client
                         }
                         if (Val(a) && Val(b) && Val(c) && Val(d))
                         {
-                            if (state.field[a, b] != player)
+                            if (this.field[a, b] != player)
                             {
                                 comment = "В заданной клетке нет вашей шашки";
                             }
                             else
                             {
-                                var possible = GetAllPossibleMovements(state.field, player)
+                                var possible = GetAllPossibleMovements(this.field, player)
                                     .Contains(Tuple.Create(new Point(a, b), new Point(c, d)));
                                 if (possible)
                                 {
@@ -789,6 +791,7 @@ namespace Client
 
                     turn.totalComment = string.Format("Принята команда {0} из {1}", i + 1, turn.commandComments.Count);
                     turn.shortTotalComment = string.Format("{0} из {1}", i + 1, turn.commandComments.Count);
+
                 }
             }
             else
@@ -796,91 +799,95 @@ namespace Client
                 turn.totalComment = executionResultRussianComment;
                 turn.shortTotalComment = "Error";
             }
+
+            turn.colorOnTimeLine = Color.Gray;
+            turn.colorStatusOnTimeLine = Color.Red;
+            turn.nameOnTimeLine = this.roundNumber.ToString();
             return turn;
 
             string r = "■ ►";
         }
         Round _lastProcessedRound = null;
-        public void ProcessRoundAndSetTotalStage(State state, Round round) //todo animationLength
+        public void ProcessRoundAndSetTotalStage(Round round) //todo animationLength
         {
             _lastProcessedRound = round;
-            round.nameForTimeLine = (state.lastPlayerMadeTurns +(state.teamTurn == 3 ? -1 : 0)).ToString();
-                
-            state.RotateField(state.teamTurn);
+            round.nameForTimeLine = (this.lastPlayerMadeTurns + (this.teamTurn == 3 ? -1 : 0)).ToString();
 
-            if (state.teamTurn >= state.players.Count)
+            this.RotateField(this.teamTurn);
+
+            if (this.teamTurn >= this.players.Count)
             {
-                state.teamTurn = 0;
-                if (state.players.Any(p =>
+                this.teamTurn = 0;
+                if (this.players.Any(p =>
                 {
-                    state.RotateField(p.team);
-                    return GetDistanceToWin(state.field, p) == 0;
+                    this.RotateField(p.team);
+                    return GetDistanceToWin(this.field, p) == 0;
                 }
                     ))
                 {
-                    state.GameFinished = true;
+                    this.GameFinished = true;
                 }
             }
 
             var movement = round.turns.First().firstValidCommand;
             if (movement == null)
             {
-                state.playerAnimator = null;
-                round.totalStage= 0;
+                this.playerAnimator = null;
+                round.totalStage = 0;
                 return;
             }
-            state.movePath = GetWayForTurn(state.field, movement);
+            this.movePath = GetWayForTurn(this.field, movement);
 
-            state.field[movement.Item2.X, movement.Item2.Y] = state.field[movement.Item1.X, movement.Item1.Y];
-            state.field[movement.Item2.X, movement.Item2.Y].movingOnRound = state.roundNumber;
-            state.field[movement.Item2.X, movement.Item2.Y].movingOnRoundTile = movement.Item2;
-            state.field[movement.Item1.X, movement.Item1.Y] = null;
+            this.field[movement.Item2.X, movement.Item2.Y] = this.field[movement.Item1.X, movement.Item1.Y];
+            this.field[movement.Item2.X, movement.Item2.Y].movingOnRound = this.roundNumber;
+            this.field[movement.Item2.X, movement.Item2.Y].movingOnRoundTile = movement.Item2;
+            this.field[movement.Item1.X, movement.Item1.Y] = null;
 
             bool wentToNearest = Math.Abs(movement.Item1.X - movement.Item2.X)
                 + Math.Abs(movement.Item1.Y - movement.Item2.Y) == 1;
             if (wentToNearest)
             {
-                state.playerAnimator = new Animator<double>(Animator.SinSwingRefined, 0, 1, 0.5);
+                this.playerAnimator = new Animator<double>(Animator.SinSwingRefined, 0, 1, 0.5);
                 round.totalStage = 0.5;
-                return ;
+                return;
             }
             else
             {
-                state.playerAnimator = new Animator<double>(Animator.SinSwingRefined, 0, state.movePath.Count - 1, state.movePath.Count - 1);
-                round.totalStage = state.movePath.Count-1;
+                this.playerAnimator = new Animator<double>(Animator.SinSwingRefined, 0, this.movePath.Count - 1, this.movePath.Count - 1);
+                round.totalStage = this.movePath.Count - 1;
                 return;
             }
         }
 
-        public void PreparationsBeforeRound(State state)
+        public void PreparationsBeforeRound()
         {
-            if (state.teamTurn == 3)
-                state.lastPlayerMadeTurns++;
-            state.teamTurn = (state.teamTurn + 1) % 4;
+            if (this.teamTurn == 3)
+                this.lastPlayerMadeTurns++;
+            this.teamTurn = (this.teamTurn + 1) % 4;
         }
 
-        public List<Player> GetTurnOrderForNextRound(State state)
+        public List<Player> GetTurnOrderForNextRound()
         {
-            
+
             return new List<Player>{
-                state.players[state.teamTurn]
+                this.players[this.teamTurn]
             };
         }
 
-        public string GetInputFile(State state, Player player)
+        public string GetInputFile(Player player)
         {
-            state.RotateField(player.team);
+            this.RotateField(player.team);
             var sb = new StringBuilder();
             for (int row = 0; row < 10; row++)
             {
                 List<int> numbers = new List<int>();
                 for (int col = 0; col < 10; col++)
                 {
-                    if (state.field[row, col] == null)
+                    if (this.field[row, col] == null)
                         numbers.Add(0);
                     else
                     {
-                        int team = state.field[row, col].team;
+                        int team = this.field[row, col].team;
                         if (team == player.team)
                             numbers.Add(1);
                         else
@@ -888,7 +895,7 @@ namespace Client
                             if (team < player.team)
                                 numbers.Add(team + 2);
                             else
-                                numbers.Add(team+1);
+                                numbers.Add(team + 1);
                         }
                     }
                 }
@@ -1010,7 +1017,7 @@ namespace Client
             {
                 var aimRow = source.X + drow[k];
                 var aimCol = source.Y + dcol[k];
-                if (Val(new Point(aimRow, aimCol)) && field[aimRow, aimCol]==null)
+                if (Val(new Point(aimRow, aimCol)) && field[aimRow, aimCol] == null)
                 {
                     res.Add(new Point(aimRow, aimCol));
                     previousPoint[aimRow, aimCol] = new Point(source.X, source.Y);
@@ -1021,9 +1028,9 @@ namespace Client
         }
 
 
-        public string GetCurrentSituation(State state)
+        public string GetCurrentSituation()
         {
-            return "Сыграно ходов: " + (state.roundNumber + 1).ToString();
+            return "Сыграно ходов: " + (this.roundNumber + 1).ToString();
         }
     }
 }

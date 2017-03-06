@@ -5,41 +5,32 @@ using System.Text;
 
 namespace Framework
 {
-    /// <summary>
-    /// игра не должна хранить данных, только делать действия
-    /// </summary>
-    /// <typeparam name="TState"></typeparam>
-    /// <typeparam name="TTurn"></typeparam>
-    /// <typeparam name="TPlayer"></typeparam>
     public interface IGame<TState, TTurn, TRound, TPlayer> 
         where TTurn : ITurn<TPlayer>
-        where TState: IState<TPlayer, TRound, TTurn>, new()
         where TPlayer : IPlayer
         where TRound :IRound<TTurn,TPlayer>
 
     {
-        void LoadSpritesAndFonts();
-        void PreparationsBeforeRound(TState state);
-        void DrawAll(Frame frame, TState state, double stage, double totalStage, bool humanMove, GlInput input);
-        void ProcessRoundAndSetTotalStage(TState state, TRound round);
-        List<TPlayer> GetTurnOrderForNextRound(TState state);
-        string GetInputFile(TState state, TPlayer player);
-        TTurn TryGetHumanTurn(TState state, TPlayer player, GlInput input);
-        TTurn GetProgramTurn(TState state, TPlayer player, string output, ExecuteResult executionResult, string executionResultRussianComment);
-        string GetCurrentSituation(TState state);
-    }
-
-    public interface IState<TPlayer, TRound, TTurn>
-        where TPlayer : IPlayer
-        where TRound : IRound<TTurn, TPlayer>
-        where TTurn: ITurn<TPlayer>
-    {
-        void Init(object startSettingsFromForm);
         int roundNumber { get; set; }
         int frameNumber { get; set; }
         List<TPlayer> players { get; }
         List<TRound> rounds { get; set; }
         bool GameFinished { get; }
+
+        void LoadSpritesAndFonts();
+        void PreparationsBeforeRound();
+        void DrawAll(Frame frame,  double stage, double totalStage, bool humanMove, GlInput input);
+        void ProcessRoundAndSetTotalStage( TRound round);
+        List<TPlayer> GetTurnOrderForNextRound();
+        string GetInputFile(TPlayer player);
+        TTurn TryGetHumanTurn(TPlayer player, GlInput input);
+        TTurn GetProgramTurn(TPlayer player, string output, ExecuteResult executionResult, string executionResultRussianComment);
+        string GetCurrentSituation();
+    }
+
+    public interface IParamsFromStartForm
+    {
+        string JavaPath { get; }
     }
 
     public interface ITurn<TPlayer> where TPlayer:IPlayer

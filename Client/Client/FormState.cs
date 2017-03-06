@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace Client
 {
-    public class FormState : INotifyPropertyChanged //todo вынести в хелпер
+    public class FormState : INotifyPropertyChanged, IParamsFromStartForm //todo вынести в хелпер
     {
         public event PropertyChangedEventHandler PropertyChanged;
         static string saveLoadPath = FrameworkSettings.InnerSettings.RoamingPath + "GameSettings.xml";

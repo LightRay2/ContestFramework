@@ -9,11 +9,12 @@ using System.Threading;
 
 namespace Framework
 {
+    public enum GamePurpose { visualizationGame, fastGameInBackgroundWithoutVisualization, LoadSpritesAndFonts }
     /// <summary>
     /// Все, что должен делать главный класс - изменить состояние и вернуть новый кадр назад контроллера
     /// </summary>
-    public class GameCore<TState, TTurn, TRound, TPlayer>
-        where TState : IState<TPlayer, TRound, TTurn>, new()
+    public class GameCore<TParamsFromStartForm, TTurn, TRound, TPlayer>
+        where TParamsFromStartForm : IParamsFromStartForm
         where TTurn : ITurn<TPlayer>
         where TPlayer : IPlayer
         where TRound : IRound<TTurn,TPlayer>, new()
@@ -21,23 +22,25 @@ namespace Framework
         public static Random  Rand= new Random();
         public static bool IsWorking = false;
         static ConcurrentDictionary<int, object> _roundsFromServer;
-        public static bool TryRunAsSingleton(IGame<TState, TTurn, TRound, TPlayer> game, List<object> settings, ConcurrentDictionary<int, object> roundsFromServer=null)
+        Func<TParamsFromStartForm, GamePurpose, IGame<TParamsFromStartForm,TTurn, TRound, TPlayer>> _GameCreationDelegate;
+        public static bool TryRunAsSingleton(Func<TParamsFromStartForm, GamePurpose, IGame<TParamsFromStartForm,TTurn, TRound, TPlayer>> GameCreationDelegate, List<TParamsFromStartForm> settings, ConcurrentDictionary<int, object> roundsFromServer=null)
         {
             if (IsWorking)
                 return false;
             IsWorking = true;
             _roundsFromServer = roundsFromServer;
 
-            _instance = new GameCore<TState, TTurn, TRound, TPlayer>();
-
-            _instance._game = game;
+            
+            _instance = new GameCore<TParamsFromStartForm, TTurn, TRound, TPlayer>();
+            _instance._GameCreationDelegate = GameCreationDelegate;
+           // _instance._game = GameCreationDelegate( game;
             _instance._settings = settings;
 
             if (!_instance.TryInitNextGame())
                 return false;
 
             var gameForm = new  GameForm(_instance.Process);
-            game.LoadSpritesAndFonts();
+            GameCreationDelegate(settings[0], GamePurpose.LoadSpritesAndFonts).LoadSpritesAndFonts(); //fake game to load sprites
 
             //todo keyboard
             gameForm.FormClosed += new FormClosedEventHandler((o,e)=>IsWorking = false);
@@ -46,17 +49,16 @@ namespace Framework
         }
 
 
-        static GameCore<TState, TTurn, TRound, TPlayer> _instance;
+        static GameCore<TParamsFromStartForm, TTurn, TRound, TPlayer> _instance;
         static GameCore()
         {
         }
-
-        TState _currentState;
-        IGame<TState, TTurn, TRound, TPlayer> _game;
+        
+        IGame<TParamsFromStartForm, TTurn, TRound, TPlayer> _game;
 
         int _currentGameNumber = -1;
         bool PauseButtonPressed = false;
-        List<object> _settings;
+        List<TParamsFromStartForm> _settings;
         TRound _currentRound;
 
         ConcurrentDictionary<int, TRound> allRounds;
@@ -71,15 +73,14 @@ namespace Framework
                 return false;
             var settings = _settings[_currentGameNumber];
 
-            _currentState = new TState();
-            _currentState.roundNumber = -1;
-            _currentState.rounds = new List<TRound>();
-            _currentState.Init(settings);
+            _game = _GameCreationDelegate(settings, GamePurpose.visualizationGame);
+            _game.roundNumber = -1;
+            _game.rounds = new List<TRound>();
 
-            if (_currentState.players.Count == 0)
+            if (_game.players.Count == 0)
                 throw new Exception("В State.Init() должны быть созданы players");
 
-            _gameMode = _currentState.players.Any(x => x.controlledByHuman) ?
+            _gameMode = _game.players.Any(x => x.controlledByHuman) ?
                 EGameMode.localWithHuman :
                 EGameMode.localWithoutHuman; //todo replay server
 
@@ -120,18 +121,18 @@ namespace Framework
             switch (phase)
             {
                 case EProcessPhase.beforeRound:
-                    _game.PreparationsBeforeRound(_currentState);
+                    _game.PreparationsBeforeRound();
                     break;
                 case EProcessPhase.getTurnsOfNextRound:
                     bool nextRoundExists=false;
                     if (_roundsFromServer == null)
                     {
-                        nextRoundExists = allRounds.TryGetValue(_currentState.roundNumber, out _currentRound);
+                        nextRoundExists = allRounds.TryGetValue(_game.roundNumber, out _currentRound);
                     }
                     else
                     {
                         object tmp;
-                        if (_roundsFromServer.TryGetValue(_currentState.roundNumber, out tmp))
+                        if (_roundsFromServer.TryGetValue(_game.roundNumber, out tmp))
                         {
                             nextRoundExists = true;
                         }
@@ -146,7 +147,7 @@ namespace Framework
                         _currentRound = new TRound();
                         _currentRound.random = new System.Random(Rand.Next());
                         _currentRound.turns = new List<TTurn>();
-                        _currentPlayerOrder = _game.GetTurnOrderForNextRound(_currentState);
+                        _currentPlayerOrder = _game.GetTurnOrderForNextRound();
                     }
                     else
                     {
@@ -155,8 +156,8 @@ namespace Framework
                     }
                     break;
                 case EProcessPhase.processRound:
-                    _currentState.rounds.Add(_currentRound);
-                    _game.ProcessRoundAndSetTotalStage(_currentState, _currentRound);
+                    _game.rounds.Add(_currentRound);
+                    _game.ProcessRoundAndSetTotalStage(_currentRound);
                     animationFinishStage = _currentRound.totalStage;
                     GoToPhase(EProcessPhase.waitUntilAnimationFinished);
                     return;
@@ -178,15 +179,15 @@ namespace Framework
 
                 if (_processPhase == EProcessPhase.beforeRound)
                 {
-                    _currentState.roundNumber++;
+                    _game.roundNumber++;
                     animationStage = 0;
-                    if (_currentState.GameFinished)
+                    if (_game.GameFinished)
                         GoToPhase(EProcessPhase.gameFinished);
                     else
                     {
                         if (_gameMode == EGameMode.localWithHuman)
                             GoToPhase(EProcessPhase.getTurnsOfNextRound);
-                        else if (_gameMode == EGameMode.localWithoutHuman && allRounds.ContainsKey(_currentState.roundNumber))
+                        else if (_gameMode == EGameMode.localWithoutHuman && allRounds.ContainsKey(_game.roundNumber))
                             GoToPhase(EProcessPhase.getTurnsOfNextRound);
                         //иначе остаемся крутиться в before round, пока во втором потоке не сформируется ход
 
@@ -204,7 +205,7 @@ namespace Framework
                             if (humanTurnWasAdded)
                                 break;
 
-                            var turn = _game.TryGetHumanTurn(_currentState, player, input);
+                            var turn = _game.TryGetHumanTurn(player, input);
                             if (turn != null)
                             {
                                 _currentRound.turns.Add(turn);
@@ -218,12 +219,12 @@ namespace Framework
                             ExternalProgramExecuter epe =
                                 new ExternalProgramExecuter(player.programAddress, "input.txt", "output.txt", null);//todo java path
 
-                            string inputFile = _game.GetInputFile(_currentState, player);
+                            string inputFile = _game.GetInputFile( player);
                             string output;
                             string comment; //exitCode, нигде не используется
 
                             ExecuteResult res = epe.Execute(inputFile, 2, out output, out comment);
-                            var turn = _game.GetProgramTurn(_currentState, player,output, res, ExternalProgramExecuter.ExecuteResultToString(res));
+                            var turn = _game.GetProgramTurn(player,output, res, ExternalProgramExecuter.ExecuteResultToString(res));
                             turn.input = inputFile;
                             _currentRound.turns.Add(turn);
                         }
@@ -254,8 +255,8 @@ namespace Framework
             }
 
             Frame frame = new Frame();
-            _game.DrawAll(frame, _currentState, animationStage, animationFinishStage, _processPhase == EProcessPhase.getTurnsOfNextRound, input);
-            _currentState.frameNumber++;
+            _game.DrawAll(frame, animationStage, animationFinishStage, _processPhase == EProcessPhase.getTurnsOfNextRound, input);
+            _game.frameNumber++;
             return frame;
         }
 
@@ -268,42 +269,48 @@ namespace Framework
                 animationStage = animationFinishStage;
         }
 
-        public static string RunOnServerOrGetError(IGame<TState, TTurn, TRound, TPlayer> game, FormMainSettings settings, Action<object, string> RoundPlayed )
+        /// <summary>
+        /// метод можно чуть переделать как в бекграундном просчете
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="javaPath"></param>
+        /// <param name="RoundPlayed"></param>
+        /// <returns></returns>
+        public static string RunOnServerOrGetError(IGame<TParamsFromStartForm, TTurn, TRound, TPlayer> game, string javaPath,  Action<object, string> RoundPlayed )
         {
-            TState state = new TState();
-            state.roundNumber = -1;
-            state.Init(settings);
 
-            if (state.players.Count == 0)
+            game.roundNumber = -1;
+
+            if (game.players.Count == 0)
                 return "Игра без игроков невозможна";
 
-            while(!state.GameFinished)
+            while(!game.GameFinished)
             {
-                state.roundNumber++;
+                game.roundNumber++;
                 var round = new TRound();
                 round.random = new System.Random(Rand.Next());
                 round.turns = new List<TTurn>();
 
-                game.PreparationsBeforeRound(state);
-                List<TPlayer> order = game.GetTurnOrderForNextRound(state);
+                game.PreparationsBeforeRound();
+                List<TPlayer> order = game.GetTurnOrderForNextRound();
                 while(round.turns.Count < order.Count){
                     TPlayer player = order[round.turns.Count];
                     ExternalProgramExecuter epe =
-                                new ExternalProgramExecuter(player.programAddress, "input.txt", "output.txt", settings.JavaPath);
+                                new ExternalProgramExecuter(player.programAddress, "input.txt", "output.txt", javaPath);
 
-                            string input = game.GetInputFile(state, player);
+                            string input = game.GetInputFile( player);
                             string output;
                             string comment;
 
                             ExecuteResult res = epe.Execute(input, 2, out output, out comment);
-                            var turn = game.GetProgramTurn(state, player,output, res,  ExternalProgramExecuter.ExecuteResultToString(res));
+                            var turn = game.GetProgramTurn( player,output, res,  ExternalProgramExecuter.ExecuteResultToString(res));
                     turn.output = output;
                             round.turns.Add(turn);
                 }
-                state.rounds.Add(round);
-                game.ProcessRoundAndSetTotalStage(state, round);
+                game.rounds.Add(round);
+                game.ProcessRoundAndSetTotalStage( round);
 
-                RoundPlayed(round, game.GetCurrentSituation(state));
+                RoundPlayed(round, game.GetCurrentSituation());
             }
 
             return "Ok";
@@ -316,37 +323,36 @@ namespace Framework
 
         public  void RunGameWithoutHuman()
         {
-            TState state = new TState();
-            state.roundNumber = -1;
-            state.Init(_settings[_currentGameNumber]);
-            state.rounds = new List<TRound>();
-            while (!state.GameFinished)
+            var game = _GameCreationDelegate(_settings[_currentGameNumber], GamePurpose.fastGameInBackgroundWithoutVisualization);
+            game.roundNumber = -1;
+            game.rounds = new List<TRound>();
+            while (!game.GameFinished)
             {
-                state.roundNumber++;
+                game.roundNumber++;
                 var round = new TRound();
                 round.random = new System.Random(Rand.Next());
                 round.turns = new List<TTurn>();
 
-                _game.PreparationsBeforeRound(state);
-                List<TPlayer> order = _game.GetTurnOrderForNextRound(state);
+                game.PreparationsBeforeRound();
+                List<TPlayer> order = game.GetTurnOrderForNextRound();
                 while (round.turns.Count < order.Count)
                 {
                     TPlayer player = order[round.turns.Count];
                     ExternalProgramExecuter epe =
                                 new ExternalProgramExecuter(player.programAddress, "input.txt", "output.txt", "");//todo java path
 
-                    string input = _game.GetInputFile(state, player);
+                    string input = game.GetInputFile( player);
                     string output;
                     string comment;
 
                     ExecuteResult res = epe.Execute(input, 2, out output, out comment);
-                    var turn = _game.GetProgramTurn(state, player, output, res, ExternalProgramExecuter.ExecuteResultToString(res));
+                    var turn = game.GetProgramTurn( player, output, res, ExternalProgramExecuter.ExecuteResultToString(res));
                     turn.output = output;
                     round.turns.Add(turn);
                 }
-                state.rounds.Add(round);
-                allRounds.TryAdd(state.roundNumber, round);
-                _game.ProcessRoundAndSetTotalStage(state, round);
+                game.rounds.Add(round);
+                allRounds.TryAdd(game.roundNumber, round);
+                game.ProcessRoundAndSetTotalStage( round);
             }
             
         }

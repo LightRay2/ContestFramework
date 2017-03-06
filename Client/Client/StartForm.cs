@@ -244,7 +244,7 @@ namespace Client
         private void btnRun_Click(object sender, EventArgs e)
         {
             //todo run game and check java and count of programs
-            GameCore<State, Turn, Round, Player>.TryRunAsSingleton(new Board(), new List<object> { formState }, null);
+            GameCore<FormState, Turn, Round, Player>.TryRunAsSingleton( (x,y)=> new Board(x, y), new List<FormState> { formState }, null);
             //after all
             formState.GameParamsList.Clear();
         }
