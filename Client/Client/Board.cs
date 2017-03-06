@@ -729,7 +729,7 @@ namespace Client
         public Turn GetProgramTurn(State state, Player player, string output, ExecuteResult executionResult, string executionResultRussianComment)
         {
             state.RotateField(player.team);
-            var turn = new Turn();
+            var turn = new Turn { output = output };
 
             if (executionResult == ExecuteResult.Ok)
             {
@@ -745,10 +745,10 @@ namespace Client
                         int a, b, c, d;
                         try
                         {
-                            a = int.Parse(stringNumbers[0]);
-                            b = int.Parse(stringNumbers[1]);
-                            c = int.Parse(stringNumbers[2]);
-                            d = int.Parse(stringNumbers[3]);
+                            a = int.Parse(stringNumbers[1]);
+                            b = int.Parse(stringNumbers[0]);
+                            c = int.Parse(stringNumbers[3]);
+                            d = int.Parse(stringNumbers[2]);
                         }
                         catch
                         {
@@ -852,13 +852,16 @@ namespace Client
             }
         }
 
-
-
-        public List<Player> GetTurnOrderForNextRound(State state)
+        public void PreparationsBeforeRound(State state)
         {
             if (state.teamTurn == 3)
                 state.lastPlayerMadeTurns++;
-            state.teamTurn = (state.teamTurn+1)%4;
+            state.teamTurn = (state.teamTurn + 1) % 4;
+        }
+
+        public List<Player> GetTurnOrderForNextRound(State state)
+        {
+            
             return new List<Player>{
                 state.players[state.teamTurn]
             };

@@ -24,14 +24,13 @@ namespace Framework
         public Dictionary<Tuple<string, float, FontStyle>, FontState> LoadedFonts = new Dictionary<Tuple<string, float, FontStyle>, FontState>();
 
 
-        public FontState LoadOrCheckFont(string fontName, float emSize, FontStyle fontStyle, string textWithSpaces)
+        public FontState LoadOrCheckFont(string fontName, float emSize, FontStyle fontStyle, string text)
         {
-            string text = new string(textWithSpaces.Where(x => x != ' ').ToArray());
             //todo слишком большой emSize скушает много памяти
 
             bool needReload = false;
             var key = Tuple.Create(fontName, emSize, fontStyle);
-            FontState oldFontState=null;
+            FontState oldFontState = null;
             if (!LoadedFonts.ContainsKey(key))
             {
                 needReload = true;
@@ -42,9 +41,9 @@ namespace Framework
                 oldFontState = loadedFont;
 
                 bool notEnoughLetters = text.Any(c => !loadedFont.AvailableLetters.Contains(c));
-               
+
                 bool notEnoughLetterPairs = false;
-                for (int i = 0; i < text.Length-1; i++)
+                for (int i = 0; i < text.Length - 1; i++)
                 {
                     if (text[i] != ' ' && text[i + 1] != ' ')
                     {
@@ -67,44 +66,45 @@ namespace Framework
 
             }
 
-            if(needReload)
+            if (needReload)
             {
 
-                
+
                 var fontState = new FontState();
 
-                
-                string allLetters =  new String(text.ToArray());
+
+                string allLetters = new String(text.ToArray());
                 if (oldFontState != null)
                     allLetters += oldFontState.AvailableLetters;
+                allLetters += "pP"; //маленькая и большая буква, чтобы высота строки была посчитана независимо от содержимого charset
                 fontState.AvailableLetters = new String(allLetters.Distinct().ToArray());
 
                 List<string> allAvailablePairs = new List<string>();
-                if(oldFontState != null)
+                if (oldFontState != null)
                     allAvailablePairs.AddRange(oldFontState.AvailableLetterPairs);
                 for (int i = 0; i < text.Length - 1; i++)
                 {
-                    if(text[i] != ' ' && text[i+1] != ' ')
+                    if (text[i] != ' ' && text[i + 1] != ' ')
                         allAvailablePairs.Add(text[i].ToString() + text[i + 1].ToString());
                 }
                 fontState.AvailableLetterPairs = allAvailablePairs.Distinct().ToList();
 
                 var fontBuildConfig = new QFontBuilderConfiguration();
                 fontBuildConfig.charSet = fontState.AvailableLetters;
-                fontBuildConfig.KerningConfig.KerningPairs =  fontState.AvailableLetterPairs;
+                fontBuildConfig.KerningConfig.KerningPairs = fontState.AvailableLetterPairs;
                 fontBuildConfig.TextGenerationRenderHint = TextGenerationRenderHint.AntiAlias;
                 var font = new Font(fontName, emSize, fontStyle);
-                
-               
-                fontState.QFont = new QFont(font,fontBuildConfig );
-                LoadedFonts.Add(key, fontState);
 
+
+                fontState.QFont = new QFont(font, fontBuildConfig);
+                LoadedFonts.Add(key, fontState);
+                
                 return fontState;
             }
-
+            
             return oldFontState;
 
-                //add actually
+            //add actually
         }
         // public void PaintText(Text text)
 

@@ -10,6 +10,9 @@
 //using System.Windows.Forms;
 //using System.Windows.Input;
 
+
+//будьте внимательны! game вызывается из двух потоков, так что он не должен хранить ничего важного для игры
+
 //namespace DefaultGame
 //{
 //    public class State : IState<Player, Round, Turn>

@@ -119,6 +119,9 @@ namespace Framework
         {
             switch (phase)
             {
+                case EProcessPhase.beforeRound:
+                    _game.PreparationsBeforeRound(_currentState);
+                    break;
                 case EProcessPhase.getTurnsOfNextRound:
                     bool nextRoundExists=false;
                     if (_roundsFromServer == null)
@@ -221,6 +224,7 @@ namespace Framework
 
                             ExecuteResult res = epe.Execute(inputFile, 2, out output, out comment);
                             var turn = _game.GetProgramTurn(_currentState, player,output, res, ExternalProgramExecuter.ExecuteResultToString(res));
+                            turn.input = inputFile;
                             _currentRound.turns.Add(turn);
                         }
                     }
@@ -280,6 +284,7 @@ namespace Framework
                 round.random = new System.Random(Rand.Next());
                 round.turns = new List<TTurn>();
 
+                game.PreparationsBeforeRound(state);
                 List<TPlayer> order = game.GetTurnOrderForNextRound(state);
                 while(round.turns.Count < order.Count){
                     TPlayer player = order[round.turns.Count];
@@ -292,6 +297,7 @@ namespace Framework
 
                             ExecuteResult res = epe.Execute(input, 2, out output, out comment);
                             var turn = game.GetProgramTurn(state, player,output, res,  ExternalProgramExecuter.ExecuteResultToString(res));
+                    turn.output = output;
                             round.turns.Add(turn);
                 }
                 state.rounds.Add(round);
@@ -321,6 +327,7 @@ namespace Framework
                 round.random = new System.Random(Rand.Next());
                 round.turns = new List<TTurn>();
 
+                _game.PreparationsBeforeRound(state);
                 List<TPlayer> order = _game.GetTurnOrderForNextRound(state);
                 while (round.turns.Count < order.Count)
                 {
@@ -334,6 +341,7 @@ namespace Framework
 
                     ExecuteResult res = epe.Execute(input, 2, out output, out comment);
                     var turn = _game.GetProgramTurn(state, player, output, res, ExternalProgramExecuter.ExecuteResultToString(res));
+                    turn.output = output;
                     round.turns.Add(turn);
                 }
                 state.rounds.Add(round);

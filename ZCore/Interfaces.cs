@@ -19,6 +19,7 @@ namespace Framework
 
     {
         void LoadSpritesAndFonts();
+        void PreparationsBeforeRound(TState state);
         void DrawAll(Frame frame, TState state, double stage, double totalStage, bool humanMove, GlInput input);
         void ProcessRoundAndSetTotalStage(TState state, TRound round);
         List<TPlayer> GetTurnOrderForNextRound(TState state);
