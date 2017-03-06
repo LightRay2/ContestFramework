@@ -20,6 +20,7 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <TargetFrameworkProfile />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -138,10 +139,6 @@
     <ProjectReference Include="..\..\ZCore\ZFramework.csproj">
       <Project>{6798ce22-32a4-4813-a926-e808f868c9b8}</Project>
       <Name>ZFramework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ZHelper\ZHelper.csproj">
-      <Project>{b70dd426-1112-4864-af44-62043cb55bc8}</Project>
-      <Name>ZHelper</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

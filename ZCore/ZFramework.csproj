@@ -86,12 +86,14 @@
     <Compile Include="ClientClasses.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="ContestHelper.cs" />
+    <Compile Include="DoubleExtensions.cs" />
     <Compile Include="ExternalProgramExecuter.cs" />
     <Compile Include="FormMainSettings.cs" />
     <Compile Include="FrameHelper.cs" />
     <Compile Include="GeomHelper.cs" />
     <Compile Include="Interfaces.cs" />
     <Compile Include="GameCore.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="OpenGL\FramePainter.cs" />
     <Compile Include="OpenGL\GameController.cs" />
     <Compile Include="OpenGL\GameForm.cs">
@@ -103,6 +105,7 @@
     <Compile Include="OpenGL\GlInput.cs" />
     <Compile Include="OpenGL\Initializer.cs" />
     <Compile Include="OpenGL\TextManager.cs" />
+    <Compile Include="Serialize.cs" />
     <Compile Include="ServerGameServerPlayer.cs" />
     <Compile Include="ServerPlayer.cs" />
     <Compile Include="ServerUser.cs" />
@@ -171,10 +174,6 @@
     <ProjectReference Include="..\QuickFont\QuickFont\QuickFont.csproj">
       <Project>{bbece6fc-ef63-40f8-a734-a500d1dfc1af}</Project>
       <Name>QuickFont</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ZHelper\ZHelper.csproj">
-      <Project>{b70dd426-1112-4864-af44-62043cb55bc8}</Project>
-      <Name>ZHelper</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

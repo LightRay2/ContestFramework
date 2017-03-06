@@ -167,10 +167,6 @@
       <Project>{6798ce22-32a4-4813-a926-e808f868c9b8}</Project>
       <Name>ZFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\ZHelper\ZHelper.csproj">
-      <Project>{b70dd426-1112-4864-af44-62043cb55bc8}</Project>
-      <Name>ZHelper</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

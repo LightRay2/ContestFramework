@@ -33,7 +33,7 @@ namespace Framework
         where TRound : IRound<TTurn, TPlayer>
         where TTurn: ITurn<TPlayer>
     {
-        void Init(object settings);
+        void Init(object startSettingsFromForm);
         int roundNumber { get; set; }
         int frameNumber { get; set; }
         List<TPlayer> players { get; }

@@ -25,6 +25,10 @@ namespace Framework
         /// </summary>
         public   Vector2d Mouse;
         public   Vector2d MouseRelative;
+        /// <summary>
+        /// на сколько переместились за последний кадр
+        /// </summary>
+        public Vector2d MouseDelta;
         public   int _mousePhysicalX, _mousePhysicalY;
 
           int _leftMouseTime = -1, _rightMouseTime = -1, _middleMouseTime = -1;
@@ -44,9 +48,13 @@ namespace Framework
 
         public   void EveryFrameStartRefresh()
         {
+            Vector2d mouseRelativePrevious = MouseRelative;
             MouseRelative = new Vector2d((double)_mousePhysicalX / _graphicControl.Width,
                (double)_mousePhysicalY / _graphicControl.Height);
             Mouse = GetAbsoluteCoordByRelativeOnScreen(MouseRelative);
+            var prev = GetAbsoluteCoordByRelativeOnScreen(mouseRelativePrevious);
+            MouseDelta = Mouse - prev;
+
 
             var allKeys = GetDownKeys().ToList();
             var newDict = new Dictionary<Key, int>();
@@ -74,6 +82,8 @@ namespace Framework
 
             Wheel = _setWheel;
             _setWheel = 0;
+
+            RefreshButtons();
         }
 
         public   Vector2d GetAbsoluteCoordByRelativeOnScreen(Vector2d relative)
@@ -160,12 +170,12 @@ namespace Framework
             }
             if (e.Button == MouseButtons.Right)
             {
-                _middleMouseTime = -1;
+                _rightMouseTime = -1;
                 _setMouseRightUp = true;
             }
             if (e.Button == MouseButtons.Middle)
             {
-                _rightMouseTime = -1;
+                _middleMouseTime = -1;
                 _setMouseMiddleUp = true;
             }
         }
@@ -213,5 +223,60 @@ namespace Framework
         //    if (_graphicControl.Focused)
         //        keyTime.Remove(e.KeyData);
         //}
+
+        public bool ButtonUnderMouse(string buttonName)
+        {
+            return _processedButtonDict.ContainsKey(buttonName) &&  _processedButtonDict[buttonName].Item1;
+        }
+        public bool ButtonClicked (string buttonName)
+        {
+            return _processedButtonDict.ContainsKey(buttonName) && _processedButtonDict[buttonName].Item2;
+        }
+        public List<string> AllButtonsUnderMouse()
+        {
+            return _processedButtonDict.Where(x => x.Value.Item1).Select(x => x.Key).ToList();
+        }
+        public List<string> AllClickedButtons()
+        {
+            return _processedButtonDict.Where(x => x.Value.Item2).Select(x => x.Key).ToList();
+        }
+
+        /// <summary>
+        /// Можно сделать одно название с несколькими прямоугольнками, если вызвать несколько раз 
+        /// </summary>
+        /// <param name="p"></param>
+        public void Button(Rect2d rect, string name)
+        {
+            _justCreatedButtonList.Add(Tuple.Create(rect, name));
+        }
+
+        void RefreshButtons()
+        {
+            _processedButtonDict = new Dictionary<string, Tuple<bool, bool>>();
+            for(int i = 0; i < _justCreatedButtonList.Count; i++)
+            {
+                bool underMouse = false, clicked = false;
+                var button = _justCreatedButtonList[i];
+                if (GeomHelper.PointInSimpleRect(Mouse, button.Item1))
+                {
+                     underMouse =  true;
+                    if (LeftMouseTime == 1)
+                    {
+                         clicked = true;
+                    }
+                }
+                if(_processedButtonDict.ContainsKey(button.Item2))
+                {
+                    underMouse |= _processedButtonDict[button.Item2].Item1;
+                    clicked |= _processedButtonDict[button.Item2].Item2;
+                    _processedButtonDict.Remove(button.Item2);
+                }
+                _processedButtonDict.Add(button.Item2, Tuple.Create(underMouse, clicked));
+            }
+            _justCreatedButtonList = new List<Tuple<Rect2d, string>>();
+        }
+
+        Dictionary<string, Tuple<bool, bool>> _processedButtonDict = new Dictionary<string, Tuple<bool, bool>>();
+        List<Tuple<Rect2d, string>> _justCreatedButtonList  = new List<Tuple<Rect2d, string>>();
     }
 }

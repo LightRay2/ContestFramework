@@ -6,7 +6,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
-using ZHelper;
 
 namespace Client
 {

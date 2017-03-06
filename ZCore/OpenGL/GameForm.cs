@@ -29,7 +29,7 @@ namespace Framework
               //  this.glControl1.Size = new System.Drawing.Size(928, 675);
                 this.glControl1.TabIndex = 0;
                 this.glControl1.VSync = false;
-                this.Controls.Add(this.glControl1);
+                this.panelForOpenglControl.Controls.Add(this.glControl1);
             }
         }
 

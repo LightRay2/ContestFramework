@@ -133,7 +133,7 @@ namespace Client
                     Text = new string( text.Reverse().Take(70).Reverse().ToArray()),
                     Padding = new Padding { All=5 },
                     Margin = new Padding{All=3},
-                    Size  = new Size(580, 32),
+                    Size  = new Size(560, 32),
                     BorderStyle = BorderStyle.FixedSingle
                 };
                 toolTip.SetToolTip(label, text);

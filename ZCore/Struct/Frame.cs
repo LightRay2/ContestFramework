@@ -73,39 +73,42 @@ namespace Framework
         //----text-----
         public void TextTopLeft(Enum font, string text, Vector2d position, double? widthLimit = null, Align align = Align.left, double? depth = null)
         {
-            TextCustom(font, text, 0, 0, position, widthLimit, align, depth);
+            TextCustomAnchor(font, text, 0, 0, position, widthLimit, align, depth);
         }
         public void TextTopLeft(Enum font, string text, double x, double y, double? widthLimit = null, Align align = Align.left, double? depth = null)
         {
-            TextCustom(font, text, 0, 0, new Vector2d(x, y), widthLimit, align, depth);
+            TextCustomAnchor(font, text, 0, 0, new Vector2d(x, y), widthLimit, align, depth);
         }
         public void TextBottomLeft(Enum font, string text, Vector2d position, double? widthLimit = null, Align align = Align.left, double? depth = null)
         {
-            TextCustom(font, text, 0, 1, position, widthLimit, align, depth);
+            TextCustomAnchor(font, text, 0, 1, position, widthLimit, align, depth);
         }
         public void TextBottomLeft(Enum font, string text, double x, double y, double? widthLimit = null, Align align = Align.left, double? depth = null)
         {
-            TextCustom(font, text, 0, 1, new Vector2d(x, y), widthLimit, align, depth);
+            TextCustomAnchor(font, text, 0, 1, new Vector2d(x, y), widthLimit, align, depth);
         }
         public void TextCenter(Enum font, string text, Vector2d position, double? widthLimit = null, Align align = Align.left, double? depth = null)
         {
-            TextCustom(font, text, 0.5, 0.5, position, widthLimit, align, depth);
+            TextCustomAnchor(font, text, 0.5, 0.5, position, widthLimit, align, depth);
             
         }
         public void TextCenter(Enum font, string text, double x, double y, double? widthLimit = null, Align align = Align.left, double? depth = null)
         {
-            TextCustom(font, text, 0.5, 0.5, new Vector2d(x, y), widthLimit, align, depth);
+            TextCustomAnchor(font, text, 0.5, 0.5, new Vector2d(x, y), widthLimit, align, depth);
 
         }
-        public void TextCustom(Enum font, string text, double originX, double originY, double x, double y, double? widthLimit = null, Align align = Align.left, double? depth = null)
+        public void TextCustomAnchor(Enum font, string text, double anchorX, double anchorY, double x, double y, double? widthLimit = null, Align align = Align.left, double? depth = null)
         {
-            TextCustom(font, text, originX, originY, new Vector2d(x, y), widthLimit, align, depth);
+            TextCustomAnchor(font, text, anchorX, anchorY, new Vector2d(x, y), widthLimit, align, depth);
         }
-        public void TextCustom(Enum font, string text, double originX, double originY, Vector2d position, double? widthLimit = null, Align align = Align.left, double? depth = null)
+        public void TextCustomAnchor(Enum font, string text, double anchorX, double anchorY, Vector2d position, double? widthLimit = null, Align align = Align.left, double? depth = null)
         {
-            ((IFramePainterInfo)this).textList.Add(Tuple.Create(font, text, new Vector2d(originX, originY), position, (QFontAlignment)(int)align, widthLimit, depth));
+            text = text ?? "";
+            ((IFramePainterInfo)this).textList.Add(Tuple.Create(font, text, new Vector2d(anchorX, anchorY), position, (QFontAlignment)(int)align, widthLimit, depth));
         }
         //-------------------------------
+
+        #region sprite
 
         //public void SpriteTopLeft(ISprite sprite){}
         //public void SpriteTopLeft(ISpriteSpecial sprite){}
@@ -151,12 +154,12 @@ namespace Framework
             double x, double y,
             double? angleDeg = null, Vector2d? angleLookToPoint = null,
             Vector2d? sizeExact = null, double? sizeOnlyWidth = null, double? sizeOnlyHeight = null,
-            double? depth=null,
-            double? opacity=null,
+            double? depth = null,
+            double? opacity = null,
             int? frameNumber = null
             )
         {
-            SpriteCustomAnchor(ESprite, 0.5, 0.5, x,y, angleDeg, angleLookToPoint, sizeExact, sizeOnlyWidth, sizeOnlyHeight,
+            SpriteCustomAnchor(ESprite, 0.5, 0.5, x, y, angleDeg, angleLookToPoint, sizeExact, sizeOnlyWidth, sizeOnlyHeight,
                 depth, opacity, frameNumber);
         }
         public void SpriteCenter(Enum ESprite,
@@ -245,6 +248,7 @@ namespace Framework
         //    ((IFramePainterInfo)this).spriteList.Add(Tuple.Create(sprite, new Vector2d(originPointX, originPointY), new Vector2d(x, y), angleInDegrees, specialDraw));
         //}
 
+        #endregion
 
         //polygon and line strip
         public void Polygon(Color color, Rect2d rect) { PolygonWithDepth(color, 0, rect.pointsClosed); }
@@ -280,6 +284,7 @@ namespace Framework
             ((IFramePainterInfo)this).pathList.Add(Tuple.Create(pointList, color, depth, lineWidth));
         }
 
-        
+
+       
     }
 }

@@ -66,5 +66,16 @@ namespace OpenTK
         public static Rect2d FromSize(Vector2d size) {
             return FromSize(size.X, size.Y);
         }
+
+        public Vector2d center { get { return new Vector2d(left + size.X / 2, top + size.Y / 2); } }
+
+        public static Rect2d operator +(Rect2d rect, Vector2d vector)
+        {
+            return new Rect2d(rect.lefttop + vector, rect.size);
+        }
+        public static Rect2d operator -(Rect2d rect, Vector2d vector)
+        {
+            return new Rect2d(rect.lefttop - vector, rect.size);
+        }
     }
 }

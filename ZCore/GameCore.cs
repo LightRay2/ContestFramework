@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections.Concurrent;
 using Newtonsoft.Json;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace Framework
 {
@@ -32,7 +33,7 @@ namespace Framework
             _instance._game = game;
             _instance._settings = settings;
 
-            if (!_instance.TryRunNextGame())
+            if (!_instance.TryInitNextGame())
                 return false;
 
             var gameForm = new  GameForm(_instance.Process);
@@ -62,7 +63,8 @@ namespace Framework
 
         enum EGameMode { localWithHuman, localWithoutHuman, fromServer, replayFile };
         EGameMode _gameMode;
-        bool TryRunNextGame()
+
+        bool TryInitNextGame()
         {
             _currentGameNumber++;
             if (_currentGameNumber >= _settings.Count)
@@ -82,6 +84,10 @@ namespace Framework
                 EGameMode.localWithoutHuman; //todo replay server
 
             allRounds = new ConcurrentDictionary<int, TRound>(); //todo
+
+            if (_gameMode == EGameMode.localWithoutHuman)
+                RunGameWithoutHumanInBackground();
+
             //_turnReceiver = new TurnReceiver(_currentState, _engine, settings.javaPath, settings.ThisIsReplayGame);
             //if (settings.ThisIsReplayGame)
             //{
@@ -128,7 +134,9 @@ namespace Framework
                         }
                         _currentRound = JsonConvert.DeserializeObject<TRound> (tmp.ToString());
                     }
-                    
+
+                    if (nextRoundExists == false && _gameMode == EGameMode.localWithoutHuman)
+                        break; //если игра в фоновом процессе, то ничего не предпринимаем
                         
                     if (!nextRoundExists)
                     {
@@ -172,7 +180,14 @@ namespace Framework
                     if (_currentState.GameFinished)
                         GoToPhase(EProcessPhase.gameFinished);
                     else
-                        GoToPhase(EProcessPhase.getTurnsOfNextRound);
+                    {
+                        if (_gameMode == EGameMode.localWithHuman)
+                            GoToPhase(EProcessPhase.getTurnsOfNextRound);
+                        else if (_gameMode == EGameMode.localWithoutHuman && allRounds.ContainsKey(_currentState.roundNumber))
+                            GoToPhase(EProcessPhase.getTurnsOfNextRound);
+                        //иначе остаемся крутиться в before round, пока во втором потоке не сформируется ход
+
+                    }
                 }
 
                 if (_processPhase == EProcessPhase.getTurnsOfNextRound)
@@ -225,7 +240,7 @@ namespace Framework
                 {
                     if (input.KeyTime(System.Windows.Input.Key.Enter) == 1)
                     {
-                        bool success = TryRunNextGame();
+                        bool success = TryInitNextGame();
                         if (!success)
                         {
                             return null;
@@ -288,6 +303,45 @@ namespace Framework
             return "Ok";
         }
 
-        
+        public void RunGameWithoutHumanInBackground()
+        {
+            new Thread(new ThreadStart(RunGameWithoutHuman)).Start();
+        }
+
+        public  void RunGameWithoutHuman()
+        {
+            TState state = new TState();
+            state.roundNumber = -1;
+            state.Init(_settings[_currentGameNumber]);
+            state.rounds = new List<TRound>();
+            while (!state.GameFinished)
+            {
+                state.roundNumber++;
+                var round = new TRound();
+                round.random = new System.Random(Rand.Next());
+                round.turns = new List<TTurn>();
+
+                List<TPlayer> order = _game.GetTurnOrderForNextRound(state);
+                while (round.turns.Count < order.Count)
+                {
+                    TPlayer player = order[round.turns.Count];
+                    ExternalProgramExecuter epe =
+                                new ExternalProgramExecuter(player.programAddress, "input.txt", "output.txt", "");//todo java path
+
+                    string input = _game.GetInputFile(state, player);
+                    string output;
+                    string comment;
+
+                    ExecuteResult res = epe.Execute(input, 2, out output, out comment);
+                    var turn = _game.GetProgramTurn(state, player, output, res, ExternalProgramExecuter.ExecuteResultToString(res));
+                    round.turns.Add(turn);
+                }
+                state.rounds.Add(round);
+                allRounds.TryAdd(state.roundNumber, round);
+                _game.ProcessRoundAndSetTotalStage(state, round);
+            }
+            
+        }
+
     }
 }
