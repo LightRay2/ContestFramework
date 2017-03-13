@@ -348,7 +348,7 @@ namespace Framework
 
             var fontInfo = new Font(font.fontFamily, defaultEmSize, font.fontStyle, GraphicsUnit.Pixel);
             var fontHeight = fontInfo.Height;
-            double userWantsHeightInPixels = font.emSize;
+            double userWantsHeightInPixels = font.emSize; //in pixels??
             double scale = userWantsHeightInPixels / fontInfo.Height;
             double userWantsMaxWidthInPixels = maxWidth / scale; //* weHavePerPixel.X;
             var sizeOnbitmap = fontState.QFont.Measure(text.Item2, (float)userWantsMaxWidthInPixels, text.Item5); //todo размер шрифта , если выбираем маленький вьюпорт, не тот

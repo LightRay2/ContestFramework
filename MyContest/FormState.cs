@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace MyContest
 {
-    public class FormState : INotifyPropertyChanged //todo вынести в хелпер
+    public class FormState : INotifyPropertyChanged, IParamsFromStartForm //todo вынести в хелпер
     {
         public event PropertyChangedEventHandler PropertyChanged;
         static string saveLoadPath = FrameworkSettings.InnerSettings.RoamingPath + "GameSettings.xml";
@@ -93,7 +93,25 @@ namespace MyContest
             set { javaPath = value; if (!loading)  Notify("JavaPath"); }
         }
 
-
-
+        ObservableCollection<object> _gameParamsList;
+        [XmlIgnore]
+        public ObservableCollection<object> GameParamsList
+        {
+            get
+            {
+                if (_gameParamsList == null)
+                {
+                    _gameParamsList = new ObservableCollection<object>();
+                    _gameParamsList.CollectionChanged += (s, e) => Notify("GameParamsList");
+                }
+                return _gameParamsList;
+            }
+        }
+        int _randomSeed = new Random().Next();
+        public int RandomSeed
+        {
+            get { return _randomSeed; }
+            set { _randomSeed = value; if (!loading) Notify("RandomSeed"); }
+        }
     }
 }

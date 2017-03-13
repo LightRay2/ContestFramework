@@ -270,8 +270,34 @@ namespace Framework
             return res;
         }
 
+        public void Circle(Color color, double x, double y, double radius, double startAngleDeg=0, double sectorAngleDeg=360, int circleConsistsOfLines = 64)
+        {
+             Circle(color, new Vector2d(x, y), radius, startAngleDeg, sectorAngleDeg, circleConsistsOfLines);
+        }
+        //todo test circle
+        public void Circle(Color color, Vector2d center, double radius, double startAngleDeg=0, double sectorAngleDeg=360, int circleConsistsOfLines = 64)
+        {
+            double singleangleRad = Math.PI * 2 / circleConsistsOfLines;
+            var res = new List<Vector2d>();
+            var startAngleRad = startAngleDeg / 180 * Math.PI;
+            for (int i = 0; i < circleConsistsOfLines; i++)
+            {
 
+                double angleRad = i * singleangleRad;
+                double angleDeg = angleRad * 180 / Math.PI;
+                if (angleDeg.DoubleGreaterOrEqual( sectorAngleDeg)) //todo add all extensions to geomhelper to say they are exists
+                {
+                    angleRad = sectorAngleDeg / 180 * Math.PI;//todo test all extensions
+                    res.Add(   (new Vector2d( radius,0)).RotateRad(startAngleRad + angleRad) + center); //дорисовали последнюю точку
 
+                    break;
+                }
+                res.Add((new Vector2d( radius,0)).RotateRad(startAngleRad + angleRad) + center);
+            }
+
+            Polygon(color, res); //todo preserve depth as order of adding
+            
+        }
         public void Path(Color color, double lineWidth, Rect2d rect) { PathWithDepth(color, lineWidth, 0, rect.pointsClosed); }
         public void Path(Color color, double lineWidth, List<Vector2d> pointList) { PathWithDepth(color, lineWidth, 0, pointList); }
         public void Path(Color color, double lineWidth, params Vector2d[] pointList) { PathWithDepth(color, lineWidth, 0, pointList.ToList()); }

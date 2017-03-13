@@ -27,6 +27,9 @@ namespace Framework
         /// </summary>
         public static int PlayersPerGame = 0;
         public static int FramesPerTurn=50;
+
+        public static bool AllowFastGameInBackgroundThread { get; set; }
+
         static FrameworkSettings()
         {
             string cur = "ContestAI";            //todo check if exists

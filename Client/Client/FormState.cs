@@ -177,7 +177,12 @@ namespace Client
             set { javaPath = value; if (!loading)  Notify("JavaPath"); }
         }
 
-
+        int _randomSeed = new Random().Next();
+        public int RandomSeed
+        {
+            get { return _randomSeed; }
+            set { _randomSeed = value; if (!loading) Notify("RandomSeed"); }
+        }
 
     }
 }

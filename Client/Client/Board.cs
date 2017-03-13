@@ -21,7 +21,7 @@ namespace Client
         public string nameForTimeLine { get; set; }
     }
 
-    public class Turn : ITurn<Player>
+    public class Turn : ITurn<Player>, ITimelineCell
     {
         public string input { get; set; }
         public string output { get; set; }
@@ -68,6 +68,7 @@ namespace Client
         public List<Player> players { get; set; }
         public List<Round> rounds { get; set; }
         public bool GameFinished { get; set; }
+        public int clickedRound { get; set; }
 
         /// <summary>
         /// 0,0 - левый верхний угол и база первого игрока (i=1), второй игрок против часовой стрелке
@@ -80,6 +81,7 @@ namespace Client
         Animator<double> playerAnimator;
         int lastPlayerMadeTurns = -1;
         GamePurpose _purpose;
+        Timeline _timeline = new Timeline(EFont.timeline,30,30);
         public Board(FormState settings, GamePurpose purpose)
         {
             _purpose = purpose;
@@ -503,15 +505,15 @@ namespace Client
             #region timeline2
             {
                 double tileStatusWidth = 10;
-                var fullTimeLineRect = new Rect2d(frameWidth - _tileWidth, 0, _tileWidth, frameHeight);
+                var fullTimeLineRect = new Rect2d(frameWidth - _timeline._tileWidth, 0, _timeline._tileWidth, frameHeight);
                 //if(_indexOfLastViewedTile != -1){
                 var turns = this.rounds.SelectMany(x => x.turns).ToList();
                 if (turns.Count > 0)
                 {
-                    _indexOfLastViewedTile = turns.Count - 1;
-                    ManageTimelineByInput(frame, input, fullTimeLineRect, turns.Count);
-                    DrawTimeLine(frame, input, turns, _firstTurnOffset, _indexOfLastViewedTile,
-                        new Vector2d(frameWidth - _tileWidth, 0), frameHeight, _tileWidth, _tileHeight, tileStatusWidth, EDirections.down);
+                    _timeline._indexOfLastViewedTile = turns.Count - 1;
+                    _timeline.ManageTimelineByInputAndGetClickedTurn(frame, input, fullTimeLineRect, turns.Count);
+                    _timeline.Draw(frame, input, turns.Cast<ITimelineCell>().ToList(), _timeline._firstTurnOffset, _timeline._indexOfLastViewedTile,
+                        new Vector2d(frameWidth - _timeline._tileWidth, 0), frameHeight, _timeline._tileWidth, _timeline._tileHeight, tileStatusWidth, EDirections.down);
                 }
                 // }
             }
@@ -519,128 +521,9 @@ namespace Client
         }
 
 
-        public enum EDirections { down, right }
-        void DrawTimeLine(Frame frame, GlInput input, List<Turn> turns, double firstTurnOffset, int indexOfLastViewedTile,
-            Vector2d positionOfFirstTile, double maxLength, double tileWidth, double tileLength, double statusNearTileWidth, EDirections direction)
-        {
-            #region implementation
-            //todo all variables named for down direction and only down is implemented
+        
+        
 
-            //draw last two
-            var timeLineX = positionOfFirstTile.X;
-            {
-
-                var lastPos = positionOfFirstTile.Y + maxLength - tileLength;
-                //todo add rect instead
-
-                var rect = new Rect2d(timeLineX, lastPos, tileWidth, tileLength);
-                var statusRect = new Rect2d(timeLineX - statusNearTileWidth, lastPos, statusNearTileWidth, tileLength);
-
-                {
-                    var lastTurn = turns.Last();
-                    string buttonName = string.Format("__timeline{0}", turns.Count - 1);
-                    var statusColor = input.ButtonUnderMouse(buttonName) ? InvertedColor(lastTurn.colorStatusOnTimeLine) : lastTurn.colorStatusOnTimeLine;//todo input
-                    frame.Polygon(lastTurn.colorOnTimeLine, rect);
-                    frame.Polygon(statusColor, statusRect);
-                    frame.TextCenter(EFont.timeline, lastTurn.nameOnTimeLine, rect.center);
-                    input.Button(rect, buttonName);
-                }
-                {
-                    var lastViewedTurn = turns[indexOfLastViewedTile];
-                    string buttonName = string.Format("__timeline{0}", indexOfLastViewedTile);
-                    var statusColor = input.ButtonUnderMouse(buttonName) ? InvertedColor(lastViewedTurn.colorStatusOnTimeLine) : lastViewedTurn.colorStatusOnTimeLine;//todo input
-                    rect = rect - Vector2d.UnitY * tileLength * 1.5;
-                    statusRect = statusRect - Vector2d.UnitY * tileLength * 1.5;
-                    frame.Polygon(lastViewedTurn.colorOnTimeLine, rect);
-                    frame.Polygon(statusColor, statusRect);
-                    frame.TextCenter(EFont.timeline, lastViewedTurn.nameOnTimeLine, rect.center);
-                    input.Button(rect, buttonName);
-                }
-
-                maxLength -= 3 * tileLength; //todo закрыть неровности кнопками вверх вниз
-                //todo брать ходы из другого места
-            }
-            //draw first 
-            {
-                for (int i = 0; i < turns.Count; i++)
-                {
-                    var turn = turns[i];
-                    var rect = new Rect2d(timeLineX, firstTurnOffset + i * tileLength, tileWidth, tileLength);
-
-                    if (rect.bottom <= positionOfFirstTile.Y || rect.bottom > positionOfFirstTile.Y + maxLength)
-                        continue;
-
-                    var statusRect = new Rect2d(rect.lefttop - Vector2d.UnitX * statusNearTileWidth, statusNearTileWidth, tileLength);
-                    string buttonName = string.Format("__timeline{0}", i);
-                    var statusColor = input.ButtonUnderMouse(buttonName) ? InvertedColor(turn.colorStatusOnTimeLine) : turn.colorStatusOnTimeLine;//todo input
-                    frame.Polygon(turn.colorOnTimeLine, rect);
-                    frame.Polygon(statusColor, statusRect);
-                    frame.TextCenter(EFont.timeline, turn.nameOnTimeLine, rect.center);
-                    input.Button(rect, buttonName);
-                }
-            }
-            #endregion
-        }
-
-        double _firstTurnOffset = -20;
-        int _indexOfLastViewedTile = -1;
-        double _tileWidth = 30;
-        double _tileHeight = 30;
-        double _timelineSpeed = 0;
-        double TIMELINE_SPEED_DECREASE_PER_TICK = 1;
-        void ManageTimelineByInput(Frame frame, GlInput input, Rect2d fullTimelineRect, int turnCount)
-        {
-            if (input.RightMouseTime >= 1 && GeomHelper.PointInSimpleRect(input.Mouse, fullTimelineRect))
-            {
-                _timelineSpeed = 0;
-                if (input.RightMouseTime > 1)
-                {
-                    _firstTurnOffset += input.MouseDelta.Y;
-                }
-            }
-            else if (input.RightMouseUp)
-            {
-                _timelineSpeed = input.MouseDelta.Y;
-            }
-
-
-            if (input.Wheel != 0 && GeomHelper.PointInSimpleRect(input.Mouse, fullTimelineRect))
-            {
-                _timelineSpeed = 0;
-                _firstTurnOffset += input.Wheel * _tileWidth;
-            }
-
-            _firstTurnOffset += _timelineSpeed;
-            if (_timelineSpeed > 0)
-            {
-                _timelineSpeed = Math.Max(0, _timelineSpeed - TIMELINE_SPEED_DECREASE_PER_TICK);
-            }
-            else
-            {
-                _timelineSpeed = Math.Min(0, _timelineSpeed + TIMELINE_SPEED_DECREASE_PER_TICK);
-
-            }
-
-            //correction  - must be <=0 and at least one tile should be visible
-
-            _firstTurnOffset = _firstTurnOffset.ToRange(-turnCount * _tileHeight + _tileHeight, 0);
-        }
-
-        Color InvertedColor(Color color)
-        {
-            //not perfect , from stackoverflow, just changes the color
-            Color invertedColor = Color.FromArgb(color.ToArgb() ^ 0xffffff);
-
-            if (invertedColor.R > 110 && invertedColor.R < 150 &&
-                invertedColor.G > 110 && invertedColor.G < 150 &&
-                invertedColor.B > 110 && invertedColor.B < 150)
-            {
-                int avg = (invertedColor.R + invertedColor.G + invertedColor.B) / 3;
-                avg = avg > 128 ? 200 : 60;
-                invertedColor = Color.FromArgb(avg, avg, avg);
-            }
-            return invertedColor;
-        }
 
         void InitTimeLine()
         {

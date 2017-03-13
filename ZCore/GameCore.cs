@@ -17,43 +17,43 @@ namespace Framework
         where TParamsFromStartForm : IParamsFromStartForm
         where TTurn : ITurn<TPlayer>
         where TPlayer : IPlayer
-        where TRound : IRound<TTurn,TPlayer>, new()
+        where TRound : IRound<TTurn, TPlayer>, new()
     {
-        public static Random  Rand= new Random();
+        public static Random Rand = new Random();
         public static bool IsWorking = false;
         static ConcurrentDictionary<int, object> _roundsFromServer;
-        Func<TParamsFromStartForm, GamePurpose, IGame<TParamsFromStartForm,TTurn, TRound, TPlayer>> _GameCreationDelegate;
-        public static bool TryRunAsSingleton(Func<TParamsFromStartForm, GamePurpose, IGame<TParamsFromStartForm,TTurn, TRound, TPlayer>> GameCreationDelegate, List<TParamsFromStartForm> settings, ConcurrentDictionary<int, object> roundsFromServer=null)
+        Func<TParamsFromStartForm, GamePurpose, IGame<TParamsFromStartForm, TTurn, TRound, TPlayer>> _GameCreationDelegate;
+        public static bool TryRunAsSingleton(Func<TParamsFromStartForm, GamePurpose, IGame<TParamsFromStartForm, TTurn, TRound, TPlayer>> GameCreationDelegate, List<TParamsFromStartForm> settings, ConcurrentDictionary<int, object> roundsFromServer = null)
         {
             if (IsWorking)
                 return false;
             IsWorking = true;
             _roundsFromServer = roundsFromServer;
 
-            
+
             _instance = new GameCore<TParamsFromStartForm, TTurn, TRound, TPlayer>();
             _instance._GameCreationDelegate = GameCreationDelegate;
-           // _instance._game = GameCreationDelegate( game;
+            // _instance._game = GameCreationDelegate( game;
             _instance._settings = settings;
 
             if (!_instance.TryInitNextGame())
                 return false;
 
-            var gameForm = new  GameForm(_instance.Process);
+            _instance._gameForm = new GameForm(_instance.Process);
             GameCreationDelegate(settings[0], GamePurpose.LoadSpritesAndFonts).LoadSpritesAndFonts(); //fake game to load sprites
 
             //todo keyboard
-            gameForm.FormClosed += new FormClosedEventHandler((o,e)=>IsWorking = false);
-            gameForm.ShowDialog();
+            _instance._gameForm.FormClosed += new FormClosedEventHandler((o, e) => IsWorking = false);
+            _instance._gameForm.ShowDialog();
             return true;
         }
 
-
+        GameForm _gameForm;
         static GameCore<TParamsFromStartForm, TTurn, TRound, TPlayer> _instance;
         static GameCore()
         {
         }
-        
+
         IGame<TParamsFromStartForm, TTurn, TRound, TPlayer> _game;
 
         int _currentGameNumber = -1;
@@ -87,7 +87,12 @@ namespace Framework
             allRounds = new ConcurrentDictionary<int, TRound>(); //todo
 
             if (_gameMode == EGameMode.localWithoutHuman)
-                RunGameWithoutHumanInBackground();
+            {
+                if (FrameworkSettings.AllowFastGameInBackgroundThread)
+                    RunGameWithoutHumanInBackground();
+                else
+                    _gameMode = EGameMode.localWithHuman;
+            }
 
             //_turnReceiver = new TurnReceiver(_currentState, _engine, settings.javaPath, settings.ThisIsReplayGame);
             //if (settings.ThisIsReplayGame)
@@ -115,16 +120,17 @@ namespace Framework
         private List<TPlayer> _currentPlayerOrder;
 
         bool animationFinished { get { return animationStage.Equal(animationFinishStage); } }
-        
+
         void GoToPhase(EProcessPhase phase)
         {
             switch (phase)
             {
                 case EProcessPhase.beforeRound:
+                    _game.roundNumber++;
                     _game.PreparationsBeforeRound();
                     break;
                 case EProcessPhase.getTurnsOfNextRound:
-                    bool nextRoundExists=false;
+                    bool nextRoundExists = false;
                     if (_roundsFromServer == null)
                     {
                         nextRoundExists = allRounds.TryGetValue(_game.roundNumber, out _currentRound);
@@ -136,12 +142,12 @@ namespace Framework
                         {
                             nextRoundExists = true;
                         }
-                        _currentRound = JsonConvert.DeserializeObject<TRound> (tmp.ToString());
+                        _currentRound = JsonConvert.DeserializeObject<TRound>(tmp.ToString());
                     }
 
                     if (nextRoundExists == false && _gameMode == EGameMode.localWithoutHuman)
                         break; //если игра в фоновом процессе, то ничего не предпринимаем
-                        
+
                     if (!nextRoundExists)
                     {
                         _currentRound = new TRound();
@@ -158,6 +164,7 @@ namespace Framework
                 case EProcessPhase.processRound:
                     _game.rounds.Add(_currentRound);
                     _game.ProcessRoundAndSetTotalStage(_currentRound);
+                    animationStage = 0;
                     animationFinishStage = _currentRound.totalStage;
                     GoToPhase(EProcessPhase.waitUntilAnimationFinished);
                     return;
@@ -169,7 +176,7 @@ namespace Framework
 
         public Frame Process(GlInput input)
         {
-            if (input.KeyTime ( System.Windows.Input.Key.Escape) == 1) return null;//todo завершить второй процесс корректно
+            if (input.KeyTime(System.Windows.Input.Key.Escape) == 1) return null;//todo завершить второй процесс корректно
             if (input.KeyTime(System.Windows.Input.Key.Space) == 1)
                 PauseButtonPressed = !PauseButtonPressed;
 
@@ -179,8 +186,6 @@ namespace Framework
 
                 if (_processPhase == EProcessPhase.beforeRound)
                 {
-                    _game.roundNumber++;
-                    animationStage = 0;
                     if (_game.GameFinished)
                         GoToPhase(EProcessPhase.gameFinished);
                     else
@@ -219,12 +224,12 @@ namespace Framework
                             ExternalProgramExecuter epe =
                                 new ExternalProgramExecuter(player.programAddress, "input.txt", "output.txt", null);//todo java path
 
-                            string inputFile = _game.GetInputFile( player);
+                            string inputFile = _game.GetInputFile(player);
                             string output;
                             string comment; //exitCode, нигде не используется
 
                             ExecuteResult res = epe.Execute(inputFile, 2, out output, out comment);
-                            var turn = _game.GetProgramTurn(player,output, res, ExternalProgramExecuter.ExecuteResultToString(res));
+                            var turn = _game.GetProgramTurn(player, output, res, ExternalProgramExecuter.ExecuteResultToString(res));
                             turn.input = inputFile;
                             _currentRound.turns.Add(turn);
                         }
@@ -257,11 +262,17 @@ namespace Framework
             Frame frame = new Frame();
             _game.DrawAll(frame, animationStage, animationFinishStage, _processPhase == EProcessPhase.getTurnsOfNextRound, input);
             _game.frameNumber++;
+
+            if (_game.clickedRound >= 0 && _game.clickedRound < allRounds.Count)
+            {
+                SetStateBeforeGivenRound(_game.clickedRound);
+               // PauseButtonPressed = true;
+            }
             return frame;
         }
 
 
-       
+
         private void UpdateAnimationStage()
         {
             animationStage += 1.0 / FrameworkSettings.FramesPerTurn;
@@ -276,7 +287,7 @@ namespace Framework
         /// <param name="javaPath"></param>
         /// <param name="RoundPlayed"></param>
         /// <returns></returns>
-        public static string RunOnServerOrGetError(IGame<TParamsFromStartForm, TTurn, TRound, TPlayer> game, string javaPath,  Action<object, string> RoundPlayed )
+        public static string RunOnServerOrGetError(IGame<TParamsFromStartForm, TTurn, TRound, TPlayer> game, string javaPath, Action<object, string> RoundPlayed)
         {
 
             game.roundNumber = -1;
@@ -284,48 +295,6 @@ namespace Framework
             if (game.players.Count == 0)
                 return "Игра без игроков невозможна";
 
-            while(!game.GameFinished)
-            {
-                game.roundNumber++;
-                var round = new TRound();
-                round.random = new System.Random(Rand.Next());
-                round.turns = new List<TTurn>();
-
-                game.PreparationsBeforeRound();
-                List<TPlayer> order = game.GetTurnOrderForNextRound();
-                while(round.turns.Count < order.Count){
-                    TPlayer player = order[round.turns.Count];
-                    ExternalProgramExecuter epe =
-                                new ExternalProgramExecuter(player.programAddress, "input.txt", "output.txt", javaPath);
-
-                            string input = game.GetInputFile( player);
-                            string output;
-                            string comment;
-
-                            ExecuteResult res = epe.Execute(input, 2, out output, out comment);
-                            var turn = game.GetProgramTurn( player,output, res,  ExternalProgramExecuter.ExecuteResultToString(res));
-                    turn.output = output;
-                            round.turns.Add(turn);
-                }
-                game.rounds.Add(round);
-                game.ProcessRoundAndSetTotalStage( round);
-
-                RoundPlayed(round, game.GetCurrentSituation());
-            }
-
-            return "Ok";
-        }
-
-        public void RunGameWithoutHumanInBackground()
-        {
-            new Thread(new ThreadStart(RunGameWithoutHuman)).Start();
-        }
-
-        public  void RunGameWithoutHuman()
-        {
-            var game = _GameCreationDelegate(_settings[_currentGameNumber], GamePurpose.fastGameInBackgroundWithoutVisualization);
-            game.roundNumber = -1;
-            game.rounds = new List<TRound>();
             while (!game.GameFinished)
             {
                 game.roundNumber++;
@@ -339,22 +308,123 @@ namespace Framework
                 {
                     TPlayer player = order[round.turns.Count];
                     ExternalProgramExecuter epe =
-                                new ExternalProgramExecuter(player.programAddress, "input.txt", "output.txt", "");//todo java path
+                                new ExternalProgramExecuter(player.programAddress, "input.txt", "output.txt", javaPath);
 
-                    string input = game.GetInputFile( player);
+                    string input = game.GetInputFile(player);
                     string output;
                     string comment;
 
                     ExecuteResult res = epe.Execute(input, 2, out output, out comment);
-                    var turn = game.GetProgramTurn( player, output, res, ExternalProgramExecuter.ExecuteResultToString(res));
+                    var turn = game.GetProgramTurn(player, output, res, ExternalProgramExecuter.ExecuteResultToString(res));
                     turn.output = output;
                     round.turns.Add(turn);
                 }
                 game.rounds.Add(round);
-                allRounds.TryAdd(game.roundNumber, round);
-                game.ProcessRoundAndSetTotalStage( round);
+                game.ProcessRoundAndSetTotalStage(round);
+
+                RoundPlayed(round, game.GetCurrentSituation());
             }
-            
+
+            return "Ok";
+        }
+
+        public void RunGameWithoutHumanInBackground()
+        {
+            new Thread(new ThreadStart(RunGameWithoutHuman)).Start();
+        }
+
+        public void RunGameWithoutHuman()
+        {
+            var game = _GameCreationDelegate(_settings[_currentGameNumber], GamePurpose.fastGameInBackgroundWithoutVisualization);
+            game.roundNumber = -1;
+            game.rounds = new List<TRound>();
+
+            int runtimeErrorOrTimeLimitCounter = 0;
+            while (!game.GameFinished)
+            {
+                game.roundNumber++;
+                var round = new TRound();
+                round.random = new System.Random(Rand.Next());
+                round.turns = new List<TTurn>();
+
+                game.PreparationsBeforeRound();
+                List<TPlayer> order = game.GetTurnOrderForNextRound();
+                bool addRound = true;
+                while (round.turns.Count < order.Count)
+                {
+                    TPlayer player = order[round.turns.Count];
+                    ExternalProgramExecuter epe =
+                                new ExternalProgramExecuter(player.programAddress, "input.txt", "output.txt", "");//todo java path
+
+
+                    string input = game.GetInputFile(player);
+                    string output;
+                    string comment;
+
+                    ExecuteResult res = epe.Execute(input, 2, out output, out comment);
+                    var turn = game.GetProgramTurn(player, output, res, ExternalProgramExecuter.ExecuteResultToString(res));
+                    turn.output = output; //todo this is bad
+                    turn.input = input;
+                    round.turns.Add(turn);
+
+                    if (res == ExecuteResult.InternalError || res == ExecuteResult.NotStarted || res == ExecuteResult.TimeOut)
+                        runtimeErrorOrTimeLimitCounter++;
+                    if (runtimeErrorOrTimeLimitCounter == 2)
+                    {
+                        //todo test game stipping
+                        var dialogResult = _gameForm.ThreadSafeMessageBox("Остановка игры", "Вызов программы дважды завершился с ошибкой. YES = остановить игру, NO = продолжить до двух новых ошибочных запусков, CANCEL = продолжить до конца", MessageBoxButtons.YesNoCancel);
+                        if (dialogResult == DialogResult.Yes)
+                        {
+                            game.GameFinished = true;
+                            addRound = false;
+                            break;
+                        }
+                        else if (dialogResult == DialogResult.No)
+                        {
+                            runtimeErrorOrTimeLimitCounter = 0;
+                        }
+                        else
+                        {
+                            runtimeErrorOrTimeLimitCounter = -1000000000;
+                        }
+                    }
+                }
+                if (addRound)
+                {
+                    game.rounds.Add(round);
+                    allRounds.TryAdd(game.roundNumber, round);
+                    game.ProcessRoundAndSetTotalStage(round);
+                }
+            }
+
+        }
+
+        public void SetStateBeforeGivenRound(int goBeforeRound)
+        {
+            var game = _GameCreationDelegate(_settings[_currentGameNumber], GamePurpose.visualizationGame);
+            game.roundNumber = -1;
+            game.rounds = new List<TRound>();
+
+            while (!game.GameFinished && game.roundNumber + 1 < goBeforeRound)
+            {
+                game.roundNumber++;
+                game.PreparationsBeforeRound();
+
+                TRound round;
+                allRounds.TryGetValue(game.roundNumber, out round);
+                game.rounds.Add(round);
+
+                game.ProcessRoundAndSetTotalStage(round);
+
+                animationFinishStage = round.totalStage;
+
+            }
+            animationStage = goBeforeRound == 0 ? 0 : 1;
+
+            _game = game;
+            GoToPhase(EProcessPhase.beforeRound);
+
+
         }
 
     }

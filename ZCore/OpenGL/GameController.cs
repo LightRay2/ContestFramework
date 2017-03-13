@@ -17,7 +17,7 @@ namespace Framework
 
         System.Windows.Forms.Timer _loopTimer = new System.Windows.Forms.Timer { Interval = 16 };
 
-        GameForm _parentForm;
+        public GameForm _parentForm;
         GLControl control;
         GlInput _keyboardState;
         Func<GlInput, Frame> _processMethod;

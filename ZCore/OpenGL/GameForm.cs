@@ -49,6 +49,13 @@ namespace Framework
                 _processMethod, this);
         }
 
+        public DialogResult ThreadSafeMessageBox(string title, string message, MessageBoxButtons buttons)
+        {
+            return ((DialogResult)this.Invoke(
+                new Func<string, string, MessageBoxButtons, DialogResult>(MessageBox.Show),
+               message, title,buttons) ) ;
+        }
+
 
     }
 }

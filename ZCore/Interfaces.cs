@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 
@@ -15,7 +16,8 @@ namespace Framework
         int frameNumber { get; set; }
         List<TPlayer> players { get; }
         List<TRound> rounds { get; set; }
-        bool GameFinished { get; }
+        bool GameFinished { get; set; }
+        int clickedRound { get; set; }
 
         void LoadSpritesAndFonts();
         void PreparationsBeforeRound();
@@ -31,6 +33,7 @@ namespace Framework
     public interface IParamsFromStartForm
     {
         string JavaPath { get; }
+        int RandomSeed { get; }
     }
 
     public interface ITurn<TPlayer> where TPlayer:IPlayer
@@ -38,6 +41,7 @@ namespace Framework
         string input { set; }
         string output { set; }
         TPlayer player { set; }
+
     }
 
     /// <summary>
@@ -59,5 +63,13 @@ namespace Framework
         string programAddress { get; }
         bool controlledByHuman { get; }
         string name { get; }
+    }
+
+    public interface ITimelineCell
+    {
+
+        Color colorOnTimeLine { get; }
+        Color colorStatusOnTimeLine { get; }
+        string nameOnTimeLine { get; }
     }
 }

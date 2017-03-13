@@ -66,92 +66,92 @@ namespace Framework
 
         static Config()
         {
-            Sprites.Add(ESprite.test.ToString(), new SpriteConfig("textures//test.png", 4, 4));
-            Sprites.Add(ESprite.background.ToString(), new SpriteConfig("textures//back6.png", 1, 1,-1000));
-            Sprites.Add(ESprite.smallBack.ToString(), new SpriteConfig("textures//smallback.png", 1, 1));
-            Sprites.Add(ESprite.shell1.ToString(), new SpriteConfig("textures//shell1.png", 1, 1, -1));
-            Sprites.Add(ESprite.explosion.ToString(), new SpriteConfig("textures//explosion.png", 9, 9,20));
+            //Sprites.Add(ESprite.test.ToString(), new SpriteConfig("textures//test.png", 4, 4));
+            //Sprites.Add(ESprite.background.ToString(), new SpriteConfig("textures//back6.png", 1, 1,-1000));
+            //Sprites.Add(ESprite.smallBack.ToString(), new SpriteConfig("textures//smallback.png", 1, 1));
+            //Sprites.Add(ESprite.shell1.ToString(), new SpriteConfig("textures//shell1.png", 1, 1, -1));
+            //Sprites.Add(ESprite.explosion.ToString(), new SpriteConfig("textures//explosion.png", 9, 9,20));
 
-            Sprites.Add(ESprite.background_field.ToString(), new SpriteConfig("textures//background_field.png", 1, 1,-100));
-            Sprites.Add(ESprite.background_cell.ToString(), new SpriteConfig("textures//background_cell.png", 1, 1,-100));
-            Sprites.Add(ESprite.green_hull.ToString(), new SpriteConfig("textures//hull_green.png", 1, 1));
-            Sprites.Add(ESprite.red_hull.ToString(), new SpriteConfig("textures//hull_red.png", 1, 1));
-            Sprites.Add(ESprite.green_turret.ToString(), new SpriteConfig("textures//turret_green.png", 1, 1));
-            Sprites.Add(ESprite.red_turret.ToString(), new SpriteConfig("textures//turret_red.png", 1, 1));
-            Sprites.Add(ESprite.green_armored.ToString(), new SpriteConfig("textures//armored_green.png", 1, 1));
-            Sprites.Add(ESprite.red_armored.ToString(), new SpriteConfig("textures//armored_red.png", 1, 1));
-            Sprites.Add(ESprite.green_combine.ToString(), new SpriteConfig("textures//combine_green.png", 1, 1));
-            Sprites.Add(ESprite.red_combine.ToString(), new SpriteConfig("textures//combine_red.png", 1, 1));
-            Sprites.Add(ESprite.green_mine.ToString(), new SpriteConfig("textures//mine_green.png", 1, 1));
-            Sprites.Add(ESprite.red_mine.ToString(), new SpriteConfig("textures//mine_red.png", 1, 1));
-            Sprites.Add(ESprite.green_cannon.ToString(), new SpriteConfig("textures//cannon_green.png", 1, 1));
-            Sprites.Add(ESprite.red_cannon.ToString(), new SpriteConfig("textures//cannon_red.png", 1, 1));
+            //Sprites.Add(ESprite.background_field.ToString(), new SpriteConfig("textures//background_field.png", 1, 1,-100));
+            //Sprites.Add(ESprite.background_cell.ToString(), new SpriteConfig("textures//background_cell.png", 1, 1,-100));
+            //Sprites.Add(ESprite.green_hull.ToString(), new SpriteConfig("textures//hull_green.png", 1, 1));
+            //Sprites.Add(ESprite.red_hull.ToString(), new SpriteConfig("textures//hull_red.png", 1, 1));
+            //Sprites.Add(ESprite.green_turret.ToString(), new SpriteConfig("textures//turret_green.png", 1, 1));
+            //Sprites.Add(ESprite.red_turret.ToString(), new SpriteConfig("textures//turret_red.png", 1, 1));
+            //Sprites.Add(ESprite.green_armored.ToString(), new SpriteConfig("textures//armored_green.png", 1, 1));
+            //Sprites.Add(ESprite.red_armored.ToString(), new SpriteConfig("textures//armored_red.png", 1, 1));
+            //Sprites.Add(ESprite.green_combine.ToString(), new SpriteConfig("textures//combine_green.png", 1, 1));
+            //Sprites.Add(ESprite.red_combine.ToString(), new SpriteConfig("textures//combine_red.png", 1, 1));
+            //Sprites.Add(ESprite.green_mine.ToString(), new SpriteConfig("textures//mine_green.png", 1, 1));
+            //Sprites.Add(ESprite.red_mine.ToString(), new SpriteConfig("textures//mine_red.png", 1, 1));
+            //Sprites.Add(ESprite.green_cannon.ToString(), new SpriteConfig("textures//cannon_green.png", 1, 1));
+            //Sprites.Add(ESprite.red_cannon.ToString(), new SpriteConfig("textures//cannon_red.png", 1, 1));
 
-            //misha
+            ////misha
 
-            Sprites.Add(ESprite.gridPoint.ToString(), new SpriteConfig("textures//gridPoint.png", 1, 1,-100));
-            Sprites.Add(ESprite.gridPoint2.ToString(), new SpriteConfig("textures//gridPoint1.png", 1, 1,-100));
-            Sprites.Add(ESprite.gridPoint1.ToString(), new SpriteConfig("textures//gridPoint2.png", 1, 1,-100));
+            //Sprites.Add(ESprite.gridPoint.ToString(), new SpriteConfig("textures//gridPoint.png", 1, 1,-100));
+            //Sprites.Add(ESprite.gridPoint2.ToString(), new SpriteConfig("textures//gridPoint1.png", 1, 1,-100));
+            //Sprites.Add(ESprite.gridPoint1.ToString(), new SpriteConfig("textures//gridPoint2.png", 1, 1,-100));
 
-            Sprites.Add(ESprite.stone.ToString(), new SpriteConfig("textures//main//effect3.png", 8, 4,-1));
-            Sprites.Add(ESprite.explosionBig.ToString(), new SpriteConfig("textures//main//explosion6-7.png", 7, 6,20));
-            Sprites.Add(ESprite.explosionNuclear.ToString(), new SpriteConfig("textures//main//beautiful3.png", 6, 5,25));
-            Sprites.Add(ESprite.explosionOut.ToString(), new SpriteConfig("textures//main//explosion3_5.png", 5, 3));
-            Sprites.Add(ESprite.explosionSmall.ToString(), new SpriteConfig("textures//main//explosion6_8.png", 8, 6));
-            Sprites.Add(ESprite.active1.ToString(), new SpriteConfig("textures//main//player1.png", 8, 4,-120));
-            Sprites.Add(ESprite.active2.ToString(), new SpriteConfig("textures//main//player2.png", 8, 4,-120));
+            //Sprites.Add(ESprite.stone.ToString(), new SpriteConfig("textures//main//effect3.png", 8, 4,-1));
+            //Sprites.Add(ESprite.explosionBig.ToString(), new SpriteConfig("textures//main//explosion6-7.png", 7, 6,20));
+            //Sprites.Add(ESprite.explosionNuclear.ToString(), new SpriteConfig("textures//main//beautiful3.png", 6, 5,25));
+            //Sprites.Add(ESprite.explosionOut.ToString(), new SpriteConfig("textures//main//explosion3_5.png", 5, 3));
+            //Sprites.Add(ESprite.explosionSmall.ToString(), new SpriteConfig("textures//main//explosion6_8.png", 8, 6));
+            //Sprites.Add(ESprite.active1.ToString(), new SpriteConfig("textures//main//player1.png", 8, 4,-120));
+            //Sprites.Add(ESprite.active2.ToString(), new SpriteConfig("textures//main//player2.png", 8, 4,-120));
 
-            Sprites.Add(ESprite.tankBox.ToString(), new SpriteConfig("textures//main//units//tank-box.png", 1, 1));
-            Sprites.Add(ESprite.tankGun.ToString(), new SpriteConfig("textures//main//units//tank-gun-2-3.png", 1, 1,10));
-            Sprites.Add(ESprite.cannonBox.ToString(), new SpriteConfig("textures//main//units//cannon-box.png", 1, 1));
-            Sprites.Add(ESprite.cannonGun.ToString(), new SpriteConfig("textures//main//units//cannon-gun.png", 1, 1,10));
-            Sprites.Add(ESprite.armoBox.ToString(), new SpriteConfig("textures//main//units//armo-box.png", 1, 1));
-            Sprites.Add(ESprite.armoGun.ToString(), new SpriteConfig("textures//main//units//armo-gun.png", 1, 1,1));
-            Sprites.Add(ESprite.combine.ToString(), new SpriteConfig("textures//main//units//combine.png", 1, 1));
-            Sprites.Add(ESprite.car.ToString(), new SpriteConfig("textures//main//units//car.png", 1, 1));
+            //Sprites.Add(ESprite.tankBox.ToString(), new SpriteConfig("textures//main//units//tank-box.png", 1, 1));
+            //Sprites.Add(ESprite.tankGun.ToString(), new SpriteConfig("textures//main//units//tank-gun-2-3.png", 1, 1,10));
+            //Sprites.Add(ESprite.cannonBox.ToString(), new SpriteConfig("textures//main//units//cannon-box.png", 1, 1));
+            //Sprites.Add(ESprite.cannonGun.ToString(), new SpriteConfig("textures//main//units//cannon-gun.png", 1, 1,10));
+            //Sprites.Add(ESprite.armoBox.ToString(), new SpriteConfig("textures//main//units//armo-box.png", 1, 1));
+            //Sprites.Add(ESprite.armoGun.ToString(), new SpriteConfig("textures//main//units//armo-gun.png", 1, 1,1));
+            //Sprites.Add(ESprite.combine.ToString(), new SpriteConfig("textures//main//units//combine.png", 1, 1));
+            //Sprites.Add(ESprite.car.ToString(), new SpriteConfig("textures//main//units//car.png", 1, 1));
 
-            //второй игрок
-            Sprites.Add(ESprite.tankBox2.ToString(), new SpriteConfig("textures//main//units//tank-box2.png", 1, 1));
-            Sprites.Add(ESprite.tankGun2.ToString(), new SpriteConfig("textures//main//units//tank-gun-2-3-2.png", 1, 1, 10));
-            Sprites.Add(ESprite.cannonBox2.ToString(), new SpriteConfig("textures//main//units//cannon-box2.png", 1, 1));
-            Sprites.Add(ESprite.cannonGun2.ToString(), new SpriteConfig("textures//main//units//cannon-gun2.png", 1, 1, 10));
-            Sprites.Add(ESprite.armoBox2.ToString(), new SpriteConfig("textures//main//units//armo-box2.png", 1, 1));
-            Sprites.Add(ESprite.armoGun2.ToString(), new SpriteConfig("textures//main//units//armo-gun2.png", 1, 1, 1));
-            Sprites.Add(ESprite.combine2.ToString(), new SpriteConfig("textures//main//units//combine2.png", 1, 1));
-            Sprites.Add(ESprite.car2.ToString(), new SpriteConfig("textures//main//units//car2.png", 1, 1));
+            ////второй игрок
+            //Sprites.Add(ESprite.tankBox2.ToString(), new SpriteConfig("textures//main//units//tank-box2.png", 1, 1));
+            //Sprites.Add(ESprite.tankGun2.ToString(), new SpriteConfig("textures//main//units//tank-gun-2-3-2.png", 1, 1, 10));
+            //Sprites.Add(ESprite.cannonBox2.ToString(), new SpriteConfig("textures//main//units//cannon-box2.png", 1, 1));
+            //Sprites.Add(ESprite.cannonGun2.ToString(), new SpriteConfig("textures//main//units//cannon-gun2.png", 1, 1, 10));
+            //Sprites.Add(ESprite.armoBox2.ToString(), new SpriteConfig("textures//main//units//armo-box2.png", 1, 1));
+            //Sprites.Add(ESprite.armoGun2.ToString(), new SpriteConfig("textures//main//units//armo-gun2.png", 1, 1, 1));
+            //Sprites.Add(ESprite.combine2.ToString(), new SpriteConfig("textures//main//units//combine2.png", 1, 1));
+            //Sprites.Add(ESprite.car2.ToString(), new SpriteConfig("textures//main//units//car2.png", 1, 1));
 
-            //----
+            ////----
 
-            Sprites.Add(ESprite.stoneTest.ToString(), new SpriteConfig("textures//stone.png", 1, 1));
+            //Sprites.Add(ESprite.stoneTest.ToString(), new SpriteConfig("textures//stone.png", 1, 1));
 
-            Sprites.Add(ESprite.tank.ToString(), new SpriteConfig("textures//tank.png", 2, 1));
+            //Sprites.Add(ESprite.tank.ToString(), new SpriteConfig("textures//tank.png", 2, 1));
 
-            Sprites.Add(EFont.blue.ToString(), new SpriteConfig("fonts/blue.png", 16, 10));
-            Sprites.Add(EFont.blueSmall.ToString(), new SpriteConfig("fonts/blueSmall.png", 16, 10));
-            Sprites.Add(EFont.fiol.ToString(), new SpriteConfig("fonts/fiol.png", 16, 10));
-            Sprites.Add(EFont.fiolBright.ToString(), new SpriteConfig("fonts/fiolBright.png", 16, 10));
-            Sprites.Add(EFont.gold.ToString(), new SpriteConfig("fonts/gold.png", 16, 10));
+            //Sprites.Add(EFont.blue.ToString(), new SpriteConfig("fonts/blue.png", 16, 10));
+            //Sprites.Add(EFont.blueSmall.ToString(), new SpriteConfig("fonts/blueSmall.png", 16, 10));
+            //Sprites.Add(EFont.fiol.ToString(), new SpriteConfig("fonts/fiol.png", 16, 10));
+            //Sprites.Add(EFont.fiolBright.ToString(), new SpriteConfig("fonts/fiolBright.png", 16, 10));
+            //Sprites.Add(EFont.gold.ToString(), new SpriteConfig("fonts/gold.png", 16, 10));
 
-            Sprites.Add(EFont.green.ToString(), new SpriteConfig("fonts/green.png", 16, 10));
-            Sprites.Add(EFont.greenBright.ToString(), new SpriteConfig("fonts/greenBright.png", 16, 10));
-            Sprites.Add(EFont.greenSmall.ToString(), new SpriteConfig("fonts/greenSmall.png", 16, 10));
-            Sprites.Add(EFont.orange.ToString(), new SpriteConfig("fonts/orange.png", 16, 10));
-            Sprites.Add(EFont.red.ToString(), new SpriteConfig("fonts/red.png", 16, 10));
+            //Sprites.Add(EFont.green.ToString(), new SpriteConfig("fonts/green.png", 16, 10));
+            //Sprites.Add(EFont.greenBright.ToString(), new SpriteConfig("fonts/greenBright.png", 16, 10));
+            //Sprites.Add(EFont.greenSmall.ToString(), new SpriteConfig("fonts/greenSmall.png", 16, 10));
+            //Sprites.Add(EFont.orange.ToString(), new SpriteConfig("fonts/orange.png", 16, 10));
+            //Sprites.Add(EFont.red.ToString(), new SpriteConfig("fonts/red.png", 16, 10));
 
-            Keys.Add(EKeyboardAction.Fire, 32);
-            Keys.Add(EKeyboardAction.Unit1, 49);
-            Keys.Add(EKeyboardAction.Unit2, 50);
-            Keys.Add(EKeyboardAction.Unit3, 51);
-            Keys.Add(EKeyboardAction.Unit4, 52);
-            Keys.Add(EKeyboardAction.Unit5, 53);
-            Keys.Add(EKeyboardAction.Esc, 27);
-            Keys.Add(EKeyboardAction.Enter, 13);
-            Keys.Add(EKeyboardAction.left, 37);
-            Keys.Add(EKeyboardAction.up, 38);
-            Keys.Add(EKeyboardAction.right, 39);
-            Keys.Add(EKeyboardAction.down, 40);
-            Keys.Add(EKeyboardAction.I, (int)'i');
-            Keys.Add(EKeyboardAction.O, (int)'o');
+            //Keys.Add(EKeyboardAction.Fire, 32);
+            //Keys.Add(EKeyboardAction.Unit1, 49);
+            //Keys.Add(EKeyboardAction.Unit2, 50);
+            //Keys.Add(EKeyboardAction.Unit3, 51);
+            //Keys.Add(EKeyboardAction.Unit4, 52);
+            //Keys.Add(EKeyboardAction.Unit5, 53);
+            //Keys.Add(EKeyboardAction.Esc, 27);
+            //Keys.Add(EKeyboardAction.Enter, 13);
+            //Keys.Add(EKeyboardAction.left, 37);
+            //Keys.Add(EKeyboardAction.up, 38);
+            //Keys.Add(EKeyboardAction.right, 39);
+            //Keys.Add(EKeyboardAction.down, 40);
+            //Keys.Add(EKeyboardAction.I, (int)'i');
+            //Keys.Add(EKeyboardAction.O, (int)'o');
         }
 
         public const string FontLetters = @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя!@#$%^&*()_+=,./?<>[]\{}|1234567890~`‘“№→-";

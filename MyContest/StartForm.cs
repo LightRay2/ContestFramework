@@ -25,14 +25,14 @@ namespace MyContest
         bool needRefreshControls = true;
         private void StartForm_Load(object sender, EventArgs e)
         {
-           
 
-            FrameworkSettings.PlayersPerGame = 4;
+
+            FrameworkSettings.PlayersPerGame = 2; //todo game name for unique configs
             formState = FormState.LoadOrCreate();
 
             #region  data bindings to editors
-            edtMatchDate.DataBindings.Add("Value", formState, "MatchDate");
-            edtMinTimePerMatch.DataBindings.Add("Text", formState, "MinTimePerMatch");
+            //edtMatchDate.DataBindings.Add("Value", formState, "MatchDate");
+            //edtMinTimePerMatch.DataBindings.Add("Text", formState, "MinTimePerMatch");
             #endregion
 
             formState.PropertyChanged += (s, args) => needRefreshControls = true;
@@ -48,7 +48,7 @@ namespace MyContest
 
             gvMatches.Rows.Add(DateTime.Now.AddMinutes(10), "Lightray - Inspiration", "24-12");
             gvMatches.Rows.Add(DateTime.Now.AddMinutes(-1), "Lightray - abc04", "Идет 97 ход");
-            gvMatches.Rows.Add(DateTime.Now.AddMinutes(-10), "Lightray - Inspiration", "9-17"); 
+            gvMatches.Rows.Add(DateTime.Now.AddMinutes(-10), "Lightray - Inspiration", "9-17");
             gvMatches.Rows.Add(DateTime.Now.AddMinutes(-20), "Lightray - abc04", "3-5");
 
             gvMatches.Rows[0].DefaultCellStyle.BackColor = Color.Bisque;
@@ -57,6 +57,7 @@ namespace MyContest
             gvMatches.Rows[3].DefaultCellStyle.BackColor = Color.LightGreen;
 
             FrameworkSettings.InnerSettings.RunGameImmediately = false; //todo configuation path
+            FrameworkSettings.AllowFastGameInBackgroundThread = true;
             if (FrameworkSettings.InnerSettings.RunGameImmediately)
                 btnRun_Click(null, null);
         }
@@ -71,16 +72,16 @@ namespace MyContest
         [DllImport("user32.dll")]
         public static extern int SendMessage(IntPtr hWnd, Int32 wMsg, bool wParam, Int32 lParam);
 
-        private const int WM_SETREDRAW = 11; 
+        private const int WM_SETREDRAW = 11;
         private void SuspendDrawing()
         {
-                SendMessage(this.Handle, WM_SETREDRAW, false, 0);
+            SendMessage(this.Handle, WM_SETREDRAW, false, 0);
         }
 
         private void ResumeDrawing()
         {
-            
-                SendMessage(this.Handle, WM_SETREDRAW, true, 0);
+
+            SendMessage(this.Handle, WM_SETREDRAW, true, 0);
         }
         public void RefreshControls()
         {
@@ -125,15 +126,16 @@ namespace MyContest
 
             #region panel players in match
             panelPlayersInMatch.Controls.Clear();
-            for(int i =0; i<formState.ProgramAddressesInMatch.Count;i++){
+            for (int i = 0; i < formState.ProgramAddressesInMatch.Count; i++)
+            {
                 string text = formState.ProgramAddressesAll[formState.ProgramAddressesInMatch[i]] ?? "Человек";
                 var label = new Label
                 {
                     Tag = i,
-                    Text = new string( text.Reverse().Take(70).Reverse().ToArray()),
-                    Padding = new Padding { All=5 },
-                    Margin = new Padding{All=3},
-                    Size  = new Size(580, 32),
+                    Text = new string(text.Reverse().Take(70).Reverse().ToArray()),
+                    Padding = new Padding { All = 5 },
+                    Margin = new Padding { All = 3 },
+                    Size = new Size(560, 32),
                     BorderStyle = BorderStyle.FixedSingle
                 };
                 toolTip.SetToolTip(label, text);
@@ -141,13 +143,13 @@ namespace MyContest
             }
             #endregion
 
-            btnAddToGameList.Text = 
+            btnAddToGameList.Text =
                 string.Format("В список игр ({0})", formState.GameParamsList.Count);
 
             #region запуск матчей - локальный или серверный мод
-            btnAddHuman.Enabled = btnAddProgram.Enabled = !formState.RunMatchesServerMode;
-            panelPlayers_DeleteButtons.ForEach(b => b.Enabled = !formState.RunMatchesServerMode);
-            panelMatchTimeOnServer.Visible = formState.RunMatchesServerMode;
+            //btnAddHuman.Enabled = btnAddProgram.Enabled = !formState.RunMatchesServerMode;
+            //panelPlayers_DeleteButtons.ForEach(b => b.Enabled = !formState.RunMatchesServerMode);
+            //panelMatchTimeOnServer.Visible = formState.RunMatchesServerMode;
             #endregion
 
 
@@ -171,7 +173,8 @@ namespace MyContest
         {
             var s = (CheckBox)sender;
             int index = (int)s.Tag;
-            if(s.Checked){
+            if (s.Checked)
+            {
                 formState.ProgramAddressesInMatch.Add(index);
                 if (FrameworkSettings.PlayersPerGame != 0 && formState.ProgramAddressesInMatch.Count > FrameworkSettings.PlayersPerGame)
                 {
@@ -179,20 +182,21 @@ namespace MyContest
                     //todo check java path when run
                 }
             }
-            else {
+            else
+            {
                 formState.ProgramAddressesInMatch.Remove(index);
             }
         }
 
         private void btnAddProgram_Click(object sender, EventArgs e)
         {
-            var lastAddress = formState.ProgramAddressesAll.LastOrDefault(x=>x!=null);
-            var initialDirectory =Path.GetDirectoryName( Application.StartupPath ) + "//..//Players";
-            if(!Directory.Exists(initialDirectory))
-                initialDirectory = Path.GetDirectoryName( Application.StartupPath ) + "//..";
-            if(!Directory.Exists(initialDirectory))
-                initialDirectory =Path.GetDirectoryName( Application.StartupPath );
-            openFileDialog1.InitialDirectory = lastAddress == null? initialDirectory: Path.GetDirectoryName(lastAddress);
+            var lastAddress = formState.ProgramAddressesAll.LastOrDefault(x => x != null);
+            var initialDirectory = Path.GetDirectoryName(Application.StartupPath) + "//..//Players";
+            if (!Directory.Exists(initialDirectory))
+                initialDirectory = Path.GetDirectoryName(Application.StartupPath) + "//..";
+            if (!Directory.Exists(initialDirectory))
+                initialDirectory = Path.GetDirectoryName(Application.StartupPath);
+            openFileDialog1.InitialDirectory = lastAddress == null ? initialDirectory : Path.GetDirectoryName(lastAddress);
             openFileDialog1.Filter = "Исполняемые файлы|*.exe;*.java";
             if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
@@ -215,10 +219,11 @@ namespace MyContest
 
         private void btnChangeOrder_Click(object sender, EventArgs e)
         {
-            if(formState.ProgramAddressesInMatch.Count != 0){
-                int last= formState.ProgramAddressesInMatch.Last();
-                formState.ProgramAddressesInMatch.RemoveAt(formState.ProgramAddressesInMatch.Count-1);
-                formState.ProgramAddressesInMatch.Insert(0,last);
+            if (formState.ProgramAddressesInMatch.Count != 0)
+            {
+                int last = formState.ProgramAddressesInMatch.Last();
+                formState.ProgramAddressesInMatch.RemoveAt(formState.ProgramAddressesInMatch.Count - 1);
+                formState.ProgramAddressesInMatch.Insert(0, last);
             }
         }
 
@@ -236,15 +241,15 @@ namespace MyContest
 
         private void btnRemoveFromGameList_Click(object sender, EventArgs e)
         {
-            if(formState.GameParamsList.Count != 0)
+            if (formState.GameParamsList.Count != 0)
                 formState.GameParamsList.RemoveAt(formState.GameParamsList.Count - 1);
-            
+
         }
 
         private void btnRun_Click(object sender, EventArgs e)
         {
-            //todo run game and check java and count of programs
-            GameCore<State, Turn, Round, Player>.TryRunAsSingleton(new Board(), new List<object> { formState }, null);
+            //todo run game and check java and count of programs and all programs
+            GameCore<FormState, Turn, Round, Player>.TryRunAsSingleton((x, y) => new Game(x, y), new List<FormState> { formState }, null);
             //after all
             formState.GameParamsList.Clear();
         }
@@ -257,7 +262,7 @@ namespace MyContest
 
 
 
-       
+
 
 
     }

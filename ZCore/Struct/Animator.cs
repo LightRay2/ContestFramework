@@ -30,11 +30,16 @@ namespace Framework
           //  return (dynamic)left.Evaluate(context) + (dynamic)right.Evaluate(context);
         }
 
+        List<Tuple<double, T>> interpolationValues = new List<Tuple<double, T>>();
+        public void AddValueForInterpolation( double stage, T val)
+        {
+            interpolationValues.Add(Tuple.Create(stage, val));
 
+        }
         
     }
 
-    public class Animator
+    public static class Animator
     {
         //todo добавить swing функций
         /// <summary>
@@ -58,6 +63,46 @@ namespace Framework
             else if (stage < 1 - acc) term = ((-Math.Cos(((stage - 0.5) / ((0.5 - acc) / (0.5 - acc / k)) + 0.5) * Math.PI) / 2) + 0.5);
             else term = ((-Math.Cos(((stage - 1) / k + 1) * Math.PI) / 2) + 0.5);
             return start + append * term;
+        }
+
+        public static Vector2d Linear(Vector2d start, Vector2d finish, double stage)
+        {
+            var dif = finish - start;
+            return start + dif * stage;
+        }
+        
+    }
+
+    public class InterpolationFunction
+    {
+        private Vector2d _initialPoint;
+        private double _stageStep;
+
+        public InterpolationFunction(Vector2d initialPoint, double stageStepBetween0and1)
+        {
+            _initialPoint = initialPoint;
+            _stageStep = stageStepBetween0and1;
+            _points.Add(initialPoint);
+        }
+
+        List<Vector2d> _points = new List<Vector2d>();
+        public void Add(Vector2d point)
+        {
+            _points.Add(point);
+        }
+
+        public Vector2d GetInterpolated(Vector2d start, Vector2d finish, double stage)
+        {
+           
+            int one = (int)(stage / _stageStep);
+            if (one < 0)
+                one = 0;
+            if (one >= _points.Count - 1)
+                return _points.Last();
+
+            int two = one + 1;
+
+            return Animator.Linear(_points[one], _points[two], stage / _stageStep - one);
         }
     }
 }
