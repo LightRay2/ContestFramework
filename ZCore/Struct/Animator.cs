@@ -25,7 +25,7 @@ namespace Framework
 
         public T Get(double currentTime)
         {
-            double stage = (double)(currentTime - startTime) / (duration);
+            double stage = ((double)(currentTime - startTime) / (duration)).ToRange(0,1);
             return swingFunction(start, finish, stage);
           //  return (dynamic)left.Evaluate(context) + (dynamic)right.Evaluate(context);
         }
@@ -39,11 +39,14 @@ namespace Framework
         
     }
 
+    /// <summary>
+    /// easing http://easings.net/ru http://stackoverflow.com/questions/5207301/jquery-easing-functions-without-using-a-plugin
+    /// </summary>
     public static class Animator
     {
         //todo добавить swing функций
         /// <summary>
-        /// метод для вычисления плавного ускорения, стартовой точке соответствует stage = 0, финишной - stage = 1
+        /// метод для вычисления плавного ускорения и торможения, стартовой точке соответствует stage = 0, финишной - stage = 1
         /// </summary>
         public static double SinSwingRefined(double start, double finish, double stage)
         {
@@ -65,12 +68,22 @@ namespace Framework
             return start + append * term;
         }
 
+        public static double EaseOutQuad(double start, double finish, double stage)
+        {
+            var part = 1.0 - (1-stage)*(1-stage);
+            return start + part * (finish-start);
+        }
+
         public static Vector2d Linear(Vector2d start, Vector2d finish, double stage)
         {
             var dif = finish - start;
             return start + dif * stage;
         }
-        
+        public static double Linear(double start, double finish, double stage)
+        {
+            var dif = finish - start;
+            return start + dif * stage;
+        }
     }
 
     public class InterpolationFunction

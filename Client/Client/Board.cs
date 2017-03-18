@@ -48,6 +48,7 @@ namespace Client
         public Point humanSource, humanDestination;
         public int movingOnRound = -1;
         public Point movingOnRoundTile;
+        internal Color color;
 
         public string programAddress { get; set; }
         public bool controlledByHuman { get; set; }
@@ -68,7 +69,6 @@ namespace Client
         public List<Player> players { get; set; }
         public List<Round> rounds { get; set; }
         public bool GameFinished { get; set; }
-        public int clickedRound { get; set; }
 
         /// <summary>
         /// 0,0 - левый верхний угол и база первого игрока (i=1), второй игрок против часовой стрелке
@@ -81,20 +81,22 @@ namespace Client
         Animator<double> playerAnimator;
         int lastPlayerMadeTurns = -1;
         GamePurpose _purpose;
-        Timeline _timeline = new Timeline(EFont.timeline,30,30);
         public Board(FormState settings, GamePurpose purpose)
         {
             _purpose = purpose;
             if (_purpose == GamePurpose.LoadSpritesAndFonts)
                 return;
 
+            var colors = new Queue<Color>();
+            colors.Enqueue(Color.Green); colors.Enqueue(Color.Red); colors.Enqueue(Color.Violet); colors.Enqueue(Color.Yellow );
             players = settings.ProgramAddressesInMatch
                 .Select(index => settings.ProgramAddressesAll[index])
                 .Select(address => new Player
                 {
                     name = address == null ? "Человек" : Path.GetFileNameWithoutExtension(address),
                     controlledByHuman = address == null,
-                    programAddress = address
+                    programAddress = address,
+                    color = colors.Dequeue()
                 }).ToList();
             for (int i = 0; i < 4; i++)
             {
@@ -111,6 +113,27 @@ namespace Client
             }
 
             maxDistanceToWin = 10 + 9 + 9 + 8 + 8 + 8;
+        }
+
+        public static void SetFrameworkSettings()
+        {
+            FrameworkSettings.GameNameEnglish = "Board";
+            FrameworkSettings.RunGameImmediately = false;
+            FrameworkSettings.AllowFastGameInBackgroundThread = true;
+            FrameworkSettings.PlayersPerGame = 4;
+            FrameworkSettings.FramesPerTurn = 50;
+
+
+            FrameworkSettings.Timeline.Enabled = true; //todo doesnt work
+            FrameworkSettings.Timeline.Position = TimelinePositions.right;
+            FrameworkSettings.Timeline.TileLength = 30;
+            FrameworkSettings.Timeline.TileWidth = 30;
+            FrameworkSettings.Timeline.FontNormalTurn = EFont.timelineNormal;
+            FrameworkSettings.Timeline.FontErrorTurn = EFont.timelineError;
+            FrameworkSettings.Timeline.TurnScrollSpeedByMouseOrArrow = 4;
+            FrameworkSettings.Timeline.TurnScrollSpeedByPageUpDown = 16;
+
+            FrameworkSettings.AdditionalHelpOnGameForm ="РУЧНОЕ УПРАВЛЕНИЕ: стрелками на клавиатуре выберите шашку, которой собираетесь ходить, нажмите Enter и аналогично выберите точку, в которую будет совершен ход.";
         }
 
         public Point RotatePoint(Point point, int from, int to)
@@ -153,10 +176,15 @@ namespace Client
 
 
 
-        enum EFont { regular, teamSmall3, teamSmall4, teamSmall1, teamSmall2, teamBig1, teamBig2, teamBig4, teamBig3, timeline }
+        enum EFont { regular, teamSmall3, teamSmall4, teamSmall1, teamSmall2, teamBig1, teamBig2, teamBig4, teamBig3, 
+            timelineNormal,
+            timelineError
+        }
         enum ESprite { board10, Design, background, green, red, yellow, violet, humanSource, humanDestination, humanPointer, greenRect, redRect, yellowRect, violetRect }
         public void LoadSpritesAndFonts()
         {
+            if (FontList.All.Count > 0)
+                return;
             FontList.Load(EFont.regular, "Arial", 20, Color.Black,
                 FontStyle.Regular);
             FontList.Load(EFont.teamSmall1, "Times New Roman", 15, Color.FromArgb(64, 178, 119), FontStyle.Bold);
@@ -168,7 +196,8 @@ namespace Client
             FontList.Load(EFont.teamBig3, "Times New Roman", 27, Color.FromArgb(114, 91, 200), FontStyle.Bold);
             FontList.Load(EFont.teamBig4, "Times New Roman", 27, Color.FromArgb(150, 147, 61), FontStyle.Bold);
 
-            FontList.Load(EFont.timeline, "Times New Roman", 12, Color.Black, FontStyle.Regular);
+            FontList.Load(EFont.timelineNormal, "Times New Roman", 10, Color.Black, FontStyle.Regular);
+            FontList.Load(EFont.timelineError, "Times New Roman", 10, Color.Red, FontStyle.Bold);
 
             SpriteList.Load(ESprite.board10, defaultSizeExact: new Vector2d(431, 452));
             //   SpriteList.Load(ESprite.background);
@@ -501,23 +530,7 @@ namespace Client
 
             //}
             #endregion
-
-            #region timeline2
-            {
-                double tileStatusWidth = 10;
-                var fullTimeLineRect = new Rect2d(frameWidth - _timeline._tileWidth, 0, _timeline._tileWidth, frameHeight);
-                //if(_indexOfLastViewedTile != -1){
-                var turns = this.rounds.SelectMany(x => x.turns).ToList();
-                if (turns.Count > 0)
-                {
-                    _timeline._indexOfLastViewedTile = turns.Count - 1;
-                    _timeline.ManageTimelineByInputAndGetClickedTurn(frame, input, fullTimeLineRect, turns.Count);
-                    _timeline.Draw(frame, input, turns.Cast<ITimelineCell>().ToList(), _timeline._firstTurnOffset, _timeline._indexOfLastViewedTile,
-                        new Vector2d(frameWidth - _timeline._tileWidth, 0), frameHeight, _timeline._tileWidth, _timeline._tileHeight, tileStatusWidth, EDirections.down);
-                }
-                // }
-            }
-            #endregion
+            
         }
 
 
@@ -570,9 +583,9 @@ namespace Client
                             ,
                             totalComment = "",
                             shortTotalComment = "1 из 1",
-                            colorOnTimeLine = Color.Gray,
+                            colorOnTimeLine = player.color,
                             colorStatusOnTimeLine = Color.Red,
-                            nameOnTimeLine = this.roundNumber.ToString()
+                            nameOnTimeLine = (this.roundNumber/4).ToString()
                         };
                     }
                 }
@@ -683,9 +696,9 @@ namespace Client
                 turn.shortTotalComment = "Error";
             }
 
-            turn.colorOnTimeLine = Color.Gray;
+            turn.colorOnTimeLine = player.color;
             turn.colorStatusOnTimeLine = Color.Red;
-            turn.nameOnTimeLine = this.roundNumber.ToString();
+            turn.nameOnTimeLine = (this.roundNumber / 4).ToString();
             return turn;
 
             string r = "■ ►";
@@ -710,6 +723,11 @@ namespace Client
                 {
                     this.GameFinished = true;
                 }
+            }
+
+            if(this.roundNumber == 199)
+            {
+                this.GameFinished = true; //50 turns each
             }
 
             var movement = round.turns.First().firstValidCommand;

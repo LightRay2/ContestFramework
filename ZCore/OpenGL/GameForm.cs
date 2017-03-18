@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Framework;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,10 +13,37 @@ namespace Framework
     public partial class GameForm : Form
     {
         Func<GlInput, Frame> _processMethod;
+        public static bool UserWantsToClose = false;
+        public static bool GameInBackgroundRunning = false;
+        double _watchSpeedMultiplier;
+        List<Tuple<double, ToolStripMenuItem>> speedItems;
+        public  double watchSpeedMultiplier { get { return _watchSpeedMultiplier; }
+        set
+            {
+                menuSpeed10.Checked = menuSpeed20.Checked = menuSpeed40.Checked = menuSpeed80.Checked = menuSpeed100.Checked
+                = menuSpeed150.Checked = menuSpeed200.Checked = menuSpeed250.Checked = menuSpeed300.Checked = false;
+                speedItems.OrderBy(x => Math.Abs(value - x.Item1)).First().Item2.Checked = true;
+                _watchSpeedMultiplier = value;
+            }
+        }
+
+        bool _gamePaused = false;
+        public bool GamePaused { get { return _gamePaused; } set { _gamePaused = value; menuPause.Checked = value; } }
+        bool _userWantsPauseAfterTurn = false;
+        public bool UserWantsPauseAfterTurn { get { return _userWantsPauseAfterTurn; }
+        set
+            {
+                _userWantsPauseAfterTurn = value;
+                паузаПослеТекущегоХодаTABToolStripMenuItem.Checked = value;
+                if(value)
+                    GamePaused = false;    
+            }
+        }
+
         public GameForm(Func<GlInput, Frame> processMethod)
         {
-            
-            _processMethod = processMethod;
+            UserWantsToClose = false;
+        _processMethod = processMethod;
             
             InitializeComponent();
             if (!DesignMode)
@@ -31,6 +59,13 @@ namespace Framework
                 this.glControl1.VSync = false;
                 this.panelForOpenglControl.Controls.Add(this.glControl1);
             }
+
+
+            speedItems = new List<Tuple<double, ToolStripMenuItem>> {
+                    Tuple.Create(0.1, menuSpeed10)  ,
+                    Tuple.Create(0.2, menuSpeed20), Tuple.Create(0.4, menuSpeed40), Tuple.Create(0.60, menuSpeed60),
+                    Tuple.Create(0.80, menuSpeed80), Tuple.Create(1.00, menuSpeed100), Tuple.Create(1.50, menuSpeed150),
+                    Tuple.Create(3.00, menuSpeed200), Tuple.Create(2.50, menuSpeed250), Tuple.Create(3.00, menuSpeed300) };
         }
 
 
@@ -56,6 +91,99 @@ namespace Framework
                message, title,buttons) ) ;
         }
 
+        private void GameForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this.glControl1.Dispose();
+        }
 
+        private void GameForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+             
+            if (GameInBackgroundRunning)
+            {
+                UserWantsToClose = true;
+                e.Cancel = true;
+            }
+    }
+
+        private void menuSpeed10_Click(object sender, EventArgs e)
+        {
+            watchSpeedMultiplier = speedItems.First(x=>((ToolStripMenuItem)sender) ==x.Item2).Item1;
+        }
+
+        private void menuSpeed20_Click(object sender, EventArgs e)
+        {
+            watchSpeedMultiplier = speedItems.First(x=>((ToolStripMenuItem)sender) ==x.Item2).Item1;
+           
+        }
+
+        private void menuSpeed40_Click(object sender, EventArgs e)
+        {
+            watchSpeedMultiplier = speedItems.First(x => ((ToolStripMenuItem)sender) == x.Item2).Item1;
+
+        }
+
+        private void menuSpeed60_Click(object sender, EventArgs e)
+        {
+            watchSpeedMultiplier = speedItems.First(x => ((ToolStripMenuItem)sender) == x.Item2).Item1;
+
+        }
+
+        private void menuSpeed80_Click(object sender, EventArgs e)
+        {
+
+            watchSpeedMultiplier = speedItems.First(x=>((ToolStripMenuItem)sender) ==x.Item2).Item1;
+        }
+
+        private void menuSpeed100_Click(object sender, EventArgs e)
+        {
+            watchSpeedMultiplier = speedItems.First(x => ((ToolStripMenuItem)sender) == x.Item2).Item1;
+
+        }
+
+        private void menuSpeed150_Click(object sender, EventArgs e)
+        {
+            watchSpeedMultiplier = speedItems.First(x => ((ToolStripMenuItem)sender) == x.Item2).Item1;
+
+        }
+
+        private void menuSpeed200_Click(object sender, EventArgs e)
+        {
+
+            watchSpeedMultiplier = speedItems.First(x=>((ToolStripMenuItem)sender) ==x.Item2).Item1;
+        }
+
+        private void menuSpeed250_Click(object sender, EventArgs e)
+        {
+
+            watchSpeedMultiplier = speedItems.First(x=>((ToolStripMenuItem)sender) ==x.Item2).Item1;
+        }
+
+        private void menuSpeed300_Click(object sender, EventArgs e)
+        {
+            watchSpeedMultiplier = speedItems.First(x => ((ToolStripMenuItem)sender) == x.Item2).Item1;
+
+        }
+
+        private void menuPauseClicked(object sender, EventArgs e)
+        {
+            GamePaused = !GamePaused;
+        }
+
+        private void паузаПослеТекущегоХодаTABToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UserWantsPauseAfterTurn = true;
+        }
+
+        private void помощьToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("ПОШАГОВОЕ ВОСПРОИЗВЕДЕНИЕ: нажимайте TAB для просмотра одиночных ходов. Для возобновления нажмите Q (отключение паузы).");
+            sb.AppendLine();
+            sb.AppendLine("ПОМОЩЬ В ОТЛАДКЕ: наведите мышкой на список ходов справа и используйте колесико или клавиши ВВЕРХ, ВНИЗ, PAGE UP, PAGE DOWN для перемотки. Кликните на ход для перехода (дополнительно в буфер обмена скопируется input.txt для данного хода). Наведите на ход и нажмите I или O для получения input.txt или output.txt для данного хода.");
+            sb.AppendLine();
+            sb.AppendLine(FrameworkSettings.AdditionalHelpOnGameForm);
+            MessageBox.Show(sb.ToString());
+        }
     }
 }

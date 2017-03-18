@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
@@ -12,7 +13,7 @@ namespace MyContest
     public class FormState : INotifyPropertyChanged, IParamsFromStartForm //todo вынести в хелпер
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        static string saveLoadPath = FrameworkSettings.InnerSettings.RoamingPath + "GameSettings.xml";
+        static string saveLoadPath = FrameworkSettings.ForInnerUse.RoamingPathWithSlash + "Settings.xml";
         bool loading = true;
         public bool SaveToFile = true;
 
@@ -30,6 +31,22 @@ namespace MyContest
         {
             legalCreation = true;
             var loadedSettings = Serialize.TryReadFromXmlFile<FormState>(saveLoadPath);
+
+            try
+            {
+                for (int i = 0; i < loadedSettings.ProgramAddressesAll.Count; i++)
+                {
+                    if(File.Exists(loadedSettings.ProgramAddressesAll[i]) == false)
+                    {
+                        loadedSettings.RemoveProgramAddress(i);
+                        i--;
+                    }
+                }
+            }
+            catch
+            {
+
+            }
             if (loadedSettings == null)
                 loadedSettings = new FormState();
             loadedSettings.loading = false;
@@ -112,6 +129,27 @@ namespace MyContest
         {
             get { return _randomSeed; }
             set { _randomSeed = value; if (!loading) Notify("RandomSeed"); }
+        }
+
+        internal void RemoveProgramAddress(int index)
+        {
+            ProgramAddressesInMatch.Remove(index);
+            for (int i = 0; i < ProgramAddressesInMatch.Count; i++)
+            {
+                if (ProgramAddressesInMatch[i] > index)
+                    ProgramAddressesInMatch[i]--;
+            }
+            ProgramAddressesAll.RemoveAt(index);
+        }
+
+        double _FramesPerTurnMultiplier = 1.0;
+        /// <summary>
+        /// когда менем скорость, меняется и он
+        /// </summary>
+        public double FramesPerTurnMultiplier
+        {
+            get { return _FramesPerTurnMultiplier; }
+            set { _FramesPerTurnMultiplier = value; if (!loading) Notify("FramesPerTurnMultiplier"); }
         }
     }
 }

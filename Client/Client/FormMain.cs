@@ -170,32 +170,32 @@ namespace Client
 
         private void btnUploadFileToServer_Click(object sender, EventArgs e)
         {
-            if (myIdOnServer == -1)
-            {
-                MessageBox.Show("Сначала нажмите обновить");
-                return;
-            }
+            //if (myIdOnServer == -1)
+            //{
+            //    MessageBox.Show("Сначала нажмите обновить");
+            //    return;
+            //}
 
-            if (File.Exists(settings.FileToServer))
-            {
-                currentFilePart = 0;
-                var allBytes = File.ReadAllBytes(settings.FileToServer);
-                int partCount = (int)Math.Ceiling((double)allBytes.Length / FrameworkSettings.InnerSettings.FileUploadBufferSize - 0.000000000001);
-                currentFile = new byte[partCount][];
-                for (int i = 0; i < allBytes.Length; i += FrameworkSettings.InnerSettings.FileUploadBufferSize)
-                {
-                    int partNumber = i / FrameworkSettings.InnerSettings.FileUploadBufferSize;
-                    int size = Math.Min(FrameworkSettings.InnerSettings.FileUploadBufferSize, allBytes.Length - i);
-                    currentFile[partNumber] = new byte[size];
-                    Array.Copy(allBytes, i, currentFile[partNumber], 0, size);
+            //if (File.Exists(settings.FileToServer))
+            //{
+            //    currentFilePart = 0;
+            //    var allBytes = File.ReadAllBytes(settings.FileToServer);
+            //    int partCount = (int)Math.Ceiling((double)allBytes.Length / FrameworkSettings.InnerSettings.FileUploadBufferSize - 0.000000000001);
+            //    currentFile = new byte[partCount][];
+            //    for (int i = 0; i < allBytes.Length; i += FrameworkSettings.InnerSettings.FileUploadBufferSize)
+            //    {
+            //        int partNumber = i / FrameworkSettings.InnerSettings.FileUploadBufferSize;
+            //        int size = Math.Min(FrameworkSettings.InnerSettings.FileUploadBufferSize, allBytes.Length - i);
+            //        currentFile[partNumber] = new byte[size];
+            //        Array.Copy(allBytes, i, currentFile[partNumber], 0, size);
 
-                }
+            //    }
 
-                if (connectedToServer)
-                    hubProxy.Invoke("StartUploadingAndGetId", Path.GetFileName(settings.FileToServer), partCount);
-            }
-            else
-                MessageBox.Show("Файл не найден");
+            //    if (connectedToServer)
+            //        hubProxy.Invoke("StartUploadingAndGetId", Path.GetFileName(settings.FileToServer), partCount);
+            //}
+            //else
+            //    MessageBox.Show("Файл не найден");
         }
 
         private void btmChangeLoginAndPassword_Click(object sender, EventArgs e)

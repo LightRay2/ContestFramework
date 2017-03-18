@@ -11,11 +11,9 @@ namespace Framework
 {
     class GameController
     {
+        
 
-        int _windowCode;
-        Dictionary<string, int> _textureCodes;
-
-        System.Windows.Forms.Timer _loopTimer = new System.Windows.Forms.Timer { Interval = 16 };
+        System.Windows.Forms.Timer _loopTimer = new System.Windows.Forms.Timer {Interval= FrameworkSettings.ForInnerUse.TimerInterval };
 
         public GameForm _parentForm;
         GLControl control;
@@ -34,6 +32,8 @@ namespace Framework
             control.Resize += new EventHandler((o, e) => Initializer.SetupViewport(o as GLControl));
 
             Initializer.LoadTextures(SpriteList.All);
+            FramePainter._textManager = new TextManager(); //todo framework code
+
             //_textureCodes = Initializer.LoadTexturesOld();
 
 
@@ -57,15 +57,19 @@ namespace Framework
 
              _keyboardState.EveryFrameStartRefresh();
             Frame frame = _processMethod(_keyboardState);
-            //todo check if all sprites exist
-            _keyboardState.CameraViewport = (frame as IFramePainterInfo).cameraViewport;
-            if (Debugger.IsAttached)
+            if (frame == null)
+                _parentForm.Close();
+            else
             {
-                _parentForm.Text = _keyboardState.Mouse.ToString() + " ( будет скрыто при запуске не из под студии ) ";
+                //todo check if all sprites exist
+                _keyboardState.CameraViewport = (frame as IFramePainterInfo).cameraViewport;
+                if (Debugger.IsAttached)
+                {
+                    _parentForm.Text = _keyboardState.Mouse.ToString() + " ( будет скрыто при запуске не из под студии ) ";
+                }
+                FramePainter.DrawFrame(control, frame);
+                control.SwapBuffers();
             }
-            FramePainter.DrawFrame(control, frame, _textureCodes);
-            control.SwapBuffers();
-
             previousStateDrawed = true; //справились с рисованием
         }
 

@@ -12,7 +12,7 @@ namespace Framework
     public class FormMainSettings : INotifyPropertyChanged //todo вынести в хелпер
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        static string saveLoadPath = FrameworkSettings.InnerSettings.RoamingPath + "MainFormSettings.xml";
+        static string saveLoadPath = FrameworkSettings.ForInnerUse.RoamingPathWithSlash + "MainFormSettings.xml";
         bool loading = true;
         public bool SaveToFile = true;
         /// <summary>

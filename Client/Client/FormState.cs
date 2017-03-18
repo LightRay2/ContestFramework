@@ -12,7 +12,7 @@ namespace Client
     public class FormState : INotifyPropertyChanged, IParamsFromStartForm //todo вынести в хелпер
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        static string saveLoadPath = FrameworkSettings.InnerSettings.RoamingPath + "GameSettings.xml";
+        static string saveLoadPath = FrameworkSettings.ForInnerUse.RoamingPathWithSlash + "Settings.xml";
         bool loading = true;
         public bool SaveToFile = true;
 
@@ -184,5 +184,15 @@ namespace Client
             set { _randomSeed = value; if (!loading) Notify("RandomSeed"); }
         }
 
+        double _FramesPerTurnMultiplier = 1.0;
+        /// <summary>
+        /// когда менем скорость, меняется и он
+        /// </summary>
+        public double FramesPerTurnMultiplier
+        {
+            get { return _FramesPerTurnMultiplier; }
+            set { _FramesPerTurnMultiplier = value; if (!loading) Notify("FramesPerTurnMultiplier"); }
+        }
+        
     }
 }

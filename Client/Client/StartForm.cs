@@ -18,6 +18,7 @@ namespace Client
         #region init everything
         public StartForm()
         {
+            Board.SetFrameworkSettings();
             InitializeComponent();
         }
 
@@ -56,8 +57,7 @@ namespace Client
             gvMatches.Rows[2].DefaultCellStyle.BackColor = Color.LightGreen;
             gvMatches.Rows[3].DefaultCellStyle.BackColor = Color.LightGreen;
 
-            FrameworkSettings.InnerSettings.RunGameImmediately = false; //todo configuation path
-            if (FrameworkSettings.InnerSettings.RunGameImmediately)
+            if (FrameworkSettings.RunGameImmediately && formState.ProgramAddressesInMatch.Count > 0)
                 btnRun_Click(null, null);
         }
         #endregion
@@ -254,11 +254,10 @@ namespace Client
 
         }
 
+        private void StartForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            ExternalProgramExecuter.DeleteTempSubdir(); //todo framework
 
-
-
-       
-
-
+        }
     }
 }

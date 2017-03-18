@@ -258,7 +258,7 @@
             this.panelMatchTimeOnServer.Controls.Add(this.label3);
             this.panelMatchTimeOnServer.Controls.Add(this.edtMatchDate);
             this.panelMatchTimeOnServer.Controls.Add(this.label2);
-            this.panelMatchTimeOnServer.Location = new System.Drawing.Point(16, 385);
+            this.panelMatchTimeOnServer.Location = new System.Drawing.Point(12, 385);
             this.panelMatchTimeOnServer.Name = "panelMatchTimeOnServer";
             this.panelMatchTimeOnServer.Size = new System.Drawing.Size(285, 118);
             this.panelMatchTimeOnServer.TabIndex = 6;
@@ -320,7 +320,7 @@
             // btnChangeOrder
             // 
             this.btnChangeOrder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnChangeOrder.Location = new System.Drawing.Point(166, 166);
+            this.btnChangeOrder.Location = new System.Drawing.Point(162, 166);
             this.btnChangeOrder.Name = "btnChangeOrder";
             this.btnChangeOrder.Size = new System.Drawing.Size(197, 35);
             this.btnChangeOrder.TabIndex = 4;
@@ -334,7 +334,7 @@
             this.panel2.Controls.Add(this.btnRemoveFromGameList);
             this.panel2.Controls.Add(this.btnAddToGameList);
             this.panel2.Controls.Add(this.btnRun);
-            this.panel2.Location = new System.Drawing.Point(307, 385);
+            this.panel2.Location = new System.Drawing.Point(303, 385);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(260, 118);
             this.panel2.TabIndex = 3;
@@ -383,7 +383,7 @@
             // btnClearSelection
             // 
             this.btnClearSelection.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClearSelection.Location = new System.Drawing.Point(370, 166);
+            this.btnClearSelection.Location = new System.Drawing.Point(366, 166);
             this.btnClearSelection.Name = "btnClearSelection";
             this.btnClearSelection.Size = new System.Drawing.Size(197, 35);
             this.btnClearSelection.TabIndex = 5;
@@ -459,7 +459,7 @@
             // 
             // panelRoomSettings
             // 
-            this.panelRoomSettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.panelRoomSettings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelRoomSettings.Controls.Add(this.checkRoomVisibleOnlyForParticipants);
             this.panelRoomSettings.Controls.Add(this.label9);
@@ -471,7 +471,7 @@
             this.panelRoomSettings.Controls.Add(this.checkAllowWatchOnlyMineMatches);
             this.panelRoomSettings.Location = new System.Drawing.Point(3, 593);
             this.panelRoomSettings.Name = "panelRoomSettings";
-            this.panelRoomSettings.Size = new System.Drawing.Size(800, 129);
+            this.panelRoomSettings.Size = new System.Drawing.Size(783, 129);
             this.panelRoomSettings.TabIndex = 10;
             // 
             // checkRoomVisibleOnlyForParticipants
@@ -555,7 +555,7 @@
             // 
             // panelRoomUsers
             // 
-            this.panelRoomUsers.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.panelRoomUsers.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelRoomUsers.Controls.Add(this.button2);
             this.panelRoomUsers.Controls.Add(this.comboBox4);
@@ -565,7 +565,7 @@
             this.panelRoomUsers.Controls.Add(this.comboBox2);
             this.panelRoomUsers.Location = new System.Drawing.Point(3, 444);
             this.panelRoomUsers.Name = "panelRoomUsers";
-            this.panelRoomUsers.Size = new System.Drawing.Size(803, 143);
+            this.panelRoomUsers.Size = new System.Drawing.Size(786, 143);
             this.panelRoomUsers.TabIndex = 9;
             // 
             // button2
@@ -608,11 +608,11 @@
             // 
             // lblUserInfo
             // 
-            this.lblUserInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.lblUserInfo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblUserInfo.Location = new System.Drawing.Point(11, 48);
             this.lblUserInfo.Name = "lblUserInfo";
-            this.lblUserInfo.Size = new System.Drawing.Size(789, 83);
+            this.lblUserInfo.Size = new System.Drawing.Size(772, 83);
             this.lblUserInfo.TabIndex = 9;
             this.lblUserInfo.Text = "Информация о команде";
             // 
@@ -651,7 +651,7 @@
             // 
             // gvMatches
             // 
-            this.gvMatches.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.gvMatches.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gvMatches.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.gvMatches.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -662,7 +662,7 @@
             this.gvMatches.Name = "gvMatches";
             this.gvMatches.RowHeadersVisible = false;
             this.gvMatches.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.gvMatches.Size = new System.Drawing.Size(793, 305);
+            this.gvMatches.Size = new System.Drawing.Size(776, 305);
             this.gvMatches.TabIndex = 4;
             // 
             // clmDate
@@ -756,7 +756,7 @@
             // 
             // panelRegistration
             // 
-            this.panelRegistration.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.panelRegistration.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelRegistration.AutoScroll = true;
             this.panelRegistration.Controls.Add(this.button4);
@@ -786,7 +786,7 @@
             this.panelRegistration.Controls.Add(this.textBox6);
             this.panelRegistration.Location = new System.Drawing.Point(11, 138);
             this.panelRegistration.Name = "panelRegistration";
-            this.panelRegistration.Size = new System.Drawing.Size(794, 394);
+            this.panelRegistration.Size = new System.Drawing.Size(777, 394);
             this.panelRegistration.TabIndex = 7;
             // 
             // button4
@@ -1094,6 +1094,7 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "StartForm";
             this.Text = "ContestAI";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.StartForm_FormClosed);
             this.Load += new System.EventHandler(this.StartForm_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabLocalGames.ResumeLayout(false);

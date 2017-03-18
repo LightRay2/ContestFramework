@@ -16,7 +16,7 @@ using System.Windows.Input;
 
 namespace MyContest
 {
-
+    #region small classes
     public class Round : IRound<Turn, Player>
     {
         public List<Turn> turns { get; set; }
@@ -64,6 +64,8 @@ namespace MyContest
 
         public Color Color { get; internal set; }
     }
+    #endregion
+
     /// <summary>
     /// Везде point.X соответствует номеру строки
     /// </summary>
@@ -76,8 +78,10 @@ namespace MyContest
         public bool GameFinished { get; set; }
         public int clickedRound { get; set; }
 
-        enum EFont { regular }
-        enum ESprite { }
+        enum EFont { timelineNormal,
+            timelineError
+        }
+        enum ESprite { green}
 
 
 
@@ -88,11 +92,28 @@ namespace MyContest
         bool _ballWasTouchedFirstTime = false;
         Random _rand;
 
-        bool _useDefendersSpeedIncrease = true, _useDefendersLimit = true;
+        bool _useDefendersSpeedIncrease = true, _useDefendersLimit = false;
+
+        Animator<Vector2d> _ballAnimator;
+        List<Animator<Vector2d>> _manAnimators = new List<Animator<Vector2d>>();
+        private double _ballRadius = 1;
+        double _manRadius = 2;
+        private int _ballIgnoreCollisionsWith;
+
+        const double BALL_SPEED = 6;
+        double MAN_SPEED = 2;
+
+        
+        double MAN_SPEED_IN_ATTACK = 2.5;
+        double BALL_MAX_TIME = (int)(30.0 / BALL_SPEED);
+        double _ballTimeLeft = 0;
+        int _currentPlayerIndex;
+
 
         GamePurpose _gameInstancePurpose;
         public Game(FormState settings, GamePurpose purpose)
         {
+            #region constructor
             clickedRound = -1;
             _rand = new Random(settings.RandomSeed);
             Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
@@ -117,6 +138,7 @@ namespace MyContest
                 players[i].team = i;
 
             }
+
             #endregion
 
             var positions = new List<Vector2d>
@@ -135,6 +157,7 @@ namespace MyContest
                  new Vector2d(40,40)
             };
 
+            _manAnimators = new List<Animator<Vector2d>>();
             for (int i = 0; i < 10; i++)
             {
                 var man = new Man
@@ -149,22 +172,47 @@ namespace MyContest
                     players[0].manList.Add(man);
                 else
                     players[1].manList.Add(man);
+
+                _manAnimators.Add(new Animator<Vector2d>(Animator.Linear, man.position, man.position, 1));
             }
 
             _ballPosition = new Vector2d(50, 50 * _rand.NextDouble());
             _ballSpeedNormalized = _rand.Next(2) == 1 ? new Vector2d(0, 1) : new Vector2d(0, -1);
             _ballTimeLeft = BALL_MAX_TIME;
+            _ballAnimator = new Animator<Vector2d>(Animator.Linear, _ballPosition, _ballPosition, 1);
 
-            FrameworkSettings.FramesPerTurn = 10;
+            #endregion
         }
 
-        const double BALL_SPEED = 8;
-        double MAN_SPEED = BALL_SPEED * 0.3;
-        double BALL_MAX_TIME = (int)(32.0 / BALL_SPEED);
-        double _ballTimeLeft = 0;
-        int _currentPlayerIndex;
 
+        public static void SetFrameworkSettings()
+        {
+            FrameworkSettings.GameNameEnglish = "ContestAI";
+            FrameworkSettings.RunGameImmediately = true;
+            FrameworkSettings.AllowFastGameInBackgroundThread = true;
+            FrameworkSettings.PlayersPerGame = 2;
+            FrameworkSettings.FramesPerTurn = 12;
+            
 
+            FrameworkSettings.Timeline.Enabled = true;
+            FrameworkSettings.Timeline.Position = TimelinePositions.right;
+            FrameworkSettings.Timeline.TileLength = 5;
+            FrameworkSettings.Timeline.TileWidth = 5;
+            FrameworkSettings.Timeline.FontNormalTurn = EFont.timelineNormal;
+            FrameworkSettings.Timeline.FontErrorTurn = EFont.timelineError;
+            FrameworkSettings.Timeline.TurnScrollSpeedByMouseOrArrow = 8;
+            FrameworkSettings.Timeline.TurnScrollSpeedByPageUpDown = 100;
+        }
+
+        public void LoadSpritesAndFonts()
+        {
+            if (FontList.All.Count == 0 && SpriteList.All.Count == 0)
+            {
+                FontList.Load(EFont.timelineNormal, "Times New Roman", 2.0);
+                FontList.Load(EFont.timelineError, "Times New Roman", 2.0, Color.Red, FontStyle.Bold);
+                SpriteList.Load(ESprite.green);
+            }
+        }
         public string GetCurrentSituation()
         {
             return null;
@@ -262,10 +310,6 @@ namespace MyContest
             return players;
         }
 
-        public void LoadSpritesAndFonts()
-        {
-            FontList.Load(EFont.regular, "Times New Roman", 3);
-        }
 
         public void PreparationsBeforeRound()
         {
@@ -324,13 +368,19 @@ namespace MyContest
 
 
 
-
-                //very simple collision
+                //todo ball with wall
                 var changePosition = Enumerable.Repeat(true, 10).ToList();
                 var shiffledIndices = Enumerable.Range(0, 10).OrderBy(x=>_rand.Next()).ToList();
+                var alreadyExchangedSpeed = new List<Tuple<int, int>>();
                 for (int shuffledIndex = 0; shuffledIndex < shiffledIndices.Count; shuffledIndex++)
                 {
                     int i = shiffledIndices[shuffledIndex];
+                    double manSpeed;
+                    if (i < 5)
+                        manSpeed = _ballPosition.X.DoubleLessOrEqual(50) ? MAN_SPEED : MAN_SPEED_IN_ATTACK;
+                    else
+                        manSpeed = _ballPosition.X.DoubleGreaterOrEqual(50) ? MAN_SPEED : MAN_SPEED_IN_ATTACK;
+
                     //  bool _useDefendersSpeedIncrease, _useDefendersLimit;
 
                     var man = _manList[i];
@@ -339,6 +389,7 @@ namespace MyContest
 
                     if (changePosition[i])
                     {
+                        #region перемещение игрока
                         double speedIncreaseCoeff = 1;
                         if (_useDefendersSpeedIncrease)
                         {
@@ -355,16 +406,24 @@ namespace MyContest
 
                             if ((manWants - _manList[j].position).Length < _manRadius * 2)
                             {
-                                changePosition[i] = false;
-                                changePosition[j] = false;
-                                var p = manSpeedsNormalized[i];
-                                manSpeedsNormalized[i] = manSpeedsNormalized[j];
-                                manSpeedsNormalized[j] = p;
                                 thereWasCollisionWithMan[i] = thereWasCollisionWithMan[j] = true;
-                                if (_ballOwner == i)
-                                    _ballOwner = j;
-                                else if (_ballOwner == j)
-                                    _ballOwner = i;
+                                changePosition[i] = false;
+
+                                if (alreadyExchangedSpeed.Contains(Tuple.Create(i, j)) == false)
+                                {
+                                    var newSpeeds = Engine.ProcessManCollision(man.position, _manList[j].position, manSpeedsNormalized[i], manSpeedsNormalized[j]);
+                                    manSpeedsNormalized[i] = newSpeeds.Item1;
+                                    manSpeedsNormalized[j] = newSpeeds.Item2;
+                                    alreadyExchangedSpeed.Add(Tuple.Create(i, j));
+                                    alreadyExchangedSpeed.Add(Tuple.Create(j, i));
+
+                                    if (_ballOwner == i)
+                                        _ballOwner = j;
+                                    else if (_ballOwner == j)
+                                        _ballOwner = i;
+                                }
+
+                                
                             }
                         }
 
@@ -377,11 +436,11 @@ namespace MyContest
                             {
                                 if (i == 3 || i == 4)
                                 {
-                                    horizontalLimitLeft = _arena.size.X/2;
+                                    horizontalLimitLeft = _arena.size.X / 2;
                                 }
                                 else if (i == 8 || i == 9)
                                 {
-                                    horizontalLimitRight = _arena.size.X/2;
+                                    horizontalLimitRight = _arena.size.X / 2;
                                 }
                             }
 
@@ -403,7 +462,8 @@ namespace MyContest
                         if (changePosition[i])
                         {
                             man.position = manWants;
-                        }
+                        } 
+                        #endregion
 
                     }
 
@@ -478,7 +538,8 @@ namespace MyContest
                     _ballTimeLeft -= part;
                 if (_ballOwner != -1)
                     _ballTimeLeft = 0;
-                if (_ballTimeLeft.DoubleEqual(0))
+                
+                if (_ballTimeLeft.DoubleLessOrEqual(0))
                     _ballIgnoreCollisionsWith = -1;
                 //stop when goal
 
@@ -500,7 +561,7 @@ namespace MyContest
         {
             players[team].score++;
             if (team == 0)
-                _ballOwner = players[(team+1)%2].manList.IndexOf(players[(team + 1) % 2].manList.OrderByDescending(x => x.position.X).First());
+                _ballOwner = 5+players[(team+1)%2].manList.IndexOf(players[(team + 1) % 2].manList.OrderByDescending(x => x.position.X).First());
             else
                 _ballOwner = players[(team + 1) % 2].manList.IndexOf(players[(team + 1) % 2].manList.OrderBy(x => x.position.X).First());
             _ballPosition = _manList[_ballOwner].position;
@@ -509,8 +570,6 @@ namespace MyContest
         public void DrawAll(Frame frame, double stage, double totalStage, bool humanMove, GlInput input) //todo human move??
         {
             //!!! будьте внимательны (ранний drawall перед любыми методами)
-            if (_manAnimators.Count == 0)
-                return;//todo bad for manual
             int frameWidth = 120, frameHeight = 90;
             frame.CameraViewport(frameWidth, frameHeight);
             
@@ -521,58 +580,40 @@ namespace MyContest
             frame.Path(Color.Black, lineWidth, _arena + fieldCorner);
             frame.Path(Color.Black, lineWidth, fieldCorner + new Vector2d(_arena.size.X / 2, 0), fieldCorner + new Vector2d(_arena.size.X / 2, _arena.size.Y));
 
-            for (int i = 0; i < _manList.Count; i++)
-            {
-                var man = _manList[i];
-
-                frame.Circle(man.Color, _manAnimators[i].Get(stage) + fieldCorner, _manRadius);
-            }
-
-            var curMan = _manAnimators[6].Get(stage);
+           // if (_manAnimators.Count != 0) //т е еще не было process turn
+          //  {
 
 
 
-            frame.Circle(Color.Gray, _ballAnimator.Get(stage) + fieldCorner, _ballRadius);
-
-
-            frame.TextTopLeft(EFont.regular, players[0].score.ToString(), 2, 2); //todo framework text without declaration?
-            frame.TextCustomAnchor(EFont.regular, players[1].score.ToString(), 1, 0, 110, 2);
-
-
-
-            #region timeline2
-            {
-                double tileStatusWidth = 1.5;
-                var fullTimeLineRect = new Rect2d(frameWidth - _timeline._tileWidth, 0, _timeline._tileWidth, frameHeight);
-                //if(_indexOfLastViewedTile != -1){
-                var turns = this.rounds.SelectMany(x => x.turns).ToList();
-                if (turns.Count > 0)
+                for (int i = 0; i < _manList.Count; i++)
                 {
-                    _timeline._indexOfLastViewedTile = turns.Count - 1;
-                    var clickedTurn  = _timeline.ManageTimelineByInputAndGetClickedTurn(frame, input, fullTimeLineRect, turns.Count);
-                    if(clickedTurn != -1)
-                    {
-                        Clipboard.SetText(turns[clickedTurn].input);
-                        clickedRound = rounds.IndexOf( rounds.First(r => r.turns.Contains(turns[clickedTurn])));
-                    }
-                    _timeline.Draw(frame, input, turns.Cast<ITimelineCell>().ToList(), _timeline._firstTurnOffset, _timeline._indexOfLastViewedTile,
-                        new Vector2d(frameWidth - _timeline._tileWidth, 0), frameHeight, _timeline._tileWidth, _timeline._tileHeight, tileStatusWidth, EDirections.down);
-                }
-                // }
-            }
-            #endregion
-        }
+                    var man = _manList[i];
 
-        Timeline _timeline = new Timeline(EFont.regular, 5,5);
+                    frame.Circle(man.Color, _manAnimators[i].Get(stage) + fieldCorner, _manRadius);
+                }
+
+                var curMan = _manAnimators[6].Get(stage);
+
+
+
+                frame.Circle(Color.Gray, _ballAnimator.Get(stage) + fieldCorner, _ballRadius);
+
+           // }
+
+            frame.TextTopLeft(EFont.timelineNormal, players[0].score.ToString(), 2, 2); //todo framework text without declaration?
+            frame.TextCustomAnchor(EFont.timelineNormal, players[1].score.ToString(), 1, 0, 110, 2);
+
+
+
+            
+
+            frame.SpriteCenter(ESprite.green, 100, 80, depth:1, sizeOnlyWidth:4);
+        }
+        
         public Turn TryGetHumanTurn(Player player, GlInput input)
         {
             return new Turn();
         }
 
-        Animator<Vector2d> _ballAnimator;
-        List<Animator<Vector2d>> _manAnimators = new List<Animator<Vector2d>>();
-        private double _ballRadius = 1;
-        double _manRadius = 2;
-        private int _ballIgnoreCollisionsWith;
     }
 }

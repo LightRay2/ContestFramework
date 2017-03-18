@@ -13,7 +13,7 @@ namespace Framework
 {
     class FramePainter
     {
-        static TextManager _textManager = new TextManager();
+        public static TextManager _textManager = new TextManager();
         private static double brightenFactor = 1;
         /// <summary>
         /// 1.0 - 4.0
@@ -23,7 +23,7 @@ namespace Framework
             get { return brightenFactor; }
             set { brightenFactor = Math.Min(4, Math.Max(1, value)); }
         }
-        public static void DrawFrame(Control control, IFramePainterInfo frame, Dictionary<string, int> spriteCodes)
+        public static void DrawFrame(Control control, IFramePainterInfo frame)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();

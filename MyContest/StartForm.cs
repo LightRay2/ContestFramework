@@ -18,6 +18,7 @@ namespace MyContest
         #region init everything
         public StartForm()
         {
+            Game.SetFrameworkSettings();
             InitializeComponent();
         }
 
@@ -25,9 +26,6 @@ namespace MyContest
         bool needRefreshControls = true;
         private void StartForm_Load(object sender, EventArgs e)
         {
-
-
-            FrameworkSettings.PlayersPerGame = 2; //todo game name for unique configs
             formState = FormState.LoadOrCreate();
 
             #region  data bindings to editors
@@ -56,9 +54,7 @@ namespace MyContest
             gvMatches.Rows[2].DefaultCellStyle.BackColor = Color.LightGreen;
             gvMatches.Rows[3].DefaultCellStyle.BackColor = Color.LightGreen;
 
-            FrameworkSettings.InnerSettings.RunGameImmediately = false; //todo configuation path
-            FrameworkSettings.AllowFastGameInBackgroundThread = true;
-            if (FrameworkSettings.InnerSettings.RunGameImmediately)
+            if (FrameworkSettings.RunGameImmediately && formState.ProgramAddressesInMatch.Count >0)
                 btnRun_Click(null, null);
         }
         #endregion
@@ -160,13 +156,8 @@ namespace MyContest
         void deleteButton_Click(object sender, EventArgs e)
         {
             int index = (int)((Control)sender).Tag;
-            formState.ProgramAddressesInMatch.Remove(index);
-            for (int i = 0; i < formState.ProgramAddressesInMatch.Count; i++)
-            {
-                if (formState.ProgramAddressesInMatch[i] > index)
-                    formState.ProgramAddressesInMatch[i]--;
-            }
-            formState.ProgramAddressesAll.RemoveAt(index);
+            formState.RemoveProgramAddress(index);
+            
         }
         //todo а как сделать изначальное состояние для копирования настроек? или поменять путь?
         public void PlayerCheckedChanged(object sender, EventArgs e)
@@ -259,11 +250,10 @@ namespace MyContest
 
         }
 
+        private void StartForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            ExternalProgramExecuter.DeleteTempSubdir(); //todo framework
 
-
-
-
-
-
+        }
     }
 }

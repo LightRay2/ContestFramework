@@ -17,7 +17,6 @@ namespace Framework
         List<TPlayer> players { get; }
         List<TRound> rounds { get; set; }
         bool GameFinished { get; set; }
-        int clickedRound { get; set; }
 
         void LoadSpritesAndFonts();
         void PreparationsBeforeRound();
@@ -34,13 +33,15 @@ namespace Framework
     {
         string JavaPath { get; }
         int RandomSeed { get; }
+        double FramesPerTurnMultiplier { get; set; }
     }
 
     public interface ITurn<TPlayer> where TPlayer:IPlayer
     {
-        string input { set; }
+        string input { get; set; }
         string output { set; }
         TPlayer player { set; }
+
 
     }
 

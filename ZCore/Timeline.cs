@@ -10,19 +10,34 @@ namespace Framework
     public enum EDirections { down, right }
     public class Timeline
     {
-        private Enum _font;
-        bool _followLastTurn = true;
         bool _thereWasADraw = false;
-        public Timeline(Enum font, int tileWidth, int tileHeight)
+        public Timeline()
         {
-            _font = font;
-            _tileWidth = tileWidth;
-            _tileHeight = tileHeight;
-            TIMELINE_SPEED_DECREASE_PER_TICK = _tileHeight / 30;
         }
-        public void Draw(Frame frame, GlInput input, List<ITimelineCell> turns, double firstTurnOffset, int indexOfLastViewedTile,
-            Vector2d positionOfFirstTile, double maxLength, double tileWidth, double tileLength, double statusNearTileWidth, EDirections direction)
+
+
+        public double _firstTurnOffset = 0;
+        public int _indexOfLastViewedTile = -1;
+        public double _timelineSpeed = 0;
+        
+
+        public void Draw(Frame frame, GlInput input, List<ITimelineCell> turns, List<int> currentGameTurn)
         {
+            var tileWidth = FrameworkSettings.Timeline.TileWidth;
+            var tileLength = FrameworkSettings.Timeline.TileLength;
+            var statusNearTileWidth = tileWidth / 3;
+            var maxLength = ((IFramePainterInfo)frame).cameraViewport.size.Y;
+            Vector2d positionOfFirstTile = new Vector2d(((IFramePainterInfo)frame).cameraViewport.right - tileWidth, 0);
+            var font = FrameworkSettings.Timeline.FontNormalTurn;
+
+            _indexOfLastViewedTile = Math.Max(currentGameTurn.Max(), _indexOfLastViewedTile);
+
+            Rect2d fullTimelineRect = GetTimelineRect(frame);
+            bool timelineUnderMouse = GeomHelper.PointInSimpleRect(input.Mouse, fullTimelineRect);
+            var turnUnderMouseString =input.AllButtonsUnderMouse().FirstOrDefault(x => x.StartsWith("__timeline"));
+            int turnUnderMouseIndex = turnUnderMouseString == null ? -1 : int.Parse(turnUnderMouseString.Replace("__timeline", ""));
+            var highlightTurns = new List<int>(currentGameTurn);
+            highlightTurns.Add(turnUnderMouseIndex);
             #region implementation
             //todo all variables named for down direction and only down is implemented
 
@@ -36,24 +51,26 @@ namespace Framework
                 var rect = new Rect2d(timeLineX, lastPos, tileWidth, tileLength);
                 var statusRect = new Rect2d(timeLineX - statusNearTileWidth, lastPos, statusNearTileWidth, tileLength);
 
+                if(turns.Count >0)
                 {
                     var lastTurn = turns.Last();
                     string buttonName = string.Format("__timeline{0}", turns.Count - 1);
                     var statusColor = input.ButtonUnderMouse(buttonName) ? InvertedColor(lastTurn.colorStatusOnTimeLine) : lastTurn.colorStatusOnTimeLine;//todo input
-                    frame.Polygon(lastTurn.colorOnTimeLine, rect);
-                    frame.Polygon(statusColor, statusRect);
-                    frame.TextCenter(_font, lastTurn.nameOnTimeLine, rect.center);
+                    frame.Polygon( ShadedColor(rect,frame,lastTurn.colorOnTimeLine, !timelineUnderMouse,   highlightTurns.Contains(turns.Count - 1))  , rect);
+                  //  frame.Polygon(statusColor, statusRect);
+                    frame.TextCenter(font, lastTurn.nameOnTimeLine, rect.center);
                     input.Button(rect, buttonName);
                 }
+                if(_indexOfLastViewedTile >=0)
                 {
-                    var lastViewedTurn = turns[indexOfLastViewedTile];
-                    string buttonName = string.Format("__timeline{0}", indexOfLastViewedTile);
+                    var lastViewedTurn = turns[_indexOfLastViewedTile];
+                    string buttonName = string.Format("__timeline{0}", _indexOfLastViewedTile);
                     var statusColor = input.ButtonUnderMouse(buttonName) ? InvertedColor(lastViewedTurn.colorStatusOnTimeLine) : lastViewedTurn.colorStatusOnTimeLine;//todo input
                     rect = rect - Vector2d.UnitY * tileLength * 1.5;
                     statusRect = statusRect - Vector2d.UnitY * tileLength * 1.5;
-                    frame.Polygon(lastViewedTurn.colorOnTimeLine, rect);
-                    frame.Polygon(statusColor, statusRect);
-                    frame.TextCenter(_font,  lastViewedTurn.nameOnTimeLine, rect.center);
+                    frame.Polygon(ShadedColor(rect, frame, lastViewedTurn.colorOnTimeLine, !timelineUnderMouse,  highlightTurns.Contains(_indexOfLastViewedTile)), rect);
+                 //   frame.Polygon(statusColor, statusRect);
+                    frame.TextCenter(font,  lastViewedTurn.nameOnTimeLine, rect.center);
                     input.Button(rect, buttonName);
                 }
 
@@ -65,7 +82,7 @@ namespace Framework
                 for (int i = 0; i < turns.Count; i++)
                 {
                     var turn = turns[i];
-                    var rect = new Rect2d(timeLineX, firstTurnOffset + i * tileLength, tileWidth, tileLength);
+                    var rect = new Rect2d(timeLineX, _firstTurnOffset + i * tileLength, tileWidth, tileLength);
 
                     if (rect.bottom <= positionOfFirstTile.Y || rect.bottom > positionOfFirstTile.Y + maxLength)
                         continue;
@@ -73,9 +90,9 @@ namespace Framework
                     var statusRect = new Rect2d(rect.lefttop - Vector2d.UnitX * statusNearTileWidth, statusNearTileWidth, tileLength);
                     string buttonName = string.Format("__timeline{0}", i);
                     var statusColor = input.ButtonUnderMouse(buttonName) ? InvertedColor(turn.colorStatusOnTimeLine) : turn.colorStatusOnTimeLine;//todo input
-                    frame.Polygon(turn.colorOnTimeLine, rect);
-                    frame.Polygon(statusColor, statusRect);
-                    frame.TextCenter(_font, turn.nameOnTimeLine, rect.center);
+                    frame.Polygon(ShadedColor(rect,frame, turn.colorOnTimeLine, !timelineUnderMouse, highlightTurns.Contains(i)), rect);
+               //     frame.Polygon(statusColor, statusRect);
+                    frame.TextCenter(font, turn.nameOnTimeLine, rect.center);
                     input.Button(rect, buttonName);
                 }
             }
@@ -84,62 +101,151 @@ namespace Framework
         }
 
 
-
-        public double _firstTurnOffset = 0;
-        public int _indexOfLastViewedTile = -1;
-        public double _tileWidth ;
-        public double _tileHeight ;
-        public double _timelineSpeed = 0;
-        public double TIMELINE_SPEED_DECREASE_PER_TICK = 1;
-        public int ManageTimelineByInputAndGetClickedTurn(Frame frame, GlInput input, Rect2d fullTimelineRect, int turnCount)
+        Color ShadedColor(Rect2d tile, Frame frame, Color color, bool shade, bool underMouse)
         {
-            if (input.RightMouseTime >= 1 && GeomHelper.PointInSimpleRect(input.Mouse, fullTimelineRect))
+            if (underMouse) {
+                var position = tile.center;
+                frame.Polygon(color, 
+                    Rect2d.FromCenterAndSize(  position,   new Vector2d(FrameworkSettings.Timeline.TileLength / 6)) 
+                    - new Vector2d( FrameworkSettings.Timeline.TileWidth*0.8,0));
+            }
+
+          //  if(underMouse)
+          //      return Color.FromArgb(255, color.R, color.G, color.B);
+
+            if (!shade)
+                return Color.FromArgb(150, color.R, color.G, color.B);
+            return Color.FromArgb(80, color.R, color.G, color.B);
+        }
+
+        Animator<double> _animator = new Animator<double>(Animator.EaseOutQuad, 0, 0, 1);
+        
+        enum AnimatorReasons {none, wheel, followLastViewed};
+        AnimatorReasons _lastAnimatorReason = AnimatorReasons.none;
+        public int ManageTimelineByInputAndGetClickedTurn(Frame frame, GlInput input, int turnCount, int currentFrameTick, List<int> currentGameTurns)
+        {
+            Vector2d positionOfFirstTile = new Vector2d(((IFramePainterInfo)frame).cameraViewport.right - FrameworkSettings.Timeline.TileWidth, 0);
+            Rect2d fullTimelineRect = GetTimelineRect(frame);
+            //  var TIMELINE_SPEED_DECREASE_PER_TICK = FrameworkSettings.Timeline.TileLength / 30;
+
+            double scrollTime = 400.0;
+            double followTime = 800.0;
+            double allowedRangeDown = (-turnCount * FrameworkSettings.Timeline.TileWidth + fullTimelineRect.size.Y * 0.7).ToRange(0, double.MinValue),
+                allowedRangeUp = 0;
+
+            if (GeomHelper.PointInSimpleRect(input.Mouse, fullTimelineRect))
             {
-                _timelineSpeed = 0;
-                if (input.RightMouseTime > 1)
+                if (_lastAnimatorReason == AnimatorReasons.followLastViewed)
                 {
-                    _firstTurnOffset += input.MouseDelta.Y;
+                    _animator = new Animator<double>(Animator.Linear, _firstTurnOffset, _firstTurnOffset, 1);
+                    _lastAnimatorReason = AnimatorReasons.none;
                 }
-            }
-            else if (input.RightMouseUp)
-            {
-                _timelineSpeed = input.MouseDelta.Y;
-            }
-
-
-            if (input.Wheel != 0 && GeomHelper.PointInSimpleRect(input.Mouse, fullTimelineRect))
-            {
-                _timelineSpeed = 0;
-                _firstTurnOffset += input.Wheel * _tileWidth;
-            }
-
-            _firstTurnOffset += _timelineSpeed;
-            if (_timelineSpeed > 0)
-            {
-                _timelineSpeed = Math.Max(0, _timelineSpeed - TIMELINE_SPEED_DECREASE_PER_TICK);
+                int d = input.Wheel * FrameworkSettings.Timeline.TurnScrollSpeedByMouseOrArrow;
+                if (input.KeyTime(System.Windows.Input.Key.Up) == 1) d = FrameworkSettings.Timeline.TurnScrollSpeedByMouseOrArrow;
+                if (input.KeyTime(System.Windows.Input.Key.Down) == 1) d = -FrameworkSettings.Timeline.TurnScrollSpeedByMouseOrArrow;
+                if (input.KeyTime(System.Windows.Input.Key.PageUp) == 1) d = FrameworkSettings.Timeline.TurnScrollSpeedByPageUpDown;
+                if (input.KeyTime(System.Windows.Input.Key.PageDown) == 1) d = -FrameworkSettings.Timeline.TurnScrollSpeedByPageUpDown;
+                if (d != 0)
+                {
+                    double go = d * FrameworkSettings.Timeline.TileLength;
+                    _animator = new Animator<double>(Animator.EaseOutQuad, _firstTurnOffset,
+                       ((_lastAnimatorReason == AnimatorReasons.wheel ? _animator.finish : _firstTurnOffset) + go).ToRange(allowedRangeDown, allowedRangeUp),
+                        scrollTime / FrameworkSettings.ForInnerUse.TimerInterval, currentFrameTick - 1);
+                    _lastAnimatorReason = AnimatorReasons.wheel;
+                    _timelineSpeed = 0;
+                    _firstTurnOffset += input.Wheel * FrameworkSettings.Timeline.TileLength;
+                }
             }
             else
             {
-                _timelineSpeed = Math.Min(0, _timelineSpeed + TIMELINE_SPEED_DECREASE_PER_TICK);
-
+                if(_indexOfLastViewedTile >=0)
+                    _lastAnimatorReason = AnimatorReasons.followLastViewed;
+                if (_lastAnimatorReason == AnimatorReasons.followLastViewed)
+                {
+                    _animator = new Animator<double>(Animator.EaseOutQuad,
+                        _firstTurnOffset,
+                        (fullTimelineRect.size.Y * 0.5 - currentGameTurns.First() * FrameworkSettings.Timeline.TileLength).ToRange(allowedRangeDown, allowedRangeUp),
+                        followTime / FrameworkSettings.ForInnerUse.TimerInterval, currentFrameTick - 1);
+                    _lastAnimatorReason = AnimatorReasons.followLastViewed;
+                }
             }
+
+            //if (_indexOfLastViewedTile >= 0)
+            //{
+            //    var halfYPosition = fullTimelineRect.size.Y / 2;
+            //    var viewedTurnPosition = _firstTurnOffset + _indexOfLastViewedTile * FrameworkSettings.Timeline.TileLength;
+            //    if (_followLastTurn && viewedTurnPosition < halfYPosition)
+            //    {
+            //        _animator = new Animator<double>(Animator.EaseOutQuad, 
+            //            _firstTurnOffset, halfYPosition - _indexOfLastViewedTile * FrameworkSettings.Timeline.TileLength, 
+            //            _followDuration, currentFrameTick-1);
+            //    }
+
+            //}
+
+            _firstTurnOffset = _animator.Get(currentFrameTick);
+
+
+            //if (input.RightMouseTime >= 1 && GeomHelper.PointInSimpleRect(input.Mouse, fullTimelineRect))
+            //{
+            //    _timelineSpeed = 0;
+            //    if (input.RightMouseTime > 1)
+            //    {
+            //        _firstTurnOffset += input.MouseDelta.Y;
+            //    }
+            //}
+            //else if (input.RightMouseUp)
+            //{
+            //    _timelineSpeed = input.MouseDelta.Y;
+            //}
+
+
+            //if (input.Wheel != 0 && GeomHelper.PointInSimpleRect(input.Mouse, fullTimelineRect))
+            //{
+            //    _timelineSpeed = 0;
+            //    _firstTurnOffset += input.Wheel * FrameworkSettings.Timeline.TileLength;
+            //}
+
+            //_firstTurnOffset += _timelineSpeed;
+            //if (_timelineSpeed > 0)
+            //{
+            //    _timelineSpeed = Math.Max(0, _timelineSpeed - TIMELINE_SPEED_DECREASE_PER_TICK);
+            //}
+            //else
+            //{
+            //    _timelineSpeed = Math.Min(0, _timelineSpeed + TIMELINE_SPEED_DECREASE_PER_TICK);
+
+            //}
 
             //correction  - must be <=0 and at least one tile should be visible
-            if(_thereWasADraw == false)
-            {
-                _firstTurnOffset = -10000000;
-                _thereWasADraw = true;
-            }
-            _firstTurnOffset = _firstTurnOffset.ToRange(-turnCount * _tileHeight + _tileHeight*10, 0); //todo now only ten are visible
+          //  if (_thereWasADraw == false)
+          //  {
+           //     _firstTurnOffset = -10000000;
+          //      _thereWasADraw = true;
+          //  }
+            //   _firstTurnOffset = _firstTurnOffset.ToRange(-turnCount * FrameworkSettings.Timeline.TileWidth + FrameworkSettings.Timeline.TileWidth * 10, 0); //todo now only ten are visible
+
+
 
             var clickedTurn = input.AllClickedButtons().FirstOrDefault(x => x.StartsWith("__timeline"));
-            if(clickedTurn != null)
+            if (clickedTurn != null)
             {
+
                 int turnIndex = int.Parse(clickedTurn.Replace("__timeline", ""));
+                
+                    
                 return turnIndex;
             }
             return -1;
         }
+
+
+        private static Rect2d GetTimelineRect(Frame frame)
+        {
+            Vector2d positionOfFirstTile = new Vector2d(((IFramePainterInfo)frame).cameraViewport.right - FrameworkSettings.Timeline.TileWidth, 0);
+            return new OpenTK.Rect2d(positionOfFirstTile, FrameworkSettings.Timeline.TileWidth, ((IFramePainterInfo)frame).cameraViewport.size.Y);
+        }
+
 
         Color InvertedColor(Color color)
         {

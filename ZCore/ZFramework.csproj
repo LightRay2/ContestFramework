@@ -126,7 +126,7 @@
     <Compile Include="ServerGame.cs" />
     <Compile Include="ServerRoom.cs" />
     <Compile Include="Timeline.cs" />
-    <Compile Include="Vars.cs" />
+    <Compile Include="FrameworkSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="OpenGL\GameForm.resx">

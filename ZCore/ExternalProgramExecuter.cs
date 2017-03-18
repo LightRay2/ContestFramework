@@ -67,7 +67,7 @@ namespace Framework
             Random rnd = new Random();
             rnd = new Random(rnd.Next() + programExecutable.GetHashCode());
             string randomStr = "";
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 12; i++)
                 randomStr += "0123456789ABCDEF"[rnd.Next(16)];
 #if NET40
       localDriteProgramDirectory = Path.Combine(Path.GetTempPath(), TempSubdir, randomStr);
