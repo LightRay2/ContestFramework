@@ -122,14 +122,16 @@ namespace Framework
         
         enum AnimatorReasons {none, wheel, followLastViewed};
         AnimatorReasons _lastAnimatorReason = AnimatorReasons.none;
-        public int ManageTimelineByInputAndGetClickedTurn(Frame frame, GlInput input, int turnCount, int currentFrameTick, List<int> currentGameTurns)
+        public int ManageTimelineByInputAndGetClickedTurn(out int turnUnderMouse, Frame frame, GlInput input, int turnCount, int currentFrameTick, List<int> currentGameTurns, double speedMultiplier)
         {
+            turnUnderMouse = -1;
+
             Vector2d positionOfFirstTile = new Vector2d(((IFramePainterInfo)frame).cameraViewport.right - FrameworkSettings.Timeline.TileWidth, 0);
             Rect2d fullTimelineRect = GetTimelineRect(frame);
             //  var TIMELINE_SPEED_DECREASE_PER_TICK = FrameworkSettings.Timeline.TileLength / 30;
 
-            double scrollTime = 400.0;
-            double followTime = 800.0;
+            double scrollTime = FrameworkSettings.Timeline.ScrollAnimationTimeMs;
+            double followTime = speedMultiplier* FrameworkSettings.Timeline.FollowAnimationTimeMs * speedMultiplier;
             double allowedRangeDown = (-turnCount * FrameworkSettings.Timeline.TileWidth + fullTimelineRect.size.Y * 0.7).ToRange(0, double.MinValue),
                 allowedRangeUp = 0;
 
@@ -164,7 +166,7 @@ namespace Framework
                 {
                     _animator = new Animator<double>(Animator.EaseOutQuad,
                         _firstTurnOffset,
-                        (fullTimelineRect.size.Y * 0.5 - currentGameTurns.First() * FrameworkSettings.Timeline.TileLength).ToRange(allowedRangeDown, allowedRangeUp),
+                        (fullTimelineRect.size.Y * 0.4 - currentGameTurns.First() * FrameworkSettings.Timeline.TileLength).ToRange(allowedRangeDown, allowedRangeUp),
                         followTime / FrameworkSettings.ForInnerUse.TimerInterval, currentFrameTick - 1);
                     _lastAnimatorReason = AnimatorReasons.followLastViewed;
                 }
@@ -218,12 +220,22 @@ namespace Framework
             //}
 
             //correction  - must be <=0 and at least one tile should be visible
-          //  if (_thereWasADraw == false)
-          //  {
-           //     _firstTurnOffset = -10000000;
-          //      _thereWasADraw = true;
-          //  }
+            //  if (_thereWasADraw == false)
+            //  {
+            //     _firstTurnOffset = -10000000;
+            //      _thereWasADraw = true;
+            //  }
             //   _firstTurnOffset = _firstTurnOffset.ToRange(-turnCount * FrameworkSettings.Timeline.TileWidth + FrameworkSettings.Timeline.TileWidth * 10, 0); //todo now only ten are visible
+
+            var underMouse = input.AllButtonsUnderMouse().FirstOrDefault(x => x.StartsWith("__timeline"));
+            if (underMouse != null)
+            {
+
+                int turnIndex = int.Parse(underMouse.Replace("__timeline", ""));
+
+
+                turnUnderMouse = turnIndex;
+            }
 
 
 
@@ -236,6 +248,8 @@ namespace Framework
                     
                 return turnIndex;
             }
+
+            
             return -1;
         }
 

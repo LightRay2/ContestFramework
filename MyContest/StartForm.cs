@@ -28,10 +28,6 @@ namespace MyContest
         {
             formState = FormState.LoadOrCreate();
 
-            #region  data bindings to editors
-            //edtMatchDate.DataBindings.Add("Value", formState, "MatchDate");
-            //edtMinTimePerMatch.DataBindings.Add("Text", formState, "MinTimePerMatch");
-            #endregion
 
             formState.PropertyChanged += (s, args) => needRefreshControls = true;
             refreshTimer.Tick += (s, args) =>
@@ -44,17 +40,8 @@ namespace MyContest
             };
             refreshTimer.Start();
 
-            gvMatches.Rows.Add(DateTime.Now.AddMinutes(10), "Lightray - Inspiration", "24-12");
-            gvMatches.Rows.Add(DateTime.Now.AddMinutes(-1), "Lightray - abc04", "Идет 97 ход");
-            gvMatches.Rows.Add(DateTime.Now.AddMinutes(-10), "Lightray - Inspiration", "9-17");
-            gvMatches.Rows.Add(DateTime.Now.AddMinutes(-20), "Lightray - abc04", "3-5");
 
-            gvMatches.Rows[0].DefaultCellStyle.BackColor = Color.Bisque;
-            gvMatches.Rows[1].DefaultCellStyle.BackColor = Color.Khaki;
-            gvMatches.Rows[2].DefaultCellStyle.BackColor = Color.LightGreen;
-            gvMatches.Rows[3].DefaultCellStyle.BackColor = Color.LightGreen;
-
-            if (FrameworkSettings.RunGameImmediately && formState.ProgramAddressesInMatch.Count >0)
+            if (FrameworkSettings.RunGameImmediately && formState.ProgramAddressesInMatch.Count > 0)
                 btnRun_Click(null, null);
         }
         #endregion
@@ -139,14 +126,8 @@ namespace MyContest
             }
             #endregion
 
-            btnAddToGameList.Text =
-                string.Format("В список игр ({0})", formState.GameParamsList.Count);
 
-            #region запуск матчей - локальный или серверный мод
-            //btnAddHuman.Enabled = btnAddProgram.Enabled = !formState.RunMatchesServerMode;
-            //panelPlayers_DeleteButtons.ForEach(b => b.Enabled = !formState.RunMatchesServerMode);
-            //panelMatchTimeOnServer.Visible = formState.RunMatchesServerMode;
-            #endregion
+            btnChangeJavaPath.Visible = string.IsNullOrEmpty(formState.JavaPath) == false;
 
 
             ResumeDrawing();
@@ -157,7 +138,7 @@ namespace MyContest
         {
             int index = (int)((Control)sender).Tag;
             formState.RemoveProgramAddress(index);
-            
+
         }
         //todo а как сделать изначальное состояние для копирования настроек? или поменять путь?
         public void PlayerCheckedChanged(object sender, EventArgs e)
@@ -167,7 +148,7 @@ namespace MyContest
             if (s.Checked)
             {
                 formState.ProgramAddressesInMatch.Add(index);
-                if (FrameworkSettings.PlayersPerGame != 0 && formState.ProgramAddressesInMatch.Count > FrameworkSettings.PlayersPerGame)
+                if (FrameworkSettings.PlayersPerGameMax != 0 && formState.ProgramAddressesInMatch.Count > FrameworkSettings.PlayersPerGameMax)
                 {
                     formState.ProgramAddressesInMatch.RemoveAt(0);
                     //todo check java path when run
@@ -188,21 +169,63 @@ namespace MyContest
             if (!Directory.Exists(initialDirectory))
                 initialDirectory = Path.GetDirectoryName(Application.StartupPath);
             openFileDialog1.InitialDirectory = lastAddress == null ? initialDirectory : Path.GetDirectoryName(lastAddress);
-            openFileDialog1.Filter = "Исполняемые файлы|*.exe;*.java";
+            openFileDialog1.Filter = "Исполняемые файлы|*.exe;*.jar";
             if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                formState.ProgramAddressesAll.Add(openFileDialog1.FileName);
-                if (FrameworkSettings.PlayersPerGame != 0 && formState.ProgramAddressesInMatch.Count < FrameworkSettings.PlayersPerGame)
+               
+                if (CheckSelectSetJavaPath(new List<string> { openFileDialog1.FileName } ))
                 {
-                    formState.ProgramAddressesInMatch.Add(formState.ProgramAddressesAll.Count - 1);
+                    formState.ProgramAddressesAll.Add(openFileDialog1.FileName);
+                    if (FrameworkSettings.PlayersPerGameMax != 0 && formState.ProgramAddressesInMatch.Count < FrameworkSettings.PlayersPerGameMax)
+                    {
+                        formState.ProgramAddressesInMatch.Add(formState.ProgramAddressesAll.Count - 1);
+                    }
                 }
             }
+        }
+
+        bool CheckSelectSetJavaPath(List<string> programAddresses)
+        {
+            if (string.IsNullOrEmpty(formState.JavaPath) == false && File.Exists(formState.JavaPath))
+                return true; //уже задан
+            bool required = programAddresses.Any(x=>x.Substring(x.Length - 4) == ".jar");
+
+            if (required == false)
+                return true;
+
+
+            var folderDialog = new FolderBrowserDialog
+            {
+                Description = "Укажите директорию Java (например, " + @"C:\Program Files\Java\jre1.8.0_73 )",
+                ShowNewFolderButton = false
+
+            };
+            folderDialog.ShowNewFolderButton = false;
+            folderDialog.Description = @"Укажите директорию Java (например, 
+C:\Program Files (x86)\Java\jdk1.7.0_55 или 
+C:\Program Files\Java\jre1.8.0_73 )";
+            if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                string javaPath = (folderDialog.SelectedPath + "\\bin\\java.exe");
+                if (File.Exists(javaPath))
+                {
+                    formState.JavaPath = javaPath;
+                    return true;
+                }
+                else
+                {
+                    MessageBox.Show("Выбранная директория не содержит путь /bin/java.exe");
+                    return false;
+                }
+            }
+            else
+                return false;
         }
 
         private void btnAddHuman_Click(object sender, EventArgs e)
         {
             formState.ProgramAddressesAll.Add(null);
-            if (FrameworkSettings.PlayersPerGame != 0 && formState.ProgramAddressesInMatch.Count < FrameworkSettings.PlayersPerGame)
+            if (FrameworkSettings.PlayersPerGameMax != 0 && formState.ProgramAddressesInMatch.Count < FrameworkSettings.PlayersPerGameMax)
             {
                 formState.ProgramAddressesInMatch.Add(formState.ProgramAddressesAll.Count - 1);
             }
@@ -223,22 +246,16 @@ namespace MyContest
             formState.ProgramAddressesInMatch.Clear();
         }
 
-        //todo local replays
-        private void btnAddToGameList_Click(object sender, EventArgs e)
-        {
-            var newGameParams = CreateGameParamsFromFormState(formState); //todo вынести это в гейм?
-            formState.GameParamsList.Add(newGameParams);
-        }
-
-        private void btnRemoveFromGameList_Click(object sender, EventArgs e)
-        {
-            if (formState.GameParamsList.Count != 0)
-                formState.GameParamsList.RemoveAt(formState.GameParamsList.Count - 1);
-
-        }
 
         private void btnRun_Click(object sender, EventArgs e)
         {
+            if (CheckSelectSetJavaPath(formState.ProgramAddressesAll.ToList()) == false)
+                return;
+            if(formState.ProgramAddressesInMatch.Count < FrameworkSettings.PlayersPerGameMin)
+            {
+                MessageBox.Show("Для запуска матча требуется игроков: " + FrameworkSettings.PlayersPerGameMax.ToString());
+                return;
+            }
             //todo run game and check java and count of programs and all programs
             GameCore<FormState, Turn, Round, Player>.TryRunAsSingleton((x, y) => new Game(x, y), new List<FormState> { formState }, null);
             //after all
@@ -248,6 +265,14 @@ namespace MyContest
         private void btnSaveRoomDescription_Click(object sender, EventArgs e)
         {
 
+        }
+
+        
+
+        private void btnChangeJavaPath_Click(object sender, EventArgs e)
+        {
+            formState.JavaPath = null;
+            CheckSelectSetJavaPath(formState.ProgramAddressesAll.ToList());
         }
 
         private void StartForm_FormClosed(object sender, FormClosedEventArgs e)

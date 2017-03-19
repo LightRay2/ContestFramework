@@ -32,11 +32,22 @@ namespace MyContest
             legalCreation = true;
             var loadedSettings = Serialize.TryReadFromXmlFile<FormState>(saveLoadPath);
 
+            
+            if (loadedSettings == null)
+            {
+                loadedSettings = new FormState();
+                for(int i = 0; i < FrameworkSettings.DefaultProgramAddresses.Count; i++)
+                {
+                    loadedSettings.ProgramAddressesAll.Add(FrameworkSettings.DefaultProgramAddresses[i].Item1);
+                    if (FrameworkSettings.DefaultProgramAddresses[i].Item2)
+                        loadedSettings.ProgramAddressesInMatch.Add(i);
+                }
+            }
             try
             {
                 for (int i = 0; i < loadedSettings.ProgramAddressesAll.Count; i++)
                 {
-                    if(File.Exists(loadedSettings.ProgramAddressesAll[i]) == false)
+                    if (File.Exists(loadedSettings.ProgramAddressesAll[i]) == false)
                     {
                         loadedSettings.RemoveProgramAddress(i);
                         i--;
@@ -47,8 +58,7 @@ namespace MyContest
             {
 
             }
-            if (loadedSettings == null)
-                loadedSettings = new FormState();
+
             loadedSettings.loading = false;
 
             return loadedSettings;

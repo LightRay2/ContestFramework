@@ -26,6 +26,7 @@ namespace Client
         public string input { get; set; }
         public string output { get; set; }
         public Player player { get; set; }
+        public string shortStatus { get; set; }
 
         public int moveCount;
         public Tuple<Point, Point> firstValidCommand;
@@ -120,7 +121,7 @@ namespace Client
             FrameworkSettings.GameNameEnglish = "Board";
             FrameworkSettings.RunGameImmediately = false;
             FrameworkSettings.AllowFastGameInBackgroundThread = true;
-            FrameworkSettings.PlayersPerGame = 4;
+            FrameworkSettings.PlayersPerGameMax = 4;
             FrameworkSettings.FramesPerTurn = 50;
 
 
@@ -132,6 +133,8 @@ namespace Client
             FrameworkSettings.Timeline.FontErrorTurn = EFont.timelineError;
             FrameworkSettings.Timeline.TurnScrollSpeedByMouseOrArrow = 4;
             FrameworkSettings.Timeline.TurnScrollSpeedByPageUpDown = 16;
+            FrameworkSettings.PlayersPerGameMin = 4;
+            FrameworkSettings.PlayersPerGameMax = 4;
 
             FrameworkSettings.AdditionalHelpOnGameForm ="РУЧНОЕ УПРАВЛЕНИЕ: стрелками на клавиатуре выберите шашку, которой собираетесь ходить, нажмите Enter и аналогично выберите точку, в которую будет совершен ход.";
         }

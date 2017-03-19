@@ -35,6 +35,7 @@ namespace MyContest
         public string input { get; set; }
         public string output { get; set; }
         public Player player { get; set; }
+        public string shortStatus { get; set; }
 
         public Color colorOnTimeLine { get; set; }
         public Color colorStatusOnTimeLine { get; set; }
@@ -190,9 +191,13 @@ namespace MyContest
             FrameworkSettings.GameNameEnglish = "ContestAI";
             FrameworkSettings.RunGameImmediately = true;
             FrameworkSettings.AllowFastGameInBackgroundThread = true;
-            FrameworkSettings.PlayersPerGame = 2;
             FrameworkSettings.FramesPerTurn = 12;
-            
+
+            FrameworkSettings.PlayersPerGameMin = 2;
+            FrameworkSettings.PlayersPerGameMax = 2;
+            FrameworkSettings.DefaultProgramAddresses.Add(Tuple.Create(Path.GetDirectoryName(Application.StartupPath) + "//..//Players//Easy.exe", true));
+            FrameworkSettings.DefaultProgramAddresses.Add(Tuple.Create(Path.GetDirectoryName(Application.StartupPath) + "//..//Players//Normal.exe", true));
+            FrameworkSettings.DefaultProgramAddresses.Add(Tuple.Create(Path.GetDirectoryName(Application.StartupPath) + "//..//Players//Hard.exe", false));
 
             FrameworkSettings.Timeline.Enabled = true;
             FrameworkSettings.Timeline.Position = TimelinePositions.right;
@@ -202,6 +207,7 @@ namespace MyContest
             FrameworkSettings.Timeline.FontErrorTurn = EFont.timelineError;
             FrameworkSettings.Timeline.TurnScrollSpeedByMouseOrArrow = 8;
             FrameworkSettings.Timeline.TurnScrollSpeedByPageUpDown = 100;
+            FrameworkSettings.Timeline.FollowAnimationTimeMs = 600;
         }
 
         public void LoadSpritesAndFonts()
@@ -266,6 +272,7 @@ namespace MyContest
             _currentPlayerIndex = player.team;
             var reader = new StringReader(output);
             var turn = new Turn {
+                shortStatus = executionResultRussianComment,
                 output = output,
                 colorOnTimeLine = player.team == 0? Color.Blue : Color.Green,
              nameOnTimeLine = roundNumber.ToString(),
@@ -553,7 +560,8 @@ namespace MyContest
             }
 
 
-
+            if (roundNumber == 499)
+                GameFinished = true;
             round.totalStage = 1;
         }
 

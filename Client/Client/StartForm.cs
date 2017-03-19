@@ -28,7 +28,7 @@ namespace Client
         {
            
 
-            FrameworkSettings.PlayersPerGame = 4;
+            FrameworkSettings.PlayersPerGameMax = 4;
             formState = FormState.LoadOrCreate();
 
             #region  data bindings to editors
@@ -173,7 +173,7 @@ namespace Client
             int index = (int)s.Tag;
             if(s.Checked){
                 formState.ProgramAddressesInMatch.Add(index);
-                if (FrameworkSettings.PlayersPerGame != 0 && formState.ProgramAddressesInMatch.Count > FrameworkSettings.PlayersPerGame)
+                if (FrameworkSettings.PlayersPerGameMax != 0 && formState.ProgramAddressesInMatch.Count > FrameworkSettings.PlayersPerGameMax)
                 {
                     formState.ProgramAddressesInMatch.RemoveAt(0);
                     //todo check java path when run
@@ -197,7 +197,7 @@ namespace Client
             if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 formState.ProgramAddressesAll.Add(openFileDialog1.FileName);
-                if (FrameworkSettings.PlayersPerGame != 0 && formState.ProgramAddressesInMatch.Count < FrameworkSettings.PlayersPerGame)
+                if (FrameworkSettings.PlayersPerGameMax != 0 && formState.ProgramAddressesInMatch.Count < FrameworkSettings.PlayersPerGameMax)
                 {
                     formState.ProgramAddressesInMatch.Add(formState.ProgramAddressesAll.Count - 1);
                 }
@@ -207,7 +207,7 @@ namespace Client
         private void btnAddHuman_Click(object sender, EventArgs e)
         {
             formState.ProgramAddressesAll.Add(null);
-            if (FrameworkSettings.PlayersPerGame != 0 && formState.ProgramAddressesInMatch.Count < FrameworkSettings.PlayersPerGame)
+            if (FrameworkSettings.PlayersPerGameMax != 0 && formState.ProgramAddressesInMatch.Count < FrameworkSettings.PlayersPerGameMax)
             {
                 formState.ProgramAddressesInMatch.Add(formState.ProgramAddressesAll.Count - 1);
             }

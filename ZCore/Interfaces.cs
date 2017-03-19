@@ -39,7 +39,7 @@ namespace Framework
     public interface ITurn<TPlayer> where TPlayer:IPlayer
     {
         string input { get; set; }
-        string output { set; }
+        string output { get; set; }
         TPlayer player { set; }
 
 
@@ -72,5 +72,6 @@ namespace Framework
         Color colorOnTimeLine { get; }
         Color colorStatusOnTimeLine { get; }
         string nameOnTimeLine { get; }
+        string shortStatus { get; set; }
     }
 }

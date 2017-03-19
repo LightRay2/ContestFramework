@@ -40,6 +40,16 @@ namespace Framework
             }
         }
 
+        public string InfoUnderMouse { get { return infoUnderMouse.Text; } set { infoUnderMouse.Text = value; } }
+
+        public string InfoAction { get { return  infoActions.Text; } set { infoActions.Text = value; } }
+
+
+
+
+
+
+
         public GameForm(Func<GlInput, Frame> processMethod)
         {
             UserWantsToClose = false;
@@ -178,9 +188,9 @@ namespace Framework
         private void помощьToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("ПОШАГОВОЕ ВОСПРОИЗВЕДЕНИЕ: нажимайте TAB для просмотра одиночных ходов. Для возобновления нажмите Q (отключение паузы).");
+            sb.AppendLine("ПОШАГОВОЕ ВОСПРОИЗВЕДЕНИЕ: нажимайте клавишу '[' для просмотра одиночных ходов. Для возобновления нажмите P (отключение паузы).");
             sb.AppendLine();
-            sb.AppendLine("ПОМОЩЬ В ОТЛАДКЕ: наведите мышкой на список ходов справа и используйте колесико или клавиши ВВЕРХ, ВНИЗ, PAGE UP, PAGE DOWN для перемотки. Кликните на ход для перехода (дополнительно в буфер обмена скопируется input.txt для данного хода). Наведите на ход и нажмите I или O для получения input.txt или output.txt для данного хода.");
+            sb.AppendLine("ПОМОЩЬ В ОТЛАДКЕ: наведите мышкой на список ходов справа и используйте колесико или клавиши ВВЕРХ, ВНИЗ, PAGE UP, PAGE DOWN для перемотки. Кликните на ход для перехода (дополнительно в буфер обмена скопируется input.txt для данного хода). Наведите на ход и нажмите I или O для получения input.txt или output.txt для данного хода. Для вставки текста из буфера обмена используйте сочетание CTRL+V в любом текстовом редакторе");
             sb.AppendLine();
             sb.AppendLine(FrameworkSettings.AdditionalHelpOnGameForm);
             MessageBox.Show(sb.ToString());

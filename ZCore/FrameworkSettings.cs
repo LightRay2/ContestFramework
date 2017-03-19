@@ -36,14 +36,18 @@ namespace Framework
         /// <summary>
         /// 0 значит 
         /// </summary>
-        public static int PlayersPerGame = 0;
+        public static int PlayersPerGameMax = 2;
+        public static int PlayersPerGameMin = 2;
         public static int FramesPerTurn=50;
+
+        public static List<Tuple<string, bool>> DefaultProgramAddresses = new List<Tuple<string, bool>>();
 
         /// <summary>
         /// для дебага игры подходит
         /// </summary>
         public static bool RunGameImmediately = false;
         public static bool AllowFastGameInBackgroundThread { get; set; }
+
         /// <summary>
         /// будет написано в заголовке формы, настройки в роаминге будут с таким именем (чтобы не путать с другими играми, старайтесь дать уникальное имя)
         /// </summary>
@@ -64,6 +68,9 @@ namespace Framework
 
             public int TurnScrollSpeedByMouseOrArrow = 4;
             public int TurnScrollSpeedByPageUpDown = 20;
+
+            public double ScrollAnimationTimeMs = 400;
+            public double FollowAnimationTimeMs = 800;
         }
     }
 }

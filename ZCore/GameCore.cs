@@ -40,6 +40,8 @@ namespace Framework
 
             _instance._gameForm = new GameForm(_instance.Process);
             _instance._gameForm.watchSpeedMultiplier = _instance._settings.First().FramesPerTurnMultiplier;
+            _instance._gameForm.InfoAction = "Матч запущен";
+            _instance._gameForm.InfoUnderMouse = "Кликните меню ПОМОЩЬ для получения информации";
             if (!_instance.TryInitNextGame())
                 return false;
 
@@ -146,6 +148,7 @@ namespace Framework
                     }
                     break;
                 case EProcessPhase.getTurnsOfNextRound:
+                    //сюда приходим только без бекграундной игры
                     bool nextRoundExists = false;
                     if (_roundsFromServer == null)
                     {
@@ -160,9 +163,7 @@ namespace Framework
                         }
                         _currentRound = JsonConvert.DeserializeObject<TRound>(tmp.ToString());
                     }
-
-                    if (nextRoundExists == false && _gameMode == EGameMode.localWithoutHuman)
-                        break; //если игра в фоновом процессе, то ничего не предпринимаем
+                    
 
                     if (!nextRoundExists)
                     {
@@ -188,6 +189,9 @@ namespace Framework
                     GoToPhase(EProcessPhase.waitUntilAnimationFinished);
                     return;
                     break;
+                case EProcessPhase.gameFinished:
+                    _gameForm.InfoAction = "Игра завершена";
+                    break;
             }
 
             _processPhase = phase;
@@ -199,7 +203,7 @@ namespace Framework
                 return null;
             if (GameForm.UserWantsToClose && !GameForm.GameInBackgroundRunning)
                 return null;
-            if (input.KeyTime(System.Windows.Input.Key.Q) == 1)
+            if (input.KeyTime(System.Windows.Input.Key.P) == 1)
             {
                 PauseButtonPressed = !PauseButtonPressed;
                 _gameForm.GamePaused = PauseButtonPressed;
@@ -207,7 +211,7 @@ namespace Framework
             else
                 PauseButtonPressed = _gameForm.GamePaused;
 
-            _gameForm.UserWantsPauseAfterTurn |= input.KeyTime(System.Windows.Input.Key.Tab) == 1;
+            _gameForm.UserWantsPauseAfterTurn |= input.KeyTime(System.Windows.Input.Key.Oem4) ==1 ;//кнопка открытая квадратная скобка, или русская буква х
 
 
             if (!PauseButtonPressed)
@@ -221,9 +225,24 @@ namespace Framework
                     else
                     {
                         if (_gameMode == EGameMode.localWithHuman)
+                        {
                             GoToPhase(EProcessPhase.getTurnsOfNextRound);
-                        else if (_gameMode == EGameMode.localWithoutHuman && _allRounds.ContainsKey(_game.roundNumber))
-                            GoToPhase(EProcessPhase.getTurnsOfNextRound);
+                        }
+                        else if (_gameMode == EGameMode.localWithoutHuman)
+                        {
+                            if (_allRounds.ContainsKey(_game.roundNumber))
+                            {
+                                _allRounds.TryGetValue(_game.roundNumber, out _currentRound);
+                                GoToPhase(EProcessPhase.processRound);
+                            }
+                            else
+                            {
+                                if (_game.roundNumber > 5)
+                                {
+                                    _gameForm.InfoAction = "Рекомендуем снизить скорость просмотра";
+                                }
+                            }
+                        }
                         //иначе остаемся крутиться в before round, пока во втором потоке не сформируется ход
 
                     }
@@ -295,8 +314,11 @@ namespace Framework
 
             Frame frame = new Frame();
             _game.DrawAll(frame, animationStage, animationFinishStage, _processPhase == EProcessPhase.getTurnsOfNextRound, input);
-            DrawAndProcessTimeline(frame, input);
+            if(_currentRound != null)
+                DrawAndProcessTimeline(frame, input);
+
             _game.frameNumber++;
+
 
             
             return frame;
@@ -311,17 +333,68 @@ namespace Framework
                 if (turns.Count > 0)
                 {
                     int currentTurn = rounds.Take(_game.roundNumber).Select(x => x.turns.Count).DefaultIfEmpty(0).Sum() ;
-                    if(currentTurn>=turns.Count)
-                        currentTurn = turns.Count-1;
-                    var currentTurns = new List<int> {  };
+                    var currentTurns = new List<int> ();
                     for (int i = 0; i < _currentRound.turns.Count; i++)
+                    {
                         currentTurns.Add(currentTurn + i);
-                    var clickedTurn = _timeline.ManageTimelineByInputAndGetClickedTurn(frame, input, turns.Count, _game.frameNumber, currentTurns);
+                    }
+                    while(currentTurns.Last() >= turns.Count)
+                    {
+                        currentTurns = currentTurns.Select(x => x - 1).ToList();
+                    }
+                    int turnUnderMouse;
+                    var clickedTurn = _timeline.ManageTimelineByInputAndGetClickedTurn( out turnUnderMouse,frame, input, turns.Count, _game.frameNumber, currentTurns, _settings[_currentGameNumber].FramesPerTurnMultiplier);
                     if (clickedTurn >=  0 && clickedTurn < turns.Count)
                     {
-                        Clipboard.SetText(turns[clickedTurn].input);
+                        //double code
+                        string turnName = (turns[clickedTurn] as ITimelineCell).nameOnTimeLine;
+                        var inputTxt = turns[clickedTurn].input;
+                        if (string.IsNullOrEmpty(inputTxt))
+                        {
+                            _gameForm.InfoAction = string.Format("input.txt для хода {0} отсутствует", turnName);
+                        }
+                        else
+                        {
+                            Clipboard.SetText(inputTxt);
+                            _gameForm.InfoAction = string.Format("input.txt для хода {0} скопирован в буфер обмена", turnName);
+                        }
+
                         var clickedRound = rounds.IndexOf(rounds.First(r => r.turns.Contains(turns[clickedTurn])));
                         SetStateBeforeGivenRound(clickedRound);
+                    }
+                    if (turnUnderMouse >= 0 && turnUnderMouse < turns.Count)
+                    {
+                        string turnName = (turns[turnUnderMouse] as ITimelineCell).nameOnTimeLine;
+                        _gameForm.InfoUnderMouse = string.Format("Ход {0}. Статус: {1}", turnName, (turns[turnUnderMouse] as ITimelineCell).shortStatus);
+                        if (input.KeyTime(System.Windows.Input.Key.I) == 1)
+                        {
+                            //double code
+                            var inputTxt = turns[turnUnderMouse].input;
+                            if (string.IsNullOrEmpty(inputTxt))
+                            {
+                                _gameForm.InfoAction = string.Format("input.txt для хода {0} отсутствует", turnName);
+                            }
+                            else
+                            {
+                                Clipboard.SetText(inputTxt);
+                                _gameForm.InfoAction = string.Format("input.txt для хода {0} скопирован в буфер обмена", turnName);
+                            }
+                        }
+                        if (input.KeyTime(System.Windows.Input.Key.O) == 1)
+                        {
+                            var outputTxt = turns[turnUnderMouse].output;
+                            if (string.IsNullOrEmpty(outputTxt))
+                            {
+
+                                _gameForm.InfoAction = string.Format("output.txt для хода {0} отсутствует", turnName);
+                            }
+                            else
+                            {
+                                Clipboard.SetText(outputTxt);
+                                _gameForm.InfoAction = string.Format("output.txt для хода {0} скопирован в буфер обмена", turnName);
+
+                            }
+                        }
                     }
                     _timeline.Draw(frame, input, turns.Cast<ITimelineCell>().ToList(), currentTurns);
                 }
@@ -467,6 +540,8 @@ namespace Framework
 
         public void SetStateBeforeGivenRound(int goBeforeRound)
         {
+            var tmp = _gameForm.InfoAction;
+            _gameForm.InfoAction = string.Format("Осуществляем переход...");
             var game = _GameCreationDelegate(_settings[_currentGameNumber], GamePurpose.visualizationGame);
             game.roundNumber = -1;
             game.rounds = new List<TRound>();
@@ -488,8 +563,13 @@ namespace Framework
             animationStage = goBeforeRound == 0 ? 0 : 1;
 
             _game = game;
-            GoToPhase(EProcessPhase.beforeRound);
 
+            TRound currentRound;
+            _allRounds.TryGetValue(goBeforeRound, out currentRound);
+            _gameForm.InfoAction = string.Format("Просмотр с момента перед ходом {0}. {1}",
+                currentRound.turns.Count == 0 ? "" :(currentRound.turns.First() as ITimelineCell).nameOnTimeLine, tmp);
+
+            GoToPhase(EProcessPhase.beforeRound);
 
         }
 
