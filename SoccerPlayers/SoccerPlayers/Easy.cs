@@ -18,7 +18,7 @@ namespace SoccerPlayers
             var rand = new Random();
             for(int  i = 0; i < 5; i++)
             {
-                sb.AppendLine(string.Format("{0} {1}", rand.NextDouble() * 100, rand.NextDouble() * 50));
+                sb.AppendLine(string.Format("{0} {1}", rand.NextDouble() * 100, rand.NextDouble() * 60));
 
             }
             File.WriteAllText("output.txt", sb.ToString());

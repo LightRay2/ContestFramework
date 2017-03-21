@@ -31,12 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework">
-      <HintPath>..\Server\packages\EntityFramework.6.1.3\lib\net40\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer">
-      <HintPath>..\Server\packages\EntityFramework.6.1.3\lib\net40\EntityFramework.SqlServer.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Server\packages\Newtonsoft.Json.8.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -126,7 +120,6 @@
     <Compile Include="Struct\SpecialDraw.cs" />
     <Compile Include="Struct\SpriteList.cs" />
     <Compile Include="Struct\SpriteOld.cs" />
-    <Compile Include="Struct\Text.cs" />
     <Compile Include="Struct\Vector2Old.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerGame.cs" />
@@ -164,21 +157,15 @@
     <Content Include="Libs\Tao.Platform.Windows.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenGL\OpenTK\OpenTK.Compatibility.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="OpenGL\OpenTK\OpenTK.Compatibility.dll" />
     <Content Include="OpenGL\OpenTK\OpenTK.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="OpenGL\OpenTK\OpenTK.GLControl.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OpenGL\OpenTK\OpenTK.GLControl.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="OpenGL\OpenTK\OpenTK.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="OpenGL\OpenTK\OpenTK.GLControl.xml" />
+    <Content Include="OpenGL\OpenTK\OpenTK.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QuickFont\QuickFont\QuickFont.csproj">

@@ -11,14 +11,14 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
-namespace MyContest
+namespace SimpleContest
 {
     public partial class StartForm : Form
     {
         #region init everything
         public StartForm()
         {
-            Game.SetFrameworkSettings();
+            SimpleGame.SetFrameworkSettings();
             InitializeComponent();
         }
 
@@ -258,7 +258,7 @@ C:\Program Files\Java\jre1.8.0_73 )";
             }
             //нужно встряхнуть рандомайзер
             formState.RandomSeed = new Random().Next();
-            GameCore<FormState, Turn, Round, Player>.TryRunAsSingleton((x, y) => new Game(x, y), new List<FormState> { formState }, null);
+            GameCore<FormState, Turn, Round, Player>.TryRunAsSingleton((x, y) => new SimpleGame(x, y), new List<FormState> { formState }, null);
             
             formState.GameParamsList.Clear(); //todo remove
         }

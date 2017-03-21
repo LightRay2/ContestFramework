@@ -14,6 +14,7 @@ namespace SoccerPlayers
         internal void GoGoodDefence()
         {
             var reader = new StringReader(File.ReadAllText("input.txt"));
+                var erwerqwer = reader.ReadLine();
             Point ball = new Point();
             Point ballEnd = new Point();
             List<Point> our = new List<Point>();
@@ -49,7 +50,7 @@ namespace SoccerPlayers
                         for (int i = 0; i < 5; i++)
                     {
                         our[i].aimx = ourInter.Item1.x;
-                        our[i].aimy = 5 + i * 8; 
+                        our[i].aimy = 5 + i * 12; 
                     }
                     if (ourInter.Item2 < double.MaxValue / 100)
                     {
@@ -63,7 +64,7 @@ namespace SoccerPlayers
                     for (int i = 0; i < 5; i++)
                     {
                         our[i].aimx = ball.x - 10;
-                        our[i].aimy = 5 + i * 8;
+                        our[i].aimy = 5 + i * 12;
                     }
                 }
             }
@@ -83,7 +84,7 @@ namespace SoccerPlayers
                     {
                         res2.Add(string.Format("{0} {1}", our[i].aimx, our[i].aimy));
                     }
-                    res2.Add(string.Format("{0} {1}", ball.x + 20, 5 + rand.NextDouble() * 40));
+                    res2.Add(string.Format("{0} {1}", ball.x + 20, 5 + rand.NextDouble() * 50));
                     File.WriteAllLines("output.txt", res2);
 
                     return;

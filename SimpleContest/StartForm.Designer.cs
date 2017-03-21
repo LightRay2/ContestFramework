@@ -1,4 +1,4 @@
-﻿namespace MyContest
+﻿namespace SimpleContest
 {
     partial class StartForm
     {

@@ -73,5 +73,6 @@ namespace Framework
         Color colorStatusOnTimeLine { get; }
         string nameOnTimeLine { get; }
         string shortStatus { get; set; }
+        Enum fontOnTimeLine { get; }
     }
 }

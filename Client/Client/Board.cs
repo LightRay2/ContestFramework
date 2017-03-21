@@ -39,7 +39,13 @@ namespace Client
 
         public Color colorOnTimeLine { get; set; }
         public Color colorStatusOnTimeLine { get; set; }
+        public Enum fontOnTimeLine { get; set; }
         public string nameOnTimeLine { get; set; }
+        
+        public Turn()
+        {
+            fontOnTimeLine = Board.EFont.timelineNormal;
+        }
     }
 
     public class Player : IPlayer
@@ -179,7 +185,7 @@ namespace Client
 
 
 
-        enum EFont { regular, teamSmall3, teamSmall4, teamSmall1, teamSmall2, teamBig1, teamBig2, teamBig4, teamBig3, 
+        public enum EFont { regular, teamSmall3, teamSmall4, teamSmall1, teamSmall2, teamBig1, teamBig2, teamBig4, teamBig3, 
             timelineNormal,
             timelineError
         }
@@ -639,7 +645,7 @@ namespace Client
                     string s;
                     int i = 0;
                     int? selectedCommand = null;
-                    while ((s = reader.ReadLine()) != null && i < 10)
+                    while ((s = reader.ReadLine()) != null && i < 1)
                     {
                         string comment;
                         var stringNumbers = s.Split(' ');
@@ -654,12 +660,14 @@ namespace Client
                         catch
                         {
                             comment = "Неверный формат команды";
+                            turn.fontOnTimeLine = EFont.timelineError;
                             break;
                         }
                         if (Val(a) && Val(b) && Val(c) && Val(d))
                         {
                             if (this.field[a, b] != player)
                             {
+                                turn.fontOnTimeLine = EFont.timelineError;
                                 comment = "В заданной клетке нет вашей шашки";
                             }
                             else
@@ -677,12 +685,14 @@ namespace Client
                                 }
                                 else
                                 {
+                                    turn.fontOnTimeLine = EFont.timelineError;
                                     comment = "Ход не возможен";
                                 }
                             }
                         }
                         else
                         {
+                            turn.fontOnTimeLine = EFont.timelineError;
                             comment = "Координата за пределами поля";
                         }
                         turn.commandComments.Add(comment);
@@ -690,13 +700,15 @@ namespace Client
 
                     turn.totalComment = string.Format("Принята команда {0} из {1}", i + 1, turn.commandComments.Count);
                     turn.shortTotalComment = string.Format("{0} из {1}", i + 1, turn.commandComments.Count);
-
+                    turn.shortStatus = turn.commandComments.First();
                 }
             }
             else
             {
                 turn.totalComment = executionResultRussianComment;
                 turn.shortTotalComment = "Error";
+                turn.fontOnTimeLine = EFont.timelineError;
+                turn.shortStatus = executionResultRussianComment;
             }
 
             turn.colorOnTimeLine = player.color;

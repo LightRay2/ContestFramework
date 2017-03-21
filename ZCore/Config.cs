@@ -22,7 +22,7 @@ namespace Framework
                         gridPoint,gridPoint2,gridPoint1,
                           explosion, explosionBig, explosionSmall, explosionOut,explosionNuclear, stone,active1, active2,
                           end }
-    public enum EFont { blue, blueSmall, orange, fiolBright, fiol, gold, greenBright, green, greenSmall, red, end }
+    //public enum EFont { blue, blueSmall, orange, fiolBright, fiol, gold, greenBright, green, greenSmall, red, end }
     
     //действия, которые поддерживает клавиатура. Должны быть привязаны конкретные кнопки в конструкторе
     public enum EKeyboardAction { Fire, Esc, Enter, left, up, right, down,I,O, Unit1, Unit2, Unit3, Unit4, Unit5, end };

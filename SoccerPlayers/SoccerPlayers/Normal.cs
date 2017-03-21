@@ -15,6 +15,7 @@ namespace SoccerPlayers
         {
             using(var reader = new StringReader(File.ReadAllText("input.txt")))
             {
+                var erwerqwer = reader.ReadLine();
                 var ss = reader.ReadLine().Split(' ');
                 double ballx = double.Parse(ss[0], CultureInfo.InvariantCulture);
                 double bally = double.Parse(ss[1], CultureInfo.InvariantCulture);

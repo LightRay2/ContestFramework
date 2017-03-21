@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace MyContest
+namespace SimpleContest
 {
     public class FormState : INotifyPropertyChanged, IParamsFromStartForm //todo вынести в хелпер
     {
