@@ -38,11 +38,14 @@ namespace SoccerPlayers
             {
                 memoryPass.x = ReadDouble();
                 memoryPass.y = ReadDouble();
+
+                if (PointNear(memoryPass, ballFinish) == false)
+                    memoryTime = -1;
             }
             Point ballAim = new Point();
 
 
-
+            
 
 
             bool weHaveBall = we.Any(x => x.x == ball.x && x.y == ball.y);
@@ -61,12 +64,12 @@ namespace SoccerPlayers
 
 
                     var kickMatrix = new List<Tuple<double, Point>>();
-                    Point goalPossible =  FillSafeMatrixAndCheckGoal(kickMatrix, ball, we,enemy);
+                    Point goalPossible =  FillSafeMatrixAndCheckGoal(kickMatrix, ball, we,enemy, ballOwner);
                     
 
                     if (goalPossible != null)
                     {
-                        Pass(time, goalPossible, out memoryPass, out memoryTime, ref ballAim, aim);
+                        Pass(time, goalPossible, out memoryPass, out memoryTime, ref ballAim, aim,we);
                         SetPeopleAround(new SoccerPlayers.Extreme.Point { x = 0, y = 30 }, we, aim, 4);
                     }
                     else
@@ -79,7 +82,7 @@ namespace SoccerPlayers
                         if (canGiveNicePass)
                         {
                             //why not
-                            Pass(time, bestPass, out memoryPass, out memoryTime, ref ballAim, aim);
+                            Pass(time, bestPass, out memoryPass, out memoryTime, ref ballAim, aim,we);
                         }
                         else
                         {
@@ -94,13 +97,13 @@ namespace SoccerPlayers
                                 
                                 if(Dist(enemiesToBall.First(),ball) < 5) //догоняет на нашей половине
                                 {
-                                    Pass(time, bestPass, out memoryPass, out memoryTime, ref ballAim, aim);
+                                    Pass(time, bestPass, out memoryPass, out memoryTime, ref ballAim, aim,we);
                                 }
                             }
                             else if(enemiesToBall.Count >1)
                             {
                                 //pass
-                                Pass(time, bestPass, out memoryPass, out memoryTime, ref ballAim, aim);
+                                Pass(time, bestPass, out memoryPass, out memoryTime, ref ballAim, aim,we);
                             }
                             else
                             {
@@ -133,7 +136,7 @@ namespace SoccerPlayers
                 }
                 else
                 {
-                    bool wasPass = memoryTime != -1 && time - memoryTime < 5;
+                    bool wasPass = memoryTime != -1 ;
                     if (wasPass)
                     {
                         List<int> indices = new List<int> { 0, 1, 2, 3, 4 };
@@ -146,8 +149,8 @@ namespace SoccerPlayers
                         SetDefence(ball, we, enemy, aim);
                         //perexvat
 
-                        var ourCross = Perexvat(ball, ballFinish, we);
-                        var enemyCross = Perexvat(ball, ballFinish, enemy);
+                        var ourCross = Perexvat(ball, ballFinish, we,-1);
+                        var enemyCross = Perexvat(ball, ballFinish, enemy,-1);
 
                         if (PointNear(ourCross.Item2, ballFinish) == false ||
                             ourCross.Item3 < enemyCross.Item3+2)
@@ -172,25 +175,28 @@ namespace SoccerPlayers
 
         private bool AnalizeKickMatrix(List<Tuple<double, Point>> kickMatrix, List<Point> we, ref Point bestPass)
         {
-            bool ans = false;
-            var options = kickMatrix.Where(x => x.Item1 > 5).ToList();
-            bestPass = options.OrderByDescending(x => x.Item2.x).Select(x=>x.Item2).FirstOrDefault();
+            var withoutPerexvat = kickMatrix.Where(x => x.Item1 > 4).ToList();
 
-            if (bestPass == null)
-                bestPass = options.OrderByDescending(x => x.Item1).Select(x => x.Item2).FirstOrDefault();
+            
+
+             bestPass = withoutPerexvat.OrderByDescending(x => x.Item2.x).Select(x=>x.Item2).FirstOrDefault();
+
+            if (bestPass == null) //all with perexvat
+                bestPass = kickMatrix.OrderByDescending(x => x.Item1).Select(x => x.Item2).FirstOrDefault();
             else
                 return true;
 
-            if (bestPass == null)
-                bestPass = kickMatrix.OrderByDescending(x => x.Item1).Select(x => x.Item2).FirstOrDefault();
+            //impossible
+           // if (bestPass == null) //all with perexvat
+            //    bestPass = kickMatrix.OrderByDescending(x => x.Item1).Select(x => x.Item2).FirstOrDefault();
 
             if (bestPass == null)
-                bestPass = new Point { x = 100, y = 60 };
+                bestPass = new Point { x = 100, y = 30 };
 
             return false;
         }
 
-        private Point FillSafeMatrixAndCheckGoal(List<Tuple<double,Point>> kickMatrix, Point ball,List<Point> we,  List<Point> enemy)
+        private Point FillSafeMatrixAndCheckGoal(List<Tuple<double,Point>> kickMatrix, Point ball,List<Point> we,  List<Point> enemy, int ballOwner)
         {
             double dx = 100.0 / 20;
             double dy = 60.0 / 20;
@@ -199,27 +205,28 @@ namespace SoccerPlayers
             {
                 for(double y = 0; y < 60; y += dy)
                 {
-                    if(x == 75)
+                    if(x == 40 && y == 12)
                     {
 
                     }
                     var point = new Point { x = x, y = y };
-                    if (Dist(ball, point) > 30)
+                    if (Dist(ball, point) > 30 || Dist(ball, point) < 10)
                         continue;
-                    var ourCross = Perexvat(ball, point, we);
-                    var enemyCross = Perexvat(ball, point, enemy);
-
-                    kickMatrix.Add(Tuple.Create( enemyCross.Item3- ourCross.Item3 , point));
+                    var ourCross = Perexvat(ball, point, we, ballOwner);
+                    
+                    var enemyCross = Perexvat(ball, point, enemy,-1);
+                    if (PointNear( enemyCross.Item2, point) == true && enemy.Min(xx=>Dist(xx, point)) > 10)
+                        kickMatrix.Add(Tuple.Create( enemyCross.Item3- ourCross.Item3/1.25 , point));
                 }
             }
 
-            var bestt = kickMatrix.FirstOrDefault(x => x.Item2.x > 96);
-            if (bestt == null)
+            //var bestt = kickMatrix.FirstOrDefault(x => x.Item2.x > 96);
+          //  if (bestt == null)
                 return null;
-            return bestt.Item2;
+          //  return bestt.Item2;
         }
 
-        private static void RandomPass(int time, Point ball, out Point memoryPass, out int memoryTime, ref Point ballAim, List<Point> aim)
+        private  void RandomPass(int time, Point ball, out Point memoryPass, out int memoryTime, ref Point ballAim, List<Point> aim)
         {
             ballAim.y = ball.y + new Random().NextDouble() * 29;
 
@@ -231,14 +238,23 @@ namespace SoccerPlayers
                 aim[i] = ballAim;
         }
 
-        private static void Pass(int time, Point where, out Point memoryPass, out int memoryTime, ref Point ballAim, List<Point> aim)
+        private  void Pass(int time, Point where, out Point memoryPass, out int memoryTime, ref Point ballAim, List<Point> aim, List<Point> we)
         {
             ballAim = where;
             memoryTime = time;
             memoryPass = ballAim;
 
+            double bestDist = 100000;
+            int bestIndex = -1;
             for (int i = 0; i < 5; i++)
-                aim[i] = ballAim;
+                if(Dist(we[i], ballAim) < bestDist)
+                {
+                    bestDist = Dist(we[i], ballAim);
+                    bestIndex = i;
+                }
+
+            aim[bestIndex] = ballAim;
+            SetPeopleAround(ballAim, we, aim, bestIndex);
         }
 
 
@@ -339,7 +355,7 @@ namespace SoccerPlayers
             //}
         }
 
-        Tuple<int, Point, double> Perexvat(Point ball, Point ballFinish, List<Point> players)
+        Tuple<int, Point, double> Perexvat(Point ball, Point ballFinish, List<Point> players, int ignoreIndex)
         {
             int n = 20;
             var answer = Tuple.Create(0, ballFinish, Dist(players[0], ballFinish));
@@ -351,15 +367,18 @@ namespace SoccerPlayers
                     x = ball.x + (ballFinish.x - ball.x) / n * part,
                     y = ball.y + (ballFinish.y - ball.y) / n * part,
                 };
-
+                bool ok = false;
                 for (int i = 0; i < 5; i++)
                 {
+                    if (i == ignoreIndex && part < n)
+                        continue;
 
-                    var secondsBallToMiddle = Dist(middle, ball) / 30;
+                    var secondsBallToMiddle = Dist(middle, ball) / 6;
                     var secondsManToMiddle = Dist(middle, players[i]) / 2;
 
-                    if (secondsManToMiddle < secondsBallToMiddle || n == part)
+                    if (secondsManToMiddle -1 < secondsBallToMiddle || n == part)
                     {
+                        ok = true;
                         //possible
                         if (answer.Item3 > Dist(middle, players[i]))
                         {
@@ -368,6 +387,8 @@ namespace SoccerPlayers
 
                     }
                 }
+                if (ok)
+                    break;
             }
 
             return answer;

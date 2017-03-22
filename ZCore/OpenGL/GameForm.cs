@@ -20,7 +20,7 @@ namespace Framework
         public  double watchSpeedMultiplier { get { return _watchSpeedMultiplier; }
         set
             {
-                menuSpeed10.Checked = menuSpeed20.Checked = menuSpeed40.Checked = menuSpeed80.Checked = menuSpeed100.Checked
+                menuSpeed10.Checked = menuSpeed20.Checked = menuSpeed40.Checked = menuSpeed60.Checked = menuSpeed80.Checked = menuSpeed100.Checked
                 = menuSpeed150.Checked = menuSpeed200.Checked = menuSpeed250.Checked = menuSpeed300.Checked = false;
                 speedItems.OrderBy(x => Math.Abs(value - x.Item1)).First().Item2.Checked = true;
                 _watchSpeedMultiplier = value;

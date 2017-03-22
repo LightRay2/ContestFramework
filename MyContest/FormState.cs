@@ -13,7 +13,7 @@ namespace MyContest
     public class FormState : INotifyPropertyChanged, IParamsFromStartForm //todo вынести в хелпер
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        static string saveLoadPath = FrameworkSettings.ForInnerUse.RoamingPathWithSlash + "Settings.xml";
+        public static string saveLoadPath = FrameworkSettings.ForInnerUse.RoamingPathWithSlash + "Settings.xml";
         bool loading = true;
         public bool SaveToFile = true;
 

@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SoccerPlayers</RootNamespace>
     <AssemblyName>SoccerPlayers</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -44,9 +45,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Easy.cs" />
+    <Compile Include="EasyDefender.cs" />
     <Compile Include="Extreme.cs" />
     <Compile Include="Hard.cs" />
     <Compile Include="Normal.cs" />
+    <Compile Include="NormalLine.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleGameNormal.cs" />

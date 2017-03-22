@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections.Concurrent;
-using Newtonsoft.Json;
+//using Newtonsoft.Json;
 using System.Windows.Forms;
 using System.Threading;
 
@@ -150,19 +150,19 @@ namespace Framework
                 case EProcessPhase.getTurnsOfNextRound:
                     //сюда приходим только без бекграундной игры
                     bool nextRoundExists = false;
-                    if (_roundsFromServer == null)
-                    {
+                 //   if (_roundsFromServer == null)
+                //    {
                         nextRoundExists = _allRounds.TryGetValue(_game.roundNumber, out _currentRound);
-                    }
-                    else
-                    {
-                        object tmp;
-                        if (_roundsFromServer.TryGetValue(_game.roundNumber, out tmp))
-                        {
-                            nextRoundExists = true;
-                        }
-                        _currentRound = JsonConvert.DeserializeObject<TRound>(tmp.ToString());
-                    }
+                 //   }
+                   // else
+                  //  {
+                        //object tmp;
+                        //if (_roundsFromServer.TryGetValue(_game.roundNumber, out tmp))
+                        //{
+                        //    nextRoundExists = true;
+                        //}
+                        //_currentRound = JsonConvert.DeserializeObject<TRound>(tmp.ToString());
+                 //   }
                     
 
                     if (!nextRoundExists)

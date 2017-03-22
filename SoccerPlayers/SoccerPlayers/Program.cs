@@ -10,12 +10,19 @@ namespace SoccerPlayers
     {
         static void Main(string[] args)
         {
+            // SimpleGameEasy.Main2();
+            //  SimpleGameNormal.Main2();
+
+
             // new Easy2().GoFullRandomMoves();
             // new Normal12().GoPredefinedAttackAndSimpleDefence();
+
+
+            // NormalLine.Main2();
+            // EasyDefender.Main2();
             // new Hard30().GoGoodDefence();
-            //VeryHard.Main2();
+            VeryHard.Main2();
             //  Extreme.Main2();
-            SimpleGameNormal.Main2();
         }
     }
 }

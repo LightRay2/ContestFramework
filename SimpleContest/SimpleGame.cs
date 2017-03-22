@@ -175,8 +175,8 @@ namespace SimpleContest
 
             FrameworkSettings.PlayersPerGameMin = 2;
             FrameworkSettings.PlayersPerGameMax = 2;
-            FrameworkSettings.DefaultProgramAddresses.Add(Tuple.Create(Path.GetDirectoryName(Application.StartupPath) + "//..//Players//Easy.exe", true));
-            FrameworkSettings.DefaultProgramAddresses.Add(Tuple.Create(Path.GetDirectoryName(Application.StartupPath) + "//..//Players//Normal.exe", true));
+            FrameworkSettings.DefaultProgramAddresses.Add(Tuple.Create("..//Players//Easy.exe", true));
+            FrameworkSettings.DefaultProgramAddresses.Add(Tuple.Create("..//Players//Normal.exe", true));
             //  FrameworkSettings.DefaultProgramAddresses.Add(Tuple.Create(Path.GetDirectoryName(Application.StartupPath) + "//..//Players//Hard.exe", false));
 
             FrameworkSettings.Timeline.Enabled = true;
