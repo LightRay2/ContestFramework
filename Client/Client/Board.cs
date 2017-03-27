@@ -32,11 +32,7 @@ namespace Client
         public Tuple<Point, Point> firstValidCommand;
         public List<string> commandComments = new List<string>();
 
-
-        public string totalComment { get; set; }
-
-        public string shortTotalComment { get; set; }
-
+        
         public Color colorOnTimeLine { get; set; }
         public Color colorStatusOnTimeLine { get; set; }
         public Enum fontOnTimeLine { get; set; }
@@ -45,6 +41,7 @@ namespace Client
         public Turn()
         {
             fontOnTimeLine = Board.EFont.timelineNormal;
+            output = "";
         }
     }
 
@@ -88,11 +85,15 @@ namespace Client
         Animator<double> playerAnimator;
         int lastPlayerMadeTurns = -1;
         GamePurpose _purpose;
+
+        int lastRoundLimit;
         public Board(FormState settings, GamePurpose purpose)
         {
             _purpose = purpose;
             if (_purpose == GamePurpose.LoadSpritesAndFonts)
                 return;
+
+            lastRoundLimit = settings.TurnCountPerGame * 4 - 1;
 
             var colors = new Queue<Color>();
             colors.Enqueue(Color.Green); colors.Enqueue(Color.Red); colors.Enqueue(Color.Violet); colors.Enqueue(Color.Yellow );
@@ -127,20 +128,24 @@ namespace Client
             FrameworkSettings.GameNameEnglish = "Board";
             FrameworkSettings.RunGameImmediately = false;
             FrameworkSettings.AllowFastGameInBackgroundThread = true;
-            FrameworkSettings.PlayersPerGameMax = 4;
-            FrameworkSettings.FramesPerTurn = 50;
+            FrameworkSettings.FramesPerTurn = 25;
 
 
             FrameworkSettings.Timeline.Enabled = true; //todo doesnt work
             FrameworkSettings.Timeline.Position = TimelinePositions.right;
             FrameworkSettings.Timeline.TileLength = 30;
             FrameworkSettings.Timeline.TileWidth = 30;
-            FrameworkSettings.Timeline.FontNormalTurn = EFont.timelineNormal;
-            FrameworkSettings.Timeline.FontErrorTurn = EFont.timelineError;
             FrameworkSettings.Timeline.TurnScrollSpeedByMouseOrArrow = 4;
             FrameworkSettings.Timeline.TurnScrollSpeedByPageUpDown = 16;
             FrameworkSettings.PlayersPerGameMin = 4;
             FrameworkSettings.PlayersPerGameMax = 4;
+            FrameworkSettings.ForInnerUse.TimerInterval = 32;
+
+            FrameworkSettings.DefaultProgramAddresses.Add(Tuple.Create((string)null, true));
+            FrameworkSettings.DefaultProgramAddresses.Add(Tuple.Create("..//Players//Random.exe", true));
+            FrameworkSettings.DefaultProgramAddresses.Add(Tuple.Create("..//Players//Easy.exe", true));
+            FrameworkSettings.DefaultProgramAddresses.Add(Tuple.Create("..//Players//Normal.exe", true));
+            FrameworkSettings.DefaultProgramAddresses.Add(Tuple.Create("..//Players//Hard.exe", false));
 
             FrameworkSettings.AdditionalHelpOnGameForm ="РУЧНОЕ УПРАВЛЕНИЕ: стрелками на клавиатуре выберите шашку, которой собираетесь ходить, нажмите Enter и аналогично выберите точку, в которую будет совершен ход.";
         }
@@ -206,7 +211,7 @@ namespace Client
             FontList.Load(EFont.teamBig4, "Times New Roman", 27, Color.FromArgb(150, 147, 61), FontStyle.Bold);
 
             FontList.Load(EFont.timelineNormal, "Times New Roman", 10, Color.Black, FontStyle.Regular);
-            FontList.Load(EFont.timelineError, "Times New Roman", 10, Color.Red, FontStyle.Bold);
+            FontList.Load(EFont.timelineError, "Times New Roman", 12, Color.Red, FontStyle.Bold);
 
             SpriteList.Load(ESprite.board10, defaultSizeExact: new Vector2d(431, 452));
             //   SpriteList.Load(ESprite.background);
@@ -590,11 +595,10 @@ namespace Client
                             firstValidCommand =
                                 Tuple.Create(player.humanSource, player.humanDestination)
                             ,
-                            totalComment = "",
-                            shortTotalComment = "1 из 1",
                             colorOnTimeLine = player.color,
                             colorStatusOnTimeLine = Color.Red,
-                            nameOnTimeLine = (this.roundNumber/4).ToString()
+                            nameOnTimeLine = (this.roundNumber/4).ToString(),
+                            shortStatus = "Ручной ход"
                         };
                     }
                 }
@@ -636,7 +640,7 @@ namespace Client
         public Turn GetProgramTurn(Player player, string output, ExecuteResult executionResult, string executionResultRussianComment)
         {
             this.RotateField(player.team);
-            var turn = new Turn { output = output };
+            var turn = new Turn { output = output, shortStatus = executionResultRussianComment };
 
             if (executionResult == ExecuteResult.Ok)
             {
@@ -697,16 +701,11 @@ namespace Client
                         }
                         turn.commandComments.Add(comment);
                     }
-
-                    turn.totalComment = string.Format("Принята команда {0} из {1}", i + 1, turn.commandComments.Count);
-                    turn.shortTotalComment = string.Format("{0} из {1}", i + 1, turn.commandComments.Count);
-                    turn.shortStatus = turn.commandComments.First();
+                    turn.shortStatus = turn.commandComments.FirstOrDefault() ??"";
                 }
             }
             else
             {
-                turn.totalComment = executionResultRussianComment;
-                turn.shortTotalComment = "Error";
                 turn.fontOnTimeLine = EFont.timelineError;
                 turn.shortStatus = executionResultRussianComment;
             }
@@ -725,31 +724,14 @@ namespace Client
             round.nameForTimeLine = (this.lastPlayerMadeTurns + (this.teamTurn == 3 ? -1 : 0)).ToString();
 
             this.RotateField(this.teamTurn);
-
-            if (this.teamTurn >= this.players.Count)
-            {
-                this.teamTurn = 0;
-                if (this.players.Any(p =>
-                {
-                    this.RotateField(p.team);
-                    return GetDistanceToWin(this.field, p) == 0;
-                }
-                    ))
-                {
-                    this.GameFinished = true;
-                }
-            }
-
-            if(this.roundNumber == 199)
-            {
-                this.GameFinished = true; //50 turns each
-            }
-
+            
+            
             var movement = round.turns.First().firstValidCommand;
             if (movement == null)
             {
                 this.playerAnimator = null;
                 round.totalStage = 0;
+                CheckGameFinish();
                 return;
             }
             this.movePath = GetWayForTurn(this.field, movement);
@@ -765,13 +747,34 @@ namespace Client
             {
                 this.playerAnimator = new Animator<double>(Animator.SinSwingRefined, 0, 1, 0.5);
                 round.totalStage = 0.5;
+                CheckGameFinish();
                 return;
             }
             else
             {
                 this.playerAnimator = new Animator<double>(Animator.SinSwingRefined, 0, this.movePath.Count - 1, this.movePath.Count - 1);
                 round.totalStage = this.movePath.Count - 1;
+                CheckGameFinish();
                 return;
+            }
+            CheckGameFinish();
+        }
+
+        public void CheckGameFinish()
+        {
+            if (this.roundNumber == lastRoundLimit)
+                this.GameFinished = true;
+            if (this.teamTurn == 3)
+            {
+                if (this.players.Any(p =>
+                {
+                    this.RotateField(p.team);
+                    return GetDistanceToWin(this.field, p) == 0;
+                }
+                    ))
+                {
+                    this.GameFinished = true;
+                }
             }
         }
 
@@ -794,6 +797,7 @@ namespace Client
         {
             this.RotateField(player.team);
             var sb = new StringBuilder();
+            sb.AppendLine((roundNumber / 4).ToString());
             for (int row = 0; row < 10; row++)
             {
                 List<int> numbers = new List<int>();

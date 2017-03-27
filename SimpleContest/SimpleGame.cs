@@ -89,9 +89,19 @@ namespace SimpleContest
         public enum EFont
         {
             timelineNormal,
-            timelineError
+            timelineError,
+            main,
+            player0,
+            player1
         }
-        enum ESprite { }
+        enum ESprite {
+            back2,
+            field,
+            man0,
+            man1,
+            brownGrunge,
+            mushroom
+        }
 
 
 
@@ -183,8 +193,6 @@ namespace SimpleContest
             FrameworkSettings.Timeline.Position = TimelinePositions.right;
             FrameworkSettings.Timeline.TileLength = 7;
             FrameworkSettings.Timeline.TileWidth = 7;
-            FrameworkSettings.Timeline.FontNormalTurn = EFont.timelineNormal;
-            FrameworkSettings.Timeline.FontErrorTurn = EFont.timelineError;
             FrameworkSettings.Timeline.TurnScrollSpeedByMouseOrArrow = 8;
             FrameworkSettings.Timeline.TurnScrollSpeedByPageUpDown = 100;
             FrameworkSettings.Timeline.FollowAnimationTimeMs = 600;
@@ -194,8 +202,16 @@ namespace SimpleContest
         {
             if (FontList.All.Count == 0 && SpriteList.All.Count == 0)
             {
-                FontList.Load(EFont.timelineNormal, "Times New Roman", 2.0);
+                FontList.Load(EFont.timelineNormal, "Times New Roman", 2.0, Color.FromArgb(193, 180, 255), FontStyle.Bold);
                 FontList.Load(EFont.timelineError, "Times New Roman", 2.0, Color.Red, FontStyle.Bold);
+
+                FontList.Load(EFont.main, "Times New Roman", 3.0, Color.FromArgb(193, 209, 255), FontStyle.Bold);
+
+                FontList.Load(EFont.player0, "Times New Roman", 3.0, Color.FromArgb(230,70,70), FontStyle.Bold);
+                FontList.Load(EFont.player1, "Times New Roman", 3.0, Color.FromArgb(70, 230, 70), FontStyle.Bold);
+
+                SpriteList.Load(ESprite.man0, -90);
+                SpriteList.Load(ESprite.man1, -90);
             }
         }
         public string GetCurrentSituation()
@@ -234,7 +250,7 @@ namespace SimpleContest
             {
                 shortStatus = executionResultRussianComment,
                 output = output,
-                colorOnTimeLine = player.team == 0 ? Color.Blue : Color.Green,
+                colorOnTimeLine = player.team == 0 ? Color.DarkRed : Color.DarkGreen,//Color.FromArgb(148,36,26) : Color.FromArgb(85,110,84),//
                 nameOnTimeLine = roundNumber.ToString(),
                 colorStatusOnTimeLine = Color.Gold
             }; //todo now in interface just edit turn, no return
@@ -274,7 +290,14 @@ namespace SimpleContest
                 {
                     var nextString = reader.ReadLine();
                     if (nextString.StartsWith("memory "))
+                    {
                         player.memoryFromPreviousTurn = nextString.Substring(7);
+                        turn.shortStatus += ". Использовано запоминание";
+                    }
+                    else
+                    {
+                        player.memoryFromPreviousTurn = null;
+                    }
 
 
                     return turn;
@@ -283,6 +306,10 @@ namespace SimpleContest
                 {
                     return turn;
                 }
+            }
+            else
+            {
+                turn.fontOnTimeLine = EFont.timelineError;
             }
             return turn;
         }
@@ -451,15 +478,30 @@ namespace SimpleContest
 
         public void DrawAll(Frame frame, double stage, double totalStage, bool humanMove, GlInput input) //todo human move??
         {
+
             //!!! будьте внимательны (ранний drawall перед любыми методами)
             int frameWidth = 160, frameHeight = 120;
             frame.CameraViewport(frameWidth, frameHeight);
 
-            frame.Polygon(Color.Wheat, new Rect2d(0, 0, frameWidth, frameHeight)); //todo line around polygon
+             frame.PolygonWithDepth(Color.Wheat, -100, new Rect2d(0, 0, frameWidth, frameHeight)); //todo line around polygon
+            //frame.SpriteCorner(ESprite.brownGrunge, 0, -100, sizeOnlyHeight: frameHeight + 100);
+
+
+            //  frame.SpriteCorner(ESprite.back2, 0, 0, sizeOnlyWidth: frameWidth);
 
             var fieldCorner = new Vector2d(10, 10);
             var lineWidth = 0.4;
+
             frame.Path(Color.Black, lineWidth, _arena + fieldCorner);
+
+            frame.SpriteCorner(ESprite.field, fieldCorner, sizeExact: _arena.size, opacity: 0.4);
+
+            frame.Polygon(Color.FromArgb(150, 0, 0, 0), new Rect2d(110, 0, 1000, 1000));
+            frame.Polygon(Color.FromArgb(150, 0, 0, 0), new Rect2d(0, 0, 110, 10));
+            frame.Polygon(Color.FromArgb(150, 0, 0, 0), new Rect2d(0, 10, 10, 100));
+            frame.Polygon(Color.FromArgb(150, 0, 0, 0), new Rect2d(0, 110, 110, 1000));
+
+            frame.Path(Color.Black, 2, _arena + fieldCorner);
             //  frame.Path(Color.Black, lineWidth, fieldCorner + new Vector2d(_arena.size.X / 2, 0), fieldCorner + new Vector2d(_arena.size.X / 2, _arena.size.Y));
 
             // if (_manAnimators.Count != 0) //т е еще не было process turn
@@ -470,23 +512,95 @@ namespace SimpleContest
             for (int i = 0; i < _manList.Count; i++)
             {
                 var man = _manList[i];
-
-                frame.Circle(man.Color, _manAnimators[i].Get(stage) + fieldCorner, _manRadius);
+                var pos = _manAnimators[i].Get(stage);
+                var direction = _manAnimators[i].Get(stage + 0.001) - _manAnimators[i].Get(stage - 0.001);
+                var lookAt = pos +direction;
+                if (i == 0)
+                    frame.SpriteCenter(ESprite.man0, pos + fieldCorner, angleLookToPoint: lookAt + fieldCorner, sizeExact: new Vector2d(_manRadius * 2));
+                else
+                    frame.SpriteCenter(ESprite.man1, pos + fieldCorner, angleLookToPoint: lookAt + fieldCorner, sizeExact: new Vector2d(_manRadius * 2));
+                // frame.Circle(man.Color, _manAnimators[i].Get(stage) + fieldCorner, _manRadius);
             }
 
-            _ballList.ForEach(ball => frame.Circle(Color.Gray, ball + fieldCorner, _ballRadius));
+            _ballList.ForEach(ball => frame.SpriteCenter(ESprite.mushroom, ball + fieldCorner, sizeExact: new Vector2d(_ballRadius * 2))
+                        /*frame.Circle(Color.Gray, ball + fieldCorner, _ballRadius)*/);
 
             _ballFantom.ForEach(ball =>
             {
                 if (ball.Item2 >= stage)
-                    frame.Circle(Color.Gray, ball.Item1 + fieldCorner, _ballRadius);
+                    frame.SpriteCenter(ESprite.mushroom, ball.Item1 + fieldCorner, sizeExact: new Vector2d(_ballRadius * 2));
+                //  frame.Circle(Color.Gray, ball.Item1 + fieldCorner, _ballRadius);
             });
 
 
             // }
+            
+            frame.TextTopLeft(EFont.player0, players[0].name + ": " + players[0].score.ToString(), 10, 3);
+            frame.TextCustomAnchor(EFont.player1, players[1].name + ": " + players[1].score.ToString(), 1, 0, 110, 3);
 
-            frame.TextTopLeft(EFont.timelineNormal, players[0].name+": "+ players[0].score.ToString(), 3, 3);
-            frame.TextCustomAnchor(EFont.timelineNormal, players[1].name + ": " + players[1].score.ToString(), 1, 0, 107, 3);
+            frame.TextCustomAnchor(EFont.main, roundNumber.ToString(), 0.5, 0, 60, 3);
+
+
+            #region old
+            //  //!!! будьте внимательны (ранний drawall перед любыми методами)
+            //  int frameWidth = 160, frameHeight = 120;
+            //  frame.CameraViewport(frameWidth, frameHeight);
+
+            //  // frame.Polygon(Color.Wheat, new Rect2d(0, 0, frameWidth, frameHeight)); //todo line around polygon
+            //  frame.SpriteCorner(ESprite.brownGrunge, 0, -100, sizeOnlyHeight: frameHeight+100);
+
+
+            ////  frame.SpriteCorner(ESprite.back2, 0, 0, sizeOnlyWidth: frameWidth);
+
+            //  var fieldCorner = new Vector2d(10, 10);
+            //  var lineWidth = 0.4;
+
+            //  frame.Path(Color.Black, lineWidth, _arena + fieldCorner);
+
+            //  frame.SpriteCorner(ESprite.field, fieldCorner, sizeExact: _arena.size, opacity:0.6);
+
+            //  frame.Polygon(Color.FromArgb(180, 0, 0, 0), new Rect2d(110, 0, 1000, 1000));
+            //  frame.Polygon(Color.FromArgb(180, 0, 0, 0), new Rect2d(0, 0, 110, 10));
+            //  frame.Polygon(Color.FromArgb(180, 0, 0, 0), new Rect2d(0, 10, 10, 100));
+            //  frame.Polygon(Color.FromArgb(180, 0, 0, 0), new Rect2d(0, 110, 110, 1000));
+
+            //  frame.Path(Color.Black, 2, _arena + fieldCorner);
+            //  //  frame.Path(Color.Black, lineWidth, fieldCorner + new Vector2d(_arena.size.X / 2, 0), fieldCorner + new Vector2d(_arena.size.X / 2, _arena.size.Y));
+
+            //  // if (_manAnimators.Count != 0) //т е еще не было process turn
+            //  //  {
+
+
+
+            //  for (int i = 0; i < _manList.Count; i++)
+            //  {
+            //      var man = _manList[i];
+            //      var pos = _manAnimators[i].Get(stage);
+            //      var direction = _manAnimators[i].Get(stage + 0.001) - _manAnimators[i].Get(stage - 0.001);
+            //      var lookAt = pos + direction;
+            //      if (i == 0)
+            //          frame.SpriteCenter(ESprite.man0, pos + fieldCorner,angleLookToPoint: lookAt, sizeExact: new Vector2d(_manRadius * 2));
+            //      else
+            //          frame.SpriteCenter(ESprite.man1, pos + fieldCorner, angleLookToPoint: lookAt, sizeExact: new Vector2d(_manRadius*2));
+            //     // frame.Circle(man.Color, _manAnimators[i].Get(stage) + fieldCorner, _manRadius);
+            //  }
+
+            //  _ballList.ForEach(ball => frame.SpriteCenter(ESprite.mushroom, ball + fieldCorner, sizeExact: new Vector2d(_ballRadius * 2))
+            //              /*frame.Circle(Color.Gray, ball + fieldCorner, _ballRadius)*/);
+
+            //  _ballFantom.ForEach(ball =>
+            //  {
+            //      if (ball.Item2 >= stage)
+            //          frame.SpriteCenter(ESprite.mushroom, ball.Item1 + fieldCorner, sizeExact: new Vector2d(_ballRadius * 2));
+            //        //  frame.Circle(Color.Gray, ball.Item1 + fieldCorner, _ballRadius);
+            //  });
+
+
+            //  // }
+
+            //  frame.TextTopLeft(EFont.timelineNormal, players[0].name+": "+ players[0].score.ToString(), 3, 3);
+            //  frame.TextCustomAnchor(EFont.timelineNormal, players[1].name + ": " + players[1].score.ToString(), 1, 0, 107, 3); 
+            #endregion
 
 
         }

@@ -19,6 +19,7 @@ namespace SimpleContest
         public StartForm()
         {
             SimpleGame.SetFrameworkSettings();
+            this.KeyPreview = true;
             InitializeComponent();
         }
 
@@ -26,10 +27,9 @@ namespace SimpleContest
         bool needRefreshControls = true;
         private void StartForm_Load(object sender, EventArgs e)
         {
-            formState = FormState.LoadOrCreate();
+            LoadFormState();
 
-
-            formState.PropertyChanged += (s, args) => needRefreshControls = true;
+            
             refreshTimer.Tick += (s, args) =>
             {
                 if (needRefreshControls)
@@ -43,6 +43,14 @@ namespace SimpleContest
 
             if (FrameworkSettings.RunGameImmediately && formState.ProgramAddressesInMatch.Count > 0)
                 btnRun_Click(null, null);
+        }
+
+        private void LoadFormState()
+        {
+            formState = FormState.LoadOrCreate();
+
+
+            formState.PropertyChanged += (s, args) => needRefreshControls = true;
         }
         #endregion
 
@@ -280,6 +288,25 @@ C:\Program Files\Java\jre1.8.0_73 )";
         {
             ExternalProgramExecuter.DeleteTempSubdir(); //todo framework
 
+        }
+
+        private void StartForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            //пусть и на продуктиве будет
+            // if (Debugger.IsAttached)
+            {
+                if (e.Control && e.Shift && e.KeyCode == Keys.C) //config
+                {
+                    //пересоздать конфиг
+                    try
+                    {
+                        File.Delete(FormState.saveLoadPath);
+                        LoadFormState();
+                        needRefreshControls = true;
+                    }
+                    catch { }
+                }
+            }
         }
     }
 }

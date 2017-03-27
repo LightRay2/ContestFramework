@@ -116,10 +116,12 @@ namespace Framework
 
             //prepare
             var sprite = SpriteList.All[drawSettings.SpriteEnum];
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.PushMatrix();
 
             GL.Enable(EnableCap.Texture2D);
             GL.BindTexture(TextureTarget.Texture2D, sprite.OpenglTexture);
-
+            
             //opacity
             {
                 var opacity = drawSettings.opacity ?? sprite.DefaultDrawSettings.opacity ?? 1;
@@ -153,10 +155,9 @@ namespace Framework
                     angleDeg += drawSettings.angleDeg.Value;
                 else if (drawSettings.angleLookToPoint != null)
                     angleDeg += (drawSettings.angleLookToPoint.Value - new Vector2d(drawSettings.x, drawSettings.y)).AngleDeg();//now test
-                GL.MatrixMode(MatrixMode.Modelview);
-                GL.PushMatrix();
+               
                 GL.Translate(new Vector3d(drawSettings.x, drawSettings.y, 0));
-                GL.Rotate(angleDeg, 0, 0, 1);
+                GL.Rotate(-angleDeg, 0, 0, 1);
                 //  GL.Translate(new Vector3d(new Vector2d(drawSettings.originX-0.5, drawSettings.originY-0.5).MultEach(size)));
             }
 

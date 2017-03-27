@@ -131,7 +131,8 @@ namespace Framework
         {
             try
             {
-                Directory.Delete(Path.Combine(Path.GetTempPath(), TempSubdir), true);
+                if(Directory.Exists(Path.Combine(Path.GetTempPath(), TempSubdir)))
+                    Directory.Delete(Path.Combine(Path.GetTempPath(), TempSubdir), true);
             }
             catch (Exception e)
             {
@@ -251,7 +252,7 @@ namespace Framework
             }
             catch
             {
-                comment = string.Format("ExitCode = {0}", process.ExitCode);
+                comment = "";//крашилось  string.Format("ExitCode = {0}", process.ExitCode);
                 return ExecuteResult.InternalError;
             }
             finally
@@ -277,6 +278,11 @@ namespace Framework
         public string LocalDriveProgramExecutable { get { return Path.Combine(LocalDriveProgramDirectory, ProgramExecutableFilnameOnly); } }
         public string InputFileName { get { return inputFileName; } }
         public string OutputFileName { get { return outputFileName; } }
+
+        internal ExecuteResult Execute(string inputFile, object executionTimeLimit, out string output, out string comment)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 

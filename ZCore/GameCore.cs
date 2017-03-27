@@ -29,27 +29,27 @@ namespace Framework
             IsWorking = true;
             _roundsFromServer = roundsFromServer;
 
-            if (FrameworkSettings.Timeline.Enabled && (FrameworkSettings.Timeline.FontNormalTurn == null ||
-                FrameworkSettings.Timeline.FontErrorTurn == null))
-                throw new Exception("Tileline включен, но не задан FrameworkSettings.Timeline.Font");
+           // if (FrameworkSettings.Timeline.Enabled && (FrameworkSettings.Timeline.FontNormalTurn == null ||
+           //     FrameworkSettings.Timeline.FontErrorTurn == null))
+           //     throw new Exception("Tileline включен, но не задан FrameworkSettings.Timeline.Font");
 
             _instance = new GameCore<TParamsFromStartForm, TTurn, TRound, TPlayer>();
             _instance._GameCreationDelegate = GameCreationDelegate;
             // _instance._game = GameCreationDelegate( game;
             _instance._settings = settings;
+            GameCreationDelegate(_instance._settings[0], GamePurpose.LoadSpritesAndFonts).LoadSpritesAndFonts();
 
             _instance._gameForm = new GameForm(_instance.Process);
             _instance._gameForm.watchSpeedMultiplier = _instance._settings.First().FramesPerTurnMultiplier;
             _instance._gameForm.InfoAction = "Матч запущен";
             _instance._gameForm.InfoUnderMouse = "Кликните меню ПОМОЩЬ для получения информации";
-            if (!_instance.TryInitNextGame())
-                return false;
-
-            GameCreationDelegate(settings[0], GamePurpose.LoadSpritesAndFonts).LoadSpritesAndFonts(); //fake game to load sprites
+            _instance._gameForm.FormClosed += new FormClosedEventHandler((o, e) => IsWorking = false);
+            _instance._gameForm.Load += (s,e)=>_instance.TryInitNextGame();
+            _instance._gameForm.ShowDialog(true);
+            
 
             //todo keyboard
-            _instance._gameForm.FormClosed += new FormClosedEventHandler((o, e) => IsWorking = false);
-            _instance._gameForm.ShowDialog();
+            
             return true;
         }
 
@@ -235,13 +235,13 @@ namespace Framework
                                 _allRounds.TryGetValue(_game.roundNumber, out _currentRound);
                                 GoToPhase(EProcessPhase.processRound);
                             }
-                            else
-                            {
-                                if (_game.roundNumber > 5)
-                                {
-                                    _gameForm.InfoAction = "Рекомендуем снизить скорость просмотра";
-                                }
-                            }
+                          //  else
+                          //  {
+                          //      if (_game.roundNumber > 5)
+                          //      {
+                         //           _gameForm.InfoAction = "Рекомендуем снизить скорость просмотра";
+                          //      }
+                           // }
                         }
                         //иначе остаемся крутиться в before round, пока во втором потоке не сформируется ход
 
@@ -279,7 +279,7 @@ namespace Framework
                             string comment; //exitCode, нигде не используется
 
                             GameForm.GameInBackgroundRunning = true;
-                            ExecuteResult res = epe.Execute(inputFile, 2, out output, out comment);
+                            ExecuteResult res = epe.Execute(inputFile, FrameworkSettings.ExecutionTimeLimitSeconds, out output, out comment);
                             GameForm.GameInBackgroundRunning = false;
 
                             var turn = _game.GetProgramTurn(player, output, res, ExternalProgramExecuter.ExecuteResultToString(res));
@@ -338,12 +338,12 @@ namespace Framework
                     {
                         currentTurns.Add(currentTurn + i);
                     }
-                    while(currentTurns.Last() >= turns.Count)
+                    while(currentTurns.Count > 0 &&  currentTurns.Last() >= turns.Count)
                     {
                         currentTurns = currentTurns.Select(x => x - 1).ToList();
                     }
                     int turnUnderMouse;
-                    var clickedTurn = _timeline.ManageTimelineByInputAndGetClickedTurn( out turnUnderMouse,frame, input, turns.Count, _game.frameNumber, currentTurns, _settings[_currentGameNumber].FramesPerTurnMultiplier);
+                    var clickedTurn = _timeline.ManageTimelineByInputAndGetClickedTurn( out turnUnderMouse,frame, input, turns.Count, currentTurns, _settings[_currentGameNumber].FramesPerTurnMultiplier);
                     if (clickedTurn >=  0 && clickedTurn < turns.Count)
                     {
                         //double code
@@ -498,7 +498,7 @@ namespace Framework
                     string output;
                     string comment;
 
-                    ExecuteResult res = epe.Execute(input, 2, out output, out comment);
+                    ExecuteResult res = epe.Execute(input, FrameworkSettings.ExecutionTimeLimitSeconds, out output, out comment);
 
                     var turn = game.GetProgramTurn(player, output, res, ExternalProgramExecuter.ExecuteResultToString(res));
                     turn.output = output; //todo this is bad

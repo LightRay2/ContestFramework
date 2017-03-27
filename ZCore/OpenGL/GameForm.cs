@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Framework
@@ -77,8 +78,7 @@ namespace Framework
                     Tuple.Create(0.80, menuSpeed80), Tuple.Create(1.00, menuSpeed100), Tuple.Create(1.50, menuSpeed150),
                     Tuple.Create(3.00, menuSpeed200), Tuple.Create(2.50, menuSpeed250), Tuple.Create(3.00, menuSpeed300) };
         }
-
-
+        
         private void GameForm_Load(object sender, EventArgs e)
         {
             var screen = Screen.AllScreens;
@@ -90,10 +90,18 @@ namespace Framework
             this.Location = new Point();
             this.Size = new Size(w, h);
 
-             GameController _mainController = new GameController(glControl1,
-                _processMethod, this);
+            GameController _mainController = new GameController(glControl1,
+               _processMethod, this);
+            Thread.Sleep(50);//опенгл почему то не всегда до конца прогружается
         }
 
+        public DialogResult ShowDialog(bool uselesss)
+        {
+         //   while (loaded == false)
+        //        Thread.Sleep(10);
+            
+            return this.ShowDialog();
+        }
         public DialogResult ThreadSafeMessageBox(string title, string message, MessageBoxButtons buttons)
         {
             return ((DialogResult)this.Invoke(
@@ -190,7 +198,9 @@ namespace Framework
             var sb = new StringBuilder();
             sb.AppendLine("ПОШАГОВОЕ ВОСПРОИЗВЕДЕНИЕ: нажимайте клавишу '[' для просмотра одиночных ходов. Для возобновления нажмите P (отключение паузы).");
             sb.AppendLine();
-            sb.AppendLine("ПОМОЩЬ В ОТЛАДКЕ: наведите мышкой на список ходов справа и используйте колесико или клавиши ВВЕРХ, ВНИЗ, PAGE UP, PAGE DOWN для перемотки. Кликните на ход для перехода (дополнительно в буфер обмена скопируется input.txt для данного хода). Наведите на ход и нажмите I или O для получения input.txt или output.txt для данного хода. Для вставки текста из буфера обмена используйте сочетание CTRL+V в любом текстовом редакторе");
+            sb.AppendLine("ПОМОЩЬ В ОТЛАДКЕ: наведите мышкой на список ходов справа и используйте колесико или клавиши ВВЕРХ, ВНИЗ, PAGE UP, PAGE DOWN для перемотки. Кликните на ход для перехода (дополнительно в буфер обмена скопируется input.txt для данного хода). Наведите на ход и нажмите I или O для получения input.txt или output.txt для данного хода. Для вставки текста из буфера обмена используйте сочетание CTRL+V в любом текстовом редакторе.");
+            sb.AppendLine();
+            sb.AppendLine("СТАТУС ХОДА: при наведении на ход в правом нижнем углу выводится его статус. Если ход некорректен, он будет выделен в списке справа.");
             sb.AppendLine();
             sb.AppendLine(FrameworkSettings.AdditionalHelpOnGameForm);
             MessageBox.Show(sb.ToString());

@@ -190,7 +190,7 @@
             // btnChangeOrder
             // 
             this.btnChangeOrder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnChangeOrder.Location = new System.Drawing.Point(191, 166);
+            this.btnChangeOrder.Location = new System.Drawing.Point(187, 166);
             this.btnChangeOrder.Name = "btnChangeOrder";
             this.btnChangeOrder.Size = new System.Drawing.Size(192, 35);
             this.btnChangeOrder.TabIndex = 4;
@@ -202,7 +202,7 @@
             // 
             this.panel2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.panel2.Controls.Add(this.btnRun);
-            this.panel2.Location = new System.Drawing.Point(330, 419);
+            this.panel2.Location = new System.Drawing.Point(326, 419);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(248, 69);
             this.panel2.TabIndex = 3;
@@ -231,7 +231,7 @@
             // btnClearSelection
             // 
             this.btnClearSelection.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClearSelection.Location = new System.Drawing.Point(389, 166);
+            this.btnClearSelection.Location = new System.Drawing.Point(385, 166);
             this.btnClearSelection.Name = "btnClearSelection";
             this.btnClearSelection.Size = new System.Drawing.Size(189, 35);
             this.btnClearSelection.TabIndex = 5;
@@ -361,6 +361,7 @@
             this.Text = "ContestAI";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.StartForm_FormClosed);
             this.Load += new System.EventHandler(this.StartForm_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.StartForm_KeyDown);
             this.tabControl1.ResumeLayout(false);
             this.tabLocalGames.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);

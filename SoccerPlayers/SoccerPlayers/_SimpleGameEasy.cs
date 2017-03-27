@@ -28,8 +28,8 @@ namespace SoccerPlayers
                 balls.Add(new  SoccerPlayers.SimpleGameEasy.Point { x = ReadDouble(), y = ReadDouble() });
             }
             Point aim = new SoccerPlayers.SimpleGameEasy.Point { x = we.x, y = we.y };
-
-            aim = balls.OrderBy(ball => Dist(we, ball)).First();
+            if(balls.Count>0)
+                aim = balls.OrderBy(ball => Dist(we, ball)).First();
             
             Write(aim.x, aim.y);
            

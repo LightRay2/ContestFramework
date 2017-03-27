@@ -39,7 +39,6 @@ namespace MyContest
         public string shortStatus { get; set; }
 
         public Color colorOnTimeLine { get; set; }
-        public Color colorStatusOnTimeLine { get; set; }
         public Enum fontOnTimeLine { get; set; }
         public string nameOnTimeLine { get; set; }
         public Turn()
@@ -94,7 +93,14 @@ namespace MyContest
             playerNumbers,
             TeamsAndScore
         }
-        enum ESprite { green }
+        enum ESprite { green,
+            fieldPerfect,
+            man01,
+            man02,
+            ball,
+            man03,
+            man04
+        }
 
 
 
@@ -210,9 +216,10 @@ namespace MyContest
         public static void SetFrameworkSettings()
         {
             FrameworkSettings.GameNameEnglish = "SoccerAI";
-            FrameworkSettings.RunGameImmediately = false;
+            FrameworkSettings.RunGameImmediately = true;
             FrameworkSettings.AllowFastGameInBackgroundThread = true;
             FrameworkSettings.FramesPerTurn = 15;
+            FrameworkSettings.ExecutionTimeLimitSeconds = 0.5;
 
             FrameworkSettings.PlayersPerGameMin = 2;
             FrameworkSettings.PlayersPerGameMax = 2;
@@ -226,8 +233,8 @@ namespace MyContest
             FrameworkSettings.Timeline.Position = TimelinePositions.right;
             FrameworkSettings.Timeline.TileLength = 5;
             FrameworkSettings.Timeline.TileWidth = 5;
-            FrameworkSettings.Timeline.FontNormalTurn = EFont.timelineNormal;
-            FrameworkSettings.Timeline.FontErrorTurn = EFont.timelineError;
+          //  FrameworkSettings.Timeline.FontNormalTurn = EFont.timelineNormal;
+          //  FrameworkSettings.Timeline.FontErrorTurn = EFont.timelineError;
             FrameworkSettings.Timeline.TurnScrollSpeedByMouseOrArrow = 4;
             FrameworkSettings.Timeline.TurnScrollSpeedByPageUpDown = 100;
             FrameworkSettings.Timeline.FollowAnimationTimeMs = 600;
@@ -238,7 +245,7 @@ namespace MyContest
             if (FontList.All.Count == 0 && SpriteList.All.Count == 0)
             {
                 FontList.Load(EFont.timelineNormal, "Times New Roman", 2.0);
-                FontList.Load(EFont.timelineError, "Times New Roman", 2.0, Color.Red, FontStyle.Bold);
+                FontList.Load(EFont.timelineError, "Times New Roman", 2.3, Color.Red, FontStyle.Bold);
                 FontList.Load(EFont.playerNumbers, "Times New Roman", 1.5, Color.White);
                 FontList.Load(EFont.TeamsAndScore, "Times New Roman", 2.0, FontStyle.Bold);
                 //  SpriteList.Load(ESprite.green);
@@ -302,8 +309,7 @@ namespace MyContest
                 shortStatus = executionResultRussianComment,
                 output = output,
                 colorOnTimeLine = player.team == 0 ? Color.Blue : Color.Green,
-                nameOnTimeLine = roundNumber.ToString(),
-                colorStatusOnTimeLine = Color.Gold
+                nameOnTimeLine = roundNumber.ToString()
             }; //todo now in interface just edit turn, no return
 
             turn.manAims = new List<Vector2d>();
@@ -332,15 +338,20 @@ namespace MyContest
                 }
                 catch
                 {
+                    turn.fontOnTimeLine = EFont.timelineError;
                     turn.shortStatus = "Неправильный формат вывода";
                     return turn;
                 }
 
+                bool memoryUsed = false;
                 try
                 {
                     var nextString = reader.ReadLine();
                     if (nextString.StartsWith("memory "))
+                    {
                         player.memoryFromPreviousTurn = nextString.Substring(7);
+                        memoryUsed = true;
+                    }
                     else
                     {
 
@@ -362,16 +373,32 @@ namespace MyContest
                         }
                         nextString = reader.ReadLine();
                         if (nextString.StartsWith("memory "))
+                        {
                             player.memoryFromPreviousTurn = nextString.Substring(7);
+                            memoryUsed = true;
+                        }
                     }
+
+                    if (turn.ballAim != null)
+                        turn.shortStatus += string.Format(". Команда удара: {0} {1}", turn.ballAim.Value.X.Rounded(3), turn.ballAim.Value.Y.Rounded(3));
+                    if (memoryUsed)
+                        turn.shortStatus += string.Format(". Использовано запоминание");
+                    else
+                        player.memoryFromPreviousTurn = null;
 
                     return turn;
                 }
                 catch
                 {
+                    player.memoryFromPreviousTurn = null;
                     return turn;
                 }
             }
+            else
+            {
+                turn.fontOnTimeLine = EFont.timelineError;
+            }
+
             return turn;
         }
 
@@ -701,38 +728,109 @@ namespace MyContest
             // _ballPosition = _manList[_ballOwner].position;
         }
 
+
+        Color RandomColor()
+        {
+            var rand = new Random();
+            return Color.FromArgb(rand.Next(256), rand.Next(256), rand.Next(256));
+        }
+
+        Color currentFieldColor = Color.Wheat;
+        double currentFieldOpacity = 0.5;
+        List<Color> topColorList = new List<Color>
+        {
+            Color.FromArgb(65,120,104),
+            Color.FromArgb(13,72,77),
+            Color.FromArgb(81,143,211),
+            Color.FromArgb(148,134,82),
+            Color.FromArgb(40,127,194),
+            Color.FromArgb(138,217,250),
+            Color.FromArgb(161,218,244),
+            Color.FromArgb(78,114,124)
+        };
+        int topColorIndex = 0;
+        int blackOpacity = 120;
         public void DrawAll(Frame frame, double stage, double totalStage, bool humanMove, GlInput input) //todo human move??
         {
+            if (Debugger.IsAttached)
+            {
+                if (input.KeyTime(Key.Z) == 1)
+                    currentFieldColor = RandomColor();
+                if (input.KeyTime(Key.X) == 1)
+                {
+                    currentFieldOpacity += 0.1;
+                    if (currentFieldOpacity > 1)
+                        currentFieldOpacity = 0.5;
+                }
+                if(input.KeyTime(Key.C) == 1)
+                {
+                    topColorIndex++;
+                    if (topColorIndex >= topColorList.Count)
+                        topColorIndex = 0;
+                    currentFieldColor = topColorList[topColorIndex];
+                }
+                if(input.KeyTime(Key.V) == 1)
+                {
+                    blackOpacity += 10;
+                    if (blackOpacity >= 150)
+                        blackOpacity = 40;
+                }
+                
+            }
+
+            topColorIndex = 6;
+            currentFieldColor = topColorList[topColorIndex];
+           blackOpacity = 140;
+           currentFieldOpacity = 0.90;
+
             //!!! будьте внимательны (ранний drawall перед любыми методами)
             int frameWidth = 120, frameHeight = 90;
             frame.CameraViewport(frameWidth, frameHeight);
 
-            frame.Polygon(Color.Wheat, new Rect2d(0, 0, frameWidth, frameHeight)); //todo line around polygon
+            frame.Polygon(currentFieldColor, new Rect2d(0, 0, frameWidth, frameHeight)); //todo line around polygon
 
             var fieldCorner = new Vector2d(8, 10);
             var lineWidth = 0.4;
-            frame.Path(Color.Black, lineWidth, _arena + fieldCorner);
-            frame.Path(Color.Black, lineWidth, fieldCorner + new Vector2d(_arena.size.X / 2, 0), fieldCorner + new Vector2d(_arena.size.X / 2, _arena.size.Y));
+            //frame.Path(Color.Black, lineWidth, _arena + fieldCorner);
+            //frame.Path(Color.Black, lineWidth, fieldCorner + new Vector2d(_arena.size.X / 2, 0), fieldCorner + new Vector2d(_arena.size.X / 2, _arena.size.Y));
 
+
+            frame.SpriteCorner(ESprite.fieldPerfect, fieldCorner, sizeExact: _arena.size, opacity: currentFieldOpacity, depth :1);
             // if (_manAnimators.Count != 0) //т е еще не было process turn
             //  {
 
+
+            var blackColor = Color.FromArgb(blackOpacity, 0, 0, 0);
+            frame.Polygon(blackColor, new Rect2d(0, 0, 1000, fieldCorner.Y));
+            frame.Polygon(blackColor, new Rect2d(0, fieldCorner.Y, fieldCorner.X, _arena.size.Y));
+            frame.Polygon(blackColor, new Rect2d(fieldCorner.X + _arena.size.X, fieldCorner.Y, 1000, _arena.size.Y));
+            frame.Polygon(blackColor, new Rect2d(0, fieldCorner.Y + _arena.size.Y, 1000, 1000));
 
 
             for (int i = 0; i < _manList.Count; i++)
             {
                 var man = _manList[i];
+                if (i < 5)
+                {
+                    frame.SpriteCenter(ESprite.man03, _manAnimators[i].Get(stage) + fieldCorner, sizeOnlyWidth: 4, depth: 2);
+                }
+                else
+                {
+                    frame.SpriteCenter(ESprite.man04, _manAnimators[i].Get(stage) + fieldCorner, sizeOnlyWidth: 4, depth: 2);
 
-                frame.Circle(man.Color, _manAnimators[i].Get(stage) + fieldCorner, _manRadius);
+                }
+                //frame.Circle(man.Color, _manAnimators[i].Get(stage) + fieldCorner, _manRadius);
 
-                frame.TextCenter(EFont.playerNumbers, (i % 5).ToString(), _manAnimators[i].Get(stage)+fieldCorner);
+                frame.TextCenter(EFont.playerNumbers, (i % 5).ToString(), _manAnimators[i].Get(stage)+fieldCorner,depth:3);
             }
 
-            var curMan = _manAnimators[6].Get(stage);
+            //   var curMan = _manAnimators[6].Get(stage);
 
 
 
-            frame.Circle(Color.Gray, _ballAnimator.Get(stage) + fieldCorner, _ballRadius);
+            //frame.Circle(Color.Gray, _ballAnimator.Get(stage) + fieldCorner, _ballRadius);
+
+            frame.SpriteCenter(ESprite.ball, _ballAnimator.Get(stage) + fieldCorner, sizeOnlyWidth: 2, depth:2);
 
             // }
 

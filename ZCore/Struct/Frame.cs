@@ -215,6 +215,8 @@ namespace Framework
             SpriteCustomAnchor(ESprite, anchorX, anchorY, position.X, position.Y, angleDeg, angleLookToPoint, sizeExact, sizeOnlyWidth, sizeOnlyHeight,
                 depth, opacity, frameNumber);
         }
+
+        
         //public void SpriteCenter(ISprite sprite) { }
         //public void SpriteCenter(ISpriteSpecial sprite) { }
         //public void SpriteCenter(Enum sprite, Vector2d position) { SpriteCustom(sprite, 0.5, 0.5, position.X, position.Y, 0, null); }

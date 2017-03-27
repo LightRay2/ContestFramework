@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
@@ -12,7 +13,7 @@ namespace Client
     public class FormState : INotifyPropertyChanged, IParamsFromStartForm //todo вынести в хелпер
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        static string saveLoadPath = FrameworkSettings.ForInnerUse.RoamingPathWithSlash + "Settings.xml";
+        public static string saveLoadPath = FrameworkSettings.ForInnerUse.RoamingPathWithSlash + "Settings.xml";
         bool loading = true;
         public bool SaveToFile = true;
 
@@ -25,19 +26,51 @@ namespace Client
             if (legalCreation == false)
                 throw new Exception("Используйте для создания LoadOrCreate");
             legalCreation = false;
-
-            //тут можно установить начальные значения
-            _serverAddress = "http://localhost:49972/";
         }
         public static FormState LoadOrCreate()
         {
             legalCreation = true;
             var loadedSettings = Serialize.TryReadFromXmlFile<FormState>(saveLoadPath);
+
+
             if (loadedSettings == null)
+            {
                 loadedSettings = new FormState();
+                for (int i = 0; i < FrameworkSettings.DefaultProgramAddresses.Count; i++)
+                {
+                    loadedSettings.ProgramAddressesAll.Add(FrameworkSettings.DefaultProgramAddresses[i].Item1);
+                    if (FrameworkSettings.DefaultProgramAddresses[i].Item2)
+                        loadedSettings.ProgramAddressesInMatch.Add(i);
+                }
+            }
+            try
+            {
+                for (int i = 0; i < loadedSettings.ProgramAddressesAll.Count; i++)
+                {
+                    if (loadedSettings.ProgramAddressesAll[i] == null)
+                        continue; //human
+
+                    if (File.Exists(loadedSettings.ProgramAddressesAll[i]) == false)
+                    {
+                        loadedSettings.RemoveProgramAddress(i);
+                        i--;
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+
+
             loadedSettings.loading = false;
 
             return loadedSettings;
+        }
+
+        public FormState DeepClone()
+        {
+            return Serialize.TryDeepClone(this);
         }
 
         private void Notify(String info)
@@ -56,45 +89,20 @@ namespace Client
         }
 
         // ================сами свойства===========================
-        string _serverAddress;
-        public string ServerAddress
-        {
-            get { return _serverAddress; }
-            set { _serverAddress = value;   Notify("ServerAddress"); }
-        }
 
-
-        string _serverLogin;
-        public string ServerLogin
-        {
-            get { return _serverLogin; }
-            set { _serverLogin = value;   Notify("ServerLogin"); }
-        }
-
-        string _fileToServer;
-        public string FileToServer
-        {
-            get { return _fileToServer; }
-            set { _fileToServer = value;  Notify("FileToServer"); }
-        }
-
-        string _serverPassword;
-        public string ServerPassword
-        {
-            get { return _serverPassword; }
-            set { _serverPassword = value;   Notify("ServerPassword"); }
-        }
 
         ObservableCollection<string> _programAddressesAll;
         public ObservableCollection<string> ProgramAddressesAll
         {
-            get { 
-                if (_programAddressesAll == null) 
-                { 
+            get
+            {
+                if (_programAddressesAll == null)
+                {
                     _programAddressesAll = new ObservableCollection<string>();
-                    _programAddressesAll.CollectionChanged += (s, e) => Notify("ProgramAddressesAll"); 
-                } 
-                return _programAddressesAll; }
+                    _programAddressesAll.CollectionChanged += (s, e) => Notify("ProgramAddressesAll");
+                }
+                return _programAddressesAll;
+            }
         }
 
         ObservableCollection<int> _programAddressesInMatch;
@@ -111,6 +119,13 @@ namespace Client
             }
         }
 
+        string javaPath;
+        public string JavaPath
+        {
+            get { return javaPath; }
+            set { javaPath = value; if (!loading) Notify("JavaPath"); }
+        }
+
         ObservableCollection<object> _gameParamsList;
         [XmlIgnore]
         public ObservableCollection<object> GameParamsList
@@ -125,63 +140,22 @@ namespace Client
                 return _gameParamsList;
             }
         }
-
-        int _minTimePerMatch  =0;
-        public int MinTimePerMatch
-        {
-            get { return _minTimePerMatch; }
-            set { _minTimePerMatch = value;  Notify("MinTimePerMatch"); }
-        }
-
-        DateTime _matchDate = DateTime.Now;
-        public DateTime MatchDate
-        {
-            get { return _matchDate; }
-            set { _matchDate = value; Notify("MatchDate"); }
-        }
-
-        bool _runMatchesServerMode=false;
-        public bool RunMatchesServerMode
-        {
-            get { return _runMatchesServerMode; }
-            set { _runMatchesServerMode = value; Notify("RunMatchesServerMode"); }
-        }
-
-        ObservableCollection<ServerRoom> _serverRooms;
-        [XmlIgnore]
-        public ObservableCollection<ServerRoom> ServerRooms
-        {
-            get
-            {
-                if (_serverRooms == null)
-                {
-                    _serverRooms = new ObservableCollection<ServerRoom>();
-                    _serverRooms.CollectionChanged += (s, e) => Notify("ServerRooms");
-                }
-                return _serverRooms;
-            }
-        }
-
-        int _selectedRoom = 0;
-        public int SelectedRoom
-        {
-            get { return _selectedRoom; }
-            set { _selectedRoom = value; Notify("SelectedRoom"); }
-        }
-        //todo more programs
-
-        string javaPath;
-        public string JavaPath
-        {
-            get { return javaPath; }
-            set { javaPath = value; if (!loading)  Notify("JavaPath"); }
-        }
-
         int _randomSeed = new Random().Next();
         public int RandomSeed
         {
             get { return _randomSeed; }
             set { _randomSeed = value; if (!loading) Notify("RandomSeed"); }
+        }
+
+        internal void RemoveProgramAddress(int index)
+        {
+            ProgramAddressesInMatch.Remove(index);
+            for (int i = 0; i < ProgramAddressesInMatch.Count; i++)
+            {
+                if (ProgramAddressesInMatch[i] > index)
+                    ProgramAddressesInMatch[i]--;
+            }
+            ProgramAddressesAll.RemoveAt(index);
         }
 
         double _FramesPerTurnMultiplier = 1.0;
@@ -193,6 +167,15 @@ namespace Client
             get { return _FramesPerTurnMultiplier; }
             set { _FramesPerTurnMultiplier = value; if (!loading) Notify("FramesPerTurnMultiplier"); }
         }
-        
+
+        int _TurnCountPerGame = 50;
+        /// <summary>
+        /// когда менем скорость, меняется и он
+        /// </summary>
+        public int TurnCountPerGame
+        {
+            get { return _TurnCountPerGame; }
+            set { _TurnCountPerGame = value; if (!loading) Notify("TurnCountPerGame"); }
+        }
     }
 }

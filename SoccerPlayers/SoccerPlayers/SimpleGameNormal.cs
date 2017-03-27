@@ -34,7 +34,8 @@ namespace SoccerPlayers
 
             if (ballcount < 4)
             {
-                aim = balls.OrderBy(ball => Dist(we, ball)).First();
+                if(ballcount > 0)
+                    aim = balls.OrderBy(ball => Dist(we, ball)).First();
 
             }
             else

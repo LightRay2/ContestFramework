@@ -79,15 +79,15 @@
             // menuPause
             // 
             this.menuPause.Name = "menuPause";
-            this.menuPause.Size = new System.Drawing.Size(201, 22);
-            this.menuPause.Text = "Пауза (Q)";
+            this.menuPause.Size = new System.Drawing.Size(245, 22);
+            this.menuPause.Text = "Пауза (P)";
             this.menuPause.Click += new System.EventHandler(this.menuPauseClicked);
             // 
             // паузаПослеТекущегоХодаTABToolStripMenuItem
             // 
             this.паузаПослеТекущегоХодаTABToolStripMenuItem.Name = "паузаПослеТекущегоХодаTABToolStripMenuItem";
-            this.паузаПослеТекущегоХодаTABToolStripMenuItem.Size = new System.Drawing.Size(201, 22);
-            this.паузаПослеТекущегоХодаTABToolStripMenuItem.Text = "Пауза после хода (TAB)";
+            this.паузаПослеТекущегоХодаTABToolStripMenuItem.Size = new System.Drawing.Size(245, 22);
+            this.паузаПослеТекущегоХодаTABToolStripMenuItem.Text = "Пауза после хода (клавиша \'[\' )";
             this.паузаПослеТекущегоХодаTABToolStripMenuItem.Click += new System.EventHandler(this.паузаПослеТекущегоХодаTABToolStripMenuItem_Click);
             // 
             // скоростьПросмотраToolStripMenuItem
@@ -206,7 +206,7 @@
             // toolStripStatusLabelEmpty
             // 
             this.toolStripStatusLabelEmpty.Name = "toolStripStatusLabelEmpty";
-            this.toolStripStatusLabelEmpty.Size = new System.Drawing.Size(718, 17);
+            this.toolStripStatusLabelEmpty.Size = new System.Drawing.Size(749, 17);
             this.toolStripStatusLabelEmpty.Spring = true;
             // 
             // infoUnderMouse

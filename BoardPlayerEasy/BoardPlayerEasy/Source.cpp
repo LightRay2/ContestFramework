@@ -20,6 +20,7 @@ void main() {
 	freopen("input.txt", "r", stdin)
 		;
 	freopen("output.txt", "w", stdout);
+	int turn; cin >> turn;
 	int a[10][10];
 	fi(i, 0, 10) {
 		fi(j, 0, 10)

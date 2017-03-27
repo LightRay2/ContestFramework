@@ -47,6 +47,7 @@ namespace Framework
         /// </summary>
         public static bool RunGameImmediately = false;
         public static bool AllowFastGameInBackgroundThread { get; set; }
+        public static double ExecutionTimeLimitSeconds = 2;
 
         /// <summary>
         /// будет написано в заголовке формы, настройки в роаминге будут с таким именем (чтобы не путать с другими играми, старайтесь дать уникальное имя)
@@ -63,8 +64,8 @@ namespace Framework
             public double TileWidth = 30;
             public double TileLength = 30;
             public TimelinePositions Position = TimelinePositions.right;
-            public Enum FontNormalTurn;
-            public Enum FontErrorTurn;
+          //  public Enum FontNormalTurn;
+           // public Enum FontErrorTurn;
 
             public int TurnScrollSpeedByMouseOrArrow = 4;
             public int TurnScrollSpeedByPageUpDown = 20;

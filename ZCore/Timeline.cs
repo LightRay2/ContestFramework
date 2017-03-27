@@ -10,6 +10,7 @@ namespace Framework
     public enum EDirections { down, right }
     public class Timeline
     {
+        int _timelineTick = 0;
         bool _thereWasADraw = false;
         public Timeline()
         {
@@ -28,9 +29,10 @@ namespace Framework
             var statusNearTileWidth = tileWidth / 3;
             var maxLength = ((IFramePainterInfo)frame).cameraViewport.size.Y;
             Vector2d positionOfFirstTile = new Vector2d(((IFramePainterInfo)frame).cameraViewport.right - tileWidth, 0);
-            var font = FrameworkSettings.Timeline.FontNormalTurn;
+           // var font = FrameworkSettings.Timeline.FontNormalTurn;
 
-            _indexOfLastViewedTile = Math.Max(currentGameTurn.Max(), _indexOfLastViewedTile);
+            if(currentGameTurn.Count>0)
+                _indexOfLastViewedTile = Math.Max(currentGameTurn.Max(), _indexOfLastViewedTile);
 
             Rect2d fullTimelineRect = GetTimelineRect(frame);
             bool timelineUnderMouse = GeomHelper.PointInSimpleRect(input.Mouse, fullTimelineRect);
@@ -55,22 +57,17 @@ namespace Framework
                 {
                     var lastTurn = turns.Last();
                     string buttonName = string.Format("__timeline{0}", turns.Count - 1);
-                    var statusColor = input.ButtonUnderMouse(buttonName) ? InvertedColor(lastTurn.colorStatusOnTimeLine) : lastTurn.colorStatusOnTimeLine;//todo input
                     frame.Polygon( ShadedColor(rect,frame,lastTurn.colorOnTimeLine, !timelineUnderMouse,   highlightTurns.Contains(turns.Count - 1))  , rect);
-                  //  frame.Polygon(statusColor, statusRect);
-                    frame.TextCenter(font, lastTurn.nameOnTimeLine, rect.center);
+                    frame.TextCenter(lastTurn.fontOnTimeLine, lastTurn.nameOnTimeLine, rect.center);
                     input.Button(rect, buttonName);
                 }
                 if(_indexOfLastViewedTile >=0)
                 {
                     var lastViewedTurn = turns[_indexOfLastViewedTile];
                     string buttonName = string.Format("__timeline{0}", _indexOfLastViewedTile);
-                    var statusColor = input.ButtonUnderMouse(buttonName) ? InvertedColor(lastViewedTurn.colorStatusOnTimeLine) : lastViewedTurn.colorStatusOnTimeLine;//todo input
                     rect = rect - Vector2d.UnitY * tileLength * 1.5;
-                    statusRect = statusRect - Vector2d.UnitY * tileLength * 1.5;
                     frame.Polygon(ShadedColor(rect, frame, lastViewedTurn.colorOnTimeLine, !timelineUnderMouse,  highlightTurns.Contains(_indexOfLastViewedTile)), rect);
-                 //   frame.Polygon(statusColor, statusRect);
-                    frame.TextCenter(font,  lastViewedTurn.nameOnTimeLine, rect.center);
+                    frame.TextCenter(lastViewedTurn.fontOnTimeLine,  lastViewedTurn.nameOnTimeLine, rect.center);
                     input.Button(rect, buttonName);
                 }
 
@@ -89,10 +86,8 @@ namespace Framework
 
                     var statusRect = new Rect2d(rect.lefttop - Vector2d.UnitX * statusNearTileWidth, statusNearTileWidth, tileLength);
                     string buttonName = string.Format("__timeline{0}", i);
-                    var statusColor = input.ButtonUnderMouse(buttonName) ? InvertedColor(turn.colorStatusOnTimeLine) : turn.colorStatusOnTimeLine;//todo input
                     frame.Polygon(ShadedColor(rect,frame, turn.colorOnTimeLine, !timelineUnderMouse, highlightTurns.Contains(i)), rect);
-               //     frame.Polygon(statusColor, statusRect);
-                    frame.TextCenter(font, turn.nameOnTimeLine, rect.center);
+                    frame.TextCenter(turn.fontOnTimeLine, turn.nameOnTimeLine, rect.center);
                     input.Button(rect, buttonName);
                 }
             }
@@ -122,7 +117,7 @@ namespace Framework
         
         enum AnimatorReasons {none, wheel, followLastViewed};
         AnimatorReasons _lastAnimatorReason = AnimatorReasons.none;
-        public int ManageTimelineByInputAndGetClickedTurn(out int turnUnderMouse, Frame frame, GlInput input, int turnCount, int currentFrameTick, List<int> currentGameTurns, double speedMultiplier)
+        public int ManageTimelineByInputAndGetClickedTurn(out int turnUnderMouse, Frame frame, GlInput input, int turnCount,  List<int> currentGameTurns, double speedMultiplier)
         {
             turnUnderMouse = -1;
 
@@ -152,7 +147,7 @@ namespace Framework
                     double go = d * FrameworkSettings.Timeline.TileLength;
                     _animator = new Animator<double>(Animator.EaseOutQuad, _firstTurnOffset,
                        ((_lastAnimatorReason == AnimatorReasons.wheel ? _animator.finish : _firstTurnOffset) + go).ToRange(allowedRangeDown, allowedRangeUp),
-                        scrollTime / FrameworkSettings.ForInnerUse.TimerInterval, currentFrameTick - 1);
+                        scrollTime / FrameworkSettings.ForInnerUse.TimerInterval, _timelineTick - 1);
                     _lastAnimatorReason = AnimatorReasons.wheel;
                     _timelineSpeed = 0;
                     _firstTurnOffset += input.Wheel * FrameworkSettings.Timeline.TileLength;
@@ -164,11 +159,14 @@ namespace Framework
                     _lastAnimatorReason = AnimatorReasons.followLastViewed;
                 if (_lastAnimatorReason == AnimatorReasons.followLastViewed)
                 {
-                    _animator = new Animator<double>(Animator.EaseOutQuad,
-                        _firstTurnOffset,
-                        (fullTimelineRect.size.Y * 0.4 - currentGameTurns.First() * FrameworkSettings.Timeline.TileLength).ToRange(allowedRangeDown, allowedRangeUp),
-                        followTime / FrameworkSettings.ForInnerUse.TimerInterval, currentFrameTick - 1);
-                    _lastAnimatorReason = AnimatorReasons.followLastViewed;
+                    if (currentGameTurns.Count != 0)
+                    {
+                        _animator = new Animator<double>(Animator.EaseOutQuad,
+                            _firstTurnOffset,
+                            (fullTimelineRect.size.Y * 0.4 - currentGameTurns.First() * FrameworkSettings.Timeline.TileLength).ToRange(allowedRangeDown, allowedRangeUp),
+                            followTime / FrameworkSettings.ForInnerUse.TimerInterval, _timelineTick - 1);
+                        _lastAnimatorReason = AnimatorReasons.followLastViewed;
+                    }
                 }
             }
 
@@ -185,7 +183,7 @@ namespace Framework
 
             //}
 
-            _firstTurnOffset = _animator.Get(currentFrameTick);
+            _firstTurnOffset = _animator.Get(_timelineTick);
 
 
             //if (input.RightMouseTime >= 1 && GeomHelper.PointInSimpleRect(input.Mouse, fullTimelineRect))
@@ -227,6 +225,10 @@ namespace Framework
             //  }
             //   _firstTurnOffset = _firstTurnOffset.ToRange(-turnCount * FrameworkSettings.Timeline.TileWidth + FrameworkSettings.Timeline.TileWidth * 10, 0); //todo now only ten are visible
 
+
+
+            _timelineTick++;
+
             var underMouse = input.AllButtonsUnderMouse().FirstOrDefault(x => x.StartsWith("__timeline"));
             if (underMouse != null)
             {
@@ -249,7 +251,7 @@ namespace Framework
                 return turnIndex;
             }
 
-            
+
             return -1;
         }
 
