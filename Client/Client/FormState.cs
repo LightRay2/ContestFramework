@@ -126,6 +126,13 @@ namespace Client
             set { javaPath = value; if (!loading) Notify("JavaPath"); }
         }
 
+        string pythonPath;
+        public string PythonPath
+        {
+            get { return pythonPath; }
+            set { pythonPath = value; if (!loading) Notify("PythonPath"); }
+        }
+
         ObservableCollection<object> _gameParamsList;
         [XmlIgnore]
         public ObservableCollection<object> GameParamsList
@@ -176,6 +183,33 @@ namespace Client
         {
             get { return _TurnCountPerGame; }
             set { _TurnCountPerGame = value; if (!loading) Notify("TurnCountPerGame"); }
+        }
+
+
+
+        bool _saveReplays = false;
+        public bool SaveReplays
+        {
+            get { return _saveReplays; }
+            set { _saveReplays = value; if (!loading) Notify("SaveReplays"); }
+        }
+
+        string _replayFolder = FrameworkSettings.ForInnerUse.RoamingPathWithSlash + "Replays";
+        public string ReplayFolder
+        {
+            get { return _replayFolder; }
+            set { _replayFolder = value; if (!loading) Notify("ReplayFolder"); }
+        }
+
+        public string ReplayFileName
+        {
+            get
+            {
+                return string.Format("{0}__{1}__{2}.rpl",
+                    DateTime.Now.ToString("HHmmss_ddMMyyyy"),
+                    Path.GetFileNameWithoutExtension(this.ProgramAddressesAll[this.ProgramAddressesInMatch[0]]),
+                    Path.GetFileNameWithoutExtension(this.ProgramAddressesAll[this.ProgramAddressesInMatch[1]]));
+            }
         }
     }
 }

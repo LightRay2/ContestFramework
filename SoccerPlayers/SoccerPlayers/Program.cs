@@ -13,12 +13,12 @@ namespace SoccerPlayers
             //SimpleGameEasy.Main2();
             //  SimpleGameNormal.Main2();
 
-            BoardRandom.Main2();
+            //BoardRandom.Main2();
 
             // new Easy2().GoFullRandomMoves();
             // new Normal12().GoPredefinedAttackAndSimpleDefence();
 
-
+            Easy.Main2();
              //NormalLine.Main2();
             // EasyDefender.Main2();
             // new Hard30().GoGoodDefence();

@@ -8,7 +8,7 @@ namespace mrCorner
         private Map Map { get; set; } = new Map();
 
         private const int MaxDepth = 3;
-        private const int Difficulty = 70;
+        private const int Difficulty = 100;
         private const int MaxDifficulty = 100;
 
         public Strategy()

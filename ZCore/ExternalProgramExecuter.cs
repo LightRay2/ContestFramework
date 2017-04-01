@@ -56,11 +56,12 @@ namespace Framework
         private string inputFileName,
                        outputFileName;
         private string _javaPath;
-
+        string _pythonPath;
         public ExternalProgramExecuter(string programExecutable,
-                                       string inputFileName, string outputFileName, string javaPath)
+                                       string inputFileName, string outputFileName, string javaPath, string pythonPath)
         {
             _javaPath = javaPath;
+            _pythonPath = pythonPath;
             this.programExecutable = programExecutable;
             this.inputFileName = inputFileName;
             this.outputFileName = outputFileName;
@@ -172,6 +173,11 @@ namespace Framework
                 {
                     process.StartInfo.FileName = _javaPath;
                     process.StartInfo.Arguments = "-jar " + LocalDriveProgramExecutable;
+                }
+                else if(ProgramExecutableFilnameOnly.Substring(ProgramExecutableFilnameOnly.Length - 3) == ".py")
+                {
+                    process.StartInfo.FileName = _pythonPath;
+                    process.StartInfo.Arguments = LocalDriveProgramExecutable;
                 }
                 else
                 {

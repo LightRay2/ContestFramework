@@ -32,8 +32,12 @@ namespace Framework
     public interface IParamsFromStartForm
     {
         string JavaPath { get; }
+        string PythonPath { get; }
         int RandomSeed { get; }
         double FramesPerTurnMultiplier { get; set; }
+        bool SaveReplays { get; }
+        string ReplayFolder { get; }
+        string ReplayFileName { get; }
     }
 
     public interface ITurn<TPlayer> where TPlayer:IPlayer

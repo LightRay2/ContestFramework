@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -23,9 +24,10 @@ namespace MyContest
         /// </summary>
         public FormState()
         {
-            if (legalCreation == false)
-                throw new Exception("Используйте для создания LoadOrCreate");
-            legalCreation = false;
+            //закомментировал, т к сериализация
+            //if (legalCreation == false)
+           //     throw new Exception("Используйте для создания LoadOrCreate");
+           // legalCreation = false;
         }
         public static FormState LoadOrCreate()
         {
@@ -58,7 +60,19 @@ namespace MyContest
             {
 
             }
-            
+
+
+            try
+            {
+                if (Directory.Exists(loadedSettings.ReplayFolder) == false)
+                    Directory.CreateDirectory(loadedSettings.ReplayFolder);
+            }
+            catch
+            {
+                if (Debugger.IsAttached)
+                    throw;
+            }
+
 
             loadedSettings.loading = false;
 
@@ -121,6 +135,13 @@ namespace MyContest
             set { javaPath = value; if (!loading)  Notify("JavaPath"); }
         }
 
+        string pythonPath;
+        public string PythonPath
+        {
+            get { return pythonPath; }
+            set { pythonPath = value; if (!loading) Notify("PythonPath"); }
+        }
+
         ObservableCollection<object> _gameParamsList;
         [XmlIgnore]
         public ObservableCollection<object> GameParamsList
@@ -161,6 +182,62 @@ namespace MyContest
         {
             get { return _FramesPerTurnMultiplier; }
             set { _FramesPerTurnMultiplier = value; if (!loading) Notify("FramesPerTurnMultiplier"); }
+        }
+
+        bool _saveReplays = false;
+        public bool SaveReplays
+        {
+            get { return _saveReplays; }
+            set { _saveReplays = value;  if (!loading) Notify("SaveReplays"); }
+        }
+
+        string _replayFolder= FrameworkSettings.ForInnerUse.RoamingPathWithSlash + "Replays";
+        public string ReplayFolder
+        {
+            get { return _replayFolder; }
+            set { _replayFolder = value;  if (!loading) Notify("ReplayFolder"); }
+        }
+
+        public string ReplayFileName
+        {
+            get
+            {
+                return string.Format("{0}__{1}__{2}.rpl",
+                    DateTime.Now.ToString("HHmmss_ddMMyyyy"),
+                    Path.GetFileNameWithoutExtension(this.ProgramAddressesAll[this.ProgramAddressesInMatch[0]]),
+                    Path.GetFileNameWithoutExtension(this.ProgramAddressesAll[this.ProgramAddressesInMatch[1]]));
+            }
+        }
+
+        ObservableCollection<GameResult> _gameResults;
+        public ObservableCollection<GameResult> GameResults
+        {
+            get
+            {
+                if (_gameResults == null)
+                {
+                    _gameResults = new ObservableCollection<GameResult>();
+                    _gameResults.CollectionChanged += (s, e) => Notify("GameResults");
+                }
+                return _gameResults;
+            }
+        }
+
+        [XmlIgnore]
+        public GameResult LastGameResult = null;
+
+        int _fixedRandomSeed = 123456;
+        public int FixedRandomSeed
+        {
+            get { return _fixedRandomSeed; }
+            set { _fixedRandomSeed = value; if (!loading) Notify("FixedRandomSeed"); }
+        }
+
+        bool _useFixedRandomSeed = false;
+        public bool UseFixedRandomSeed
+        {
+            get { return _useFixedRandomSeed; }
+            set { _useFixedRandomSeed = value; if (!loading) Notify("UseFixedRandomSeed"); }
         }
     }
 }

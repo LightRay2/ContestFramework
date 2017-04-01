@@ -18,7 +18,7 @@ namespace Framework
            // public int FileUploadBufferSize = 4096;
             public string RoamingPathWithSlash { get
                 {
-                    var path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/" + FrameworkSettings.GameNameEnglish + "/";
+                    var path = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + FrameworkSettings.GameNameEnglish + "\\";
                     if (!Directory.Exists(path))
                         Directory.CreateDirectory(path);
                     return path;
