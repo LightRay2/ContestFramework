@@ -31,7 +31,7 @@ namespace Framework
         }
         public static bool TryRunAsSingleton(Func<TParamsFromStartForm, GamePurpose, IGame<TParamsFromStartForm, TTurn, TRound, TPlayer>> GameCreationDelegate, List<TParamsFromStartForm> settings, string replayFile = null, ConcurrentDictionary<int, object> roundsFromServer = null)
         {
-            try
+           // try
             {
                 if (IsWorking)
                     return false;
@@ -81,7 +81,7 @@ namespace Framework
 
                 //todo keyboard
             }
-            catch { if (Debugger.IsAttached) throw; }
+           // catch { /*if (Debugger.IsAttached) throw;*/ }
             return true;
         }
 
@@ -219,7 +219,11 @@ namespace Framework
                 case EProcessPhase.processRound:
                     _game.rounds.Add(_currentRound);
                     _allRounds.TryAdd(_game.roundNumber, _currentRound);
+
+                    var stopwatch = Stopwatch.StartNew();
                     _game.ProcessRoundAndSetTotalStage(_currentRound);
+                    var ms = stopwatch.ElapsedMilliseconds;
+
                     animationStage = 0;
                     animationFinishStage = _currentRound.totalStage;
                     if (_settings[_currentGameNumber].FramesPerTurnMultiplier != _gameForm.watchSpeedMultiplier)
@@ -297,13 +301,14 @@ namespace Framework
 
                 if (_processPhase == EProcessPhase.getTurnsOfNextRound)
                 {
-                    bool humanTurnWasAdded = false;
+                    bool humanTurnWasAdded = false; 
                     while (_currentRound.turns.Count < _currentPlayerOrder.Count)
                     {
+                        
                         var player = _currentPlayerOrder[_currentRound.turns.Count];
                         if (player.controlledByHuman)
                         {
-                            if (humanTurnWasAdded)
+                            if (humanTurnWasAdded && FrameworkSettings.ForInnerUse.GetAllUserTurnsImmediately == false)
                                 break;
 
                             var turn = _game.TryGetHumanTurn(player, input);

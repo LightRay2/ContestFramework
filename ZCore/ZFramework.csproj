@@ -89,6 +89,7 @@
     <Compile Include="ClientClasses.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="ContestHelper.cs" />
+    <Compile Include="Game.cs" />
     <Compile Include="GeomExtensions.cs" />
     <Compile Include="ExternalProgramExecuter.cs" />
     <Compile Include="FormMainSettings.cs" />

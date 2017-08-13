@@ -296,5 +296,41 @@ namespace Framework
             var midY = list.Sum(p => p.Y) / list.Count;
             return new Vector2d(midX, midY);
         }
+
+        public static List<Vector2d> Circle(Vector2d center, double radius, int partCountPerFullCircle, double startAngle = 0, double sectorAngleDeg = 360)
+        {
+            double singleangleRad = Math.PI * 2 / partCountPerFullCircle;
+            var res = new List<Vector2d>();
+            var startAngleRad = startAngle / 180 * Math.PI;
+            for (int i = 0; i < partCountPerFullCircle; i++)
+            {
+
+                double angleRad = i * singleangleRad;
+                double angleDeg = angleRad * 180 / Math.PI;
+                if (angleDeg.DoubleGreaterOrEqual(sectorAngleDeg))
+                {
+                    angleRad = sectorAngleDeg / 180 * Math.PI;
+                    res.Add((Vector2d.UnitX * radius).RotateRad(startAngleRad + angleRad) + center); //дорисовали последнюю точку
+
+                    break;
+                }
+                res.Add((Vector2d.UnitX * radius).RotateRad(startAngleRad + angleRad) + center);
+            }
+
+
+
+            return res;
+        }
+
+        public static bool IsCircleIntersectsRect(Vector2d center, double radius, Rect2d rect, int partCountPerFullCircle = 64)
+        {
+            var circle = Circle(center, radius, partCountPerFullCircle);
+            return (circle.Any(x => GeomHelper.PointInSimpleRect(x, rect)));
+        }
+
+        public static bool IsCircleIntersectsRect(Vector2d position, object sHELL_RADIUS, Rect2d wall)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

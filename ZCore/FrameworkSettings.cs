@@ -25,6 +25,8 @@ namespace Framework
                 }
             }
 
+            public bool GetAllUserTurnsImmediately { get; set; }
+
             /// <summary>
             /// воспринимает кратные 16
             /// </summary>

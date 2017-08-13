@@ -49,7 +49,7 @@ namespace MyContest
             {
                 for (int i = 0; i < loadedSettings.ProgramAddressesAll.Count; i++)
                 {
-                    if (File.Exists(loadedSettings.ProgramAddressesAll[i]) == false)
+                    if (loadedSettings.ProgramAddressesAll[i] != null && File.Exists(loadedSettings.ProgramAddressesAll[i]) == false)
                     {
                         loadedSettings.RemoveProgramAddress(i);
                         i--;

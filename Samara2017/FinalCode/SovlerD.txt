@@ -1,0 +1,446 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+
+namespace Samara2017
+{
+    public class SolverD
+    {
+
+        class Point
+        {
+            public double x, y;
+            public double vectorx, vectory;
+            public int hp;
+            public int timeToGo;
+
+            public int shellCount { get; set; }
+            public Point charger;
+        }
+        class Node
+        {
+            public int depth;
+            bool dangerous;
+            public int graphX, graphY;
+            public int realX { get { return graphX * step; } }
+            public int realY { get { return graphY * step; } }
+            public Node parent;
+            public int enemy;
+            public bool bonusDefence;
+            public bool bonusBomb;
+            public int enemyVisible = -1;
+
+            public bool ourBase;
+
+        }
+
+        double Dist(Point one, Point two) { return Math.Sqrt((one.x - two.x) * (one.x - two.x) + (one.y - two.y) * (one.y - two.y)); }
+
+        List<Point> walls;
+        List<Point> shells;
+        Point we;
+        List<Point> enemies;
+
+        int arenaWidth = 1000;
+        int arenaHeight = 750;
+        const int step = 10;
+        const int HOW_HARD_ONLY_WALLS = 0;
+        const int HOW_HARD_ONLY_WALLS_FOR_SHELL = 1;
+        int time;
+        int playerCount;
+
+        #region reading and log
+        private void ReadAll()
+        {
+            //round number
+            //player count 
+            //player positions, player looks at, hp, time to go,      
+            //wall count
+            //wall center positions
+            //shell count
+            //shell positions, finishPositions
+
+            time = ReadInt();
+            playerCount = ReadInt();
+            enemies = new List<Point> { new Point(), new Point(), new Point(), new Point() };
+            we = enemies[0];
+            enemies.ForEach(p =>
+            {
+                p.x = ReadDouble();
+                p.y = ReadDouble();
+                p.vectorx = ReadDouble();
+                p.vectory = ReadDouble();
+                p.hp = ReadInt();
+                p.timeToGo = ReadInt();
+                p.shellCount = ReadInt();
+                p.charger = new Point { x = ReadDouble(), y = ReadDouble() };
+            });
+            enemies.RemoveAt(0);
+            walls = new List<Point>(); int nwalls = ReadInt(); for (int i = 0; i < nwalls; i++) walls.Add(new Point());
+            walls.ForEach(w => { w.x = ReadDouble(); w.y = ReadDouble(); });
+            shells = new List<Point>(); int nshells = ReadInt(); for (int i = 0; i < nshells; i++) shells.Add(new Point());
+            shells.ForEach(s => { s.x = ReadDouble(); s.y = ReadDouble(); s.vectorx = ReadDouble(); s.vectory = ReadDouble(); });
+
+        }
+
+
+
+        void Log(string text, int tick)
+        {
+            if (time == tick)
+            {
+                // write to output
+            }
+        }
+        #endregion
+
+        void Solve()
+        {
+
+            //try{
+            //log time in java
+
+            ReadAll();
+
+            var graph = CreateGraph(we.x, we.y, HOW_HARD_ONLY_WALLS);
+
+            Node pointToOurBaseOrNull = FindNearestPointToOurBase(graph);
+            Node pointToAvoidDangerOrNull = FindNearestPointToAvoidDanger(graph);
+            Node pointToGetDefenceBonusOrNull = FindPointToGetDefenceOrNull(graph);
+            Node pointToAttackAnyEnemyOrNull = FindPointToAttackAnyEnemyOrNull(graph);
+            Node pointToGetBombBonusOrNull = FindNearestPointToGetBombOrNull(graph);
+            Node pointToSetBombInAveragePlace = FindPointToSetBombInAveragePlace(graph);
+            Node pointToAttackEnemyNotNearBaseOrNull = FindPointToAttackEnemyNotNearBaseOrNull(graph);
+
+            bool justSleepingEnemyIsNear = FindJustSleepingEnemyIsNear();
+            bool weAreDyingOrThereIsNoShells = we.hp <= 10 || we.shellCount==0;
+            bool weHaveDefenceBonus = false; //api
+            bool weHaveBomb = false; //api
+
+            if (weAreDyingOrThereIsNoShells && pointToOurBaseOrNull != null)
+            {
+                //go to the base
+                GoToNode(pointToOurBaseOrNull);
+            }
+            else if (weHaveDefenceBonus == false && pointToAvoidDangerOrNull != null)
+            {
+                //run from bomb or person with defence
+                GoToNode(pointToAvoidDangerOrNull);
+            }
+            else if (weHaveDefenceBonus == false && pointToGetDefenceBonusOrNull != null &&
+                pointToGetDefenceBonusOrNull.depth < 100)
+            {
+                //defence bonus is close - ignore everything and take it
+                GoToNode(pointToGetDefenceBonusOrNull);
+            }
+            else if (pointToAttackAnyEnemyOrNull != null && pointToAttackAnyEnemyOrNull == graph[0])
+            {
+                //shooting
+
+                //set angle to
+                //if angle to enemy iz zero shoot
+            }
+            else if (weHaveDefenceBonus && pointToAttackAnyEnemyOrNull != null)
+            {
+                //find nearest enemy
+                GoToNode(pointToAttackAnyEnemyOrNull);
+            }
+            else if (weHaveDefenceBonus == false && pointToGetDefenceBonusOrNull != null
+                && pointToGetDefenceBonusOrNull.depth < 400)
+            {
+                GoToNode(pointToGetDefenceBonusOrNull);
+            }
+            else if (pointToGetBombBonusOrNull != null && pointToGetBombBonusOrNull.depth < 200)
+            {
+                GoToNode(pointToGetBombBonusOrNull);
+            }
+            else if (weHaveBomb && pointToSetBombInAveragePlace != null)
+            {
+                GoToNode(pointToSetBombInAveragePlace);
+            }
+            else if (pointToAttackEnemyNotNearBaseOrNull != null)
+            {
+                GoToNode(pointToAttackEnemyNotNearBaseOrNull);
+            }
+            else
+            {
+                //shoot to the center of map
+            }
+
+
+
+
+
+            //===========bomb
+            if (weHaveBomb && (weAreDyingOrThereIsNoShells || justSleepingEnemyIsNear))
+            {
+                //set bomb instead of shooting
+
+            }
+
+
+            //   }
+            //catch{
+            //    Write(0, 500, 350, 1);
+            //}
+        }
+
+        private void GoToNode(Node aim)
+        {
+            var cur = aim;
+            while (true)
+            {
+
+                bool canGoImprecise = IsPathSafe(we, new Point { x = cur.realX, y = cur.realY }, 20, HOW_HARD_ONLY_WALLS);
+                if (canGoImprecise)
+                {
+                    bool canGoPrecise = IsPathSafe(we, new Point { x = cur.realX, y = cur.realY }, 500, HOW_HARD_ONLY_WALLS);
+                    if (canGoPrecise)
+                    {
+                        break;
+                    }
+                }
+                if (cur.parent == null)
+                    break;
+                cur = cur.parent;
+            }
+            Write(0, cur.realX, cur.realY, 1);
+
+
+        }
+
+
+        private Node FindPointToSetBombInAveragePlace(List<Node> graph)
+        {
+            return null;
+        }
+
+        private Node FindPointToAttackEnemyNotNearBaseOrNull(List<Node> graph)
+        {
+            //ignore sleeping
+            return null;
+        }
+
+
+        private Node FindNearestPointToOurBase(List<Node> graph)
+        {
+            return graph.FirstOrDefault(x => x.ourBase);
+        }
+
+
+        private bool FindWeAreDyingOrThereIsNoShells()
+        {
+            int shellCount = 25; //api
+            return we.hp <= 10 || shellCount == 0;
+        }
+
+        private bool FindJustSleepingEnemyIsNear()
+        {
+            return false;
+        }
+
+
+        private Node FindPointToGetDefenceOrNull(List<Node> graph)
+        {
+            return null;
+            //!! ignore if enemy is close to bonus
+            return graph.FirstOrDefault(x => x.bonusDefence);
+        }
+
+        private static Node FindNearestPointToGetBombOrNull(List<Node> graph)
+        {
+            return null;
+            //ignore if enemy is close to bonus
+            return graph.FirstOrDefault(x => x.bonusBomb);
+        }
+
+        private Node FindNearestPointToAvoidDanger(List<Node> graph)
+        {
+            return null;
+        }
+
+        private Node FindPointToAttackAnyEnemyOrNull(List<Node> graph)
+        {
+            return graph.FirstOrDefault(x => x.enemyVisible != -1 && enemies[x.enemyVisible].timeToGo == 0);
+        }
+
+
+
+        void AnalyzeNode(Node node)
+        {
+            var point = new Point { x = node.realX, y = node.realY };
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                if (Dist(point, enemies[i]) < 60)
+                {
+                    node.enemyVisible = i;
+                }
+            }
+
+            if (Dist(point, we.charger) < 70)
+                node.ourBase = true;
+        }
+
+        List<Node> CreateGraph(double fromx, double fromy, int HOW_HARD)
+        {
+            int x = (int)Math.Round(fromx / step);
+            int y = (int)Math.Round(fromy / step);
+            int widthInt = (int)(arenaWidth / step);
+            int heightInt = (int)(arenaHeight / step);
+            var visited = new bool[arenaWidth / step, arenaHeight / step];
+            visited[x, y] = true;
+
+            Queue<Node> q = new Queue<Node>(); q.Enqueue(new Node { graphX = x, graphY = y });
+            var res = new List<Node>();
+            res.Add(q.Peek());
+            while (q.Count > 0)
+            {
+                var next = q.Dequeue();
+                var dx = new int[] { -1, 0, 1, 0 };
+                var dy = new int[] { 0, 1, 0, -1 };
+                for (int k = 0; k < 4; k++)
+                {
+                    int curx = next.graphX + dx[k];
+                    int cury = next.graphY + dy[k];
+                    if (visited[curx, cury])
+                        continue;
+                    visited[curx, cury] = true;
+
+
+                    Point realCoord = new Point { x = curx * step, y = cury * step };
+
+
+                    bool canGoHere = IsPointSafe(realCoord, HOW_HARD);
+
+                    if (canGoHere)
+                    {
+                        var newNode = new Node
+                        {
+                            graphX = curx,
+                            graphY = cury,
+                            parent = next,
+                            depth = next.depth + 1
+                        };
+                        AnalyzeNode(newNode);
+                        q.Enqueue(newNode);
+                        res.Add(newNode);
+                    }
+
+                }
+            }
+
+            return res;
+        }
+
+
+
+        bool PointInRect(double x, double y, double rectx, double recty, double width, double height)
+        {
+            return x >= rectx && x <= rectx + width && y >= recty && y < recty + height;
+        }
+
+        bool IsPointSafe(Point point, int HOW_HARD)
+        {
+            double radiusAroundPoint = HOW_HARD == HOW_HARD_ONLY_WALLS ? 31 :
+                HOW_HARD == HOW_HARD_ONLY_WALLS_FOR_SHELL ? 6 : 31;
+
+
+
+            bool insideWall = walls.Any(w => PointInRect(point.x, point.y,
+                           w.x - 15 - radiusAroundPoint, w.y - 15 - radiusAroundPoint, (15 + radiusAroundPoint) * 2, (15 + radiusAroundPoint) * 2)); //todo impresice
+            bool pointInField = point.x >= radiusAroundPoint && point.x <= 1000 - radiusAroundPoint
+                && point.y >= radiusAroundPoint && point.y <= 750 - radiusAroundPoint;
+            return insideWall == false && pointInField;
+        }
+        bool IsPathSafe(Point point, Point aim, int steps, int HOW_HARD)
+        {
+            var dx = (aim.x - point.x) / steps;
+            var dy = (aim.y - point.y) / steps;
+            for (int i = 1; i < steps; i++)
+            {
+                var next = new Point
+                {
+                    x = point.x + dx * i,
+                    y = point.y + dy * i
+                };
+                if (IsPointSafe(next, HOW_HARD) == false)
+                    return false;
+            }
+
+
+            return true;
+        }
+
+
+
+        #region Main
+
+        protected static TextReader reader;
+        protected static TextWriter writer;
+        public static string Run(string input)
+        {
+            reader = new StringReader(input);
+            writer = new StringWriter();
+            //if (Debugger.IsAttached)
+            //{
+            //    reader = new StreamReader("..\\..\\input.txt");
+            //    //reader = new StreamReader(Console.OpenStandardInput());
+            //    //writer = Console.Out;
+            //    writer = new StreamWriter("..\\..\\output.txt");
+            //}
+            //else
+            //{
+            //    //     reader = new StreamReader(Console.OpenStandardInput());
+            //    //     writer = new StreamWriter(Console.OpenStandardOutput());
+            //    reader = new StreamReader("input.txt");
+            //    //reader = new StreamReader(Console.OpenStandardInput());
+            //    //writer = Console.Out;
+            //    writer = new StreamWriter("output.txt");
+            //}
+
+            new SolverD().Solve();
+            reader.Close();
+            writer.Close();
+            return writer.ToString();
+        }
+
+        #endregion
+
+        #region Read / Write
+        private static Queue<string> currentLineTokens = new Queue<string>();
+        private static string[] ReadAndSplitLine() { return reader.ReadLine().Split(new[] { ' ', '\t', }, StringSplitOptions.RemoveEmptyEntries); }
+        public static string ReadToken() { while (currentLineTokens.Count == 0) currentLineTokens = new Queue<string>(ReadAndSplitLine()); return currentLineTokens.Dequeue(); }
+        public static int ReadInt() { return int.Parse(ReadToken()); }
+        public static long ReadLong() { return long.Parse(ReadToken()); }
+        public static double ReadDouble() { return double.Parse(ReadToken(), CultureInfo.InvariantCulture); }
+        public static int[] ReadIntArray() { return ReadAndSplitLine().Select(int.Parse).ToArray(); }
+        public static long[] ReadLongArray() { return ReadAndSplitLine().Select(long.Parse).ToArray(); }
+        public static double[] ReadDoubleArray() { return ReadAndSplitLine().Select(s => double.Parse(s, CultureInfo.InvariantCulture)).ToArray(); }
+        public static int[][] ReadIntMatrix(int numberOfRows) { int[][] matrix = new int[numberOfRows][]; for (int i = 0; i < numberOfRows; i++) matrix[i] = ReadIntArray(); return matrix; }
+        public static int[][] ReadAndTransposeIntMatrix(int numberOfRows)
+        {
+            int[][] matrix = ReadIntMatrix(numberOfRows); int[][] ret = new int[matrix[0].Length][];
+            for (int i = 0; i < ret.Length; i++) { ret[i] = new int[numberOfRows]; for (int j = 0; j < numberOfRows; j++) ret[i][j] = matrix[j][i]; }
+            return ret;
+        }
+        public static string[] ReadLines(int quantity) { string[] lines = new string[quantity]; for (int i = 0; i < quantity; i++) lines[i] = reader.ReadLine().Trim(); return lines; }
+        public static void WriteArray<T>(IEnumerable<T> array) { writer.WriteLine(string.Join(" ", array)); }
+        public static void Write(params object[] array) { WriteArray(array); }
+        public static void WriteLines<T>(IEnumerable<T> array) { foreach (var a in array) writer.WriteLine(a); }
+        private class SDictionary<TKey, TValue> : Dictionary<TKey, TValue>
+        {
+            public new TValue this[TKey key]
+            {
+                get { return ContainsKey(key) ? base[key] : default(TValue); }
+                set { base[key] = value; }
+            }
+        }
+        private static T[] Init<T>(int size) where T : new() { var ret = new T[size]; for (int i = 0; i < size; i++) ret[i] = new T(); return ret; }
+        #endregion
+    }
+}

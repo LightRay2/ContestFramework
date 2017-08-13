@@ -1,0 +1,286 @@
+import java.util.*;
+import java.util.HashSet;
+import java.util.concurrent.TimeoutException;
+
+public class Main {
+    public interface Unit{
+        float getAngle();
+        float getAngleTo(float x, float y);
+        float getDistanceTo(float x, float y);
+        float getDistanceTo(Unit unit);
+        float getRadius();
+        float getX();
+        float getY();
+    }
+
+    public interface MovableUnit extends Unit{
+        float getHorizontalSpeed();
+        float getSpeed();
+        float getSpeedAngle();
+        float getVerticalSpeed();
+    }
+    public interface Enemy extends MovableUnit{
+        java.util.List getEffects();
+        //boolean hasEffectOfType(EffectType effectType);
+        PlayerType getPlayerType();
+        int getHealth();
+    }
+
+    public interface Charger extends Unit{
+        PlayerType getType();
+    }
+
+    public interface World{
+        java.util.List getBombs();
+        java.util.List getBonuses();
+        java.util.List getChargers();
+        java.util.List getEnemies();
+        float getHeight();
+        float getWidth();
+        java.util.List getObstacles();
+        java.util.List getShells();
+        int getTick();
+    }
+
+    public enum Action { SHOOT, SET_BOMB, DEFUSE_BOMB }
+    public enum PlayerType {R,B,G,Y}
+
+    public interface SelfControl extends  Enemy{
+        void DefuseBomb();
+        int getActionCoolDown (Action action);
+        int getScore();
+        int getBullets();
+        boolean hasBomb();
+        void setBomb();
+        void shoot();
+        void stepBack();
+        void stepForward();
+        void stepLeft();
+        void stepRight();
+        void turn(float angle);
+        void turnTo(float x, float y);
+        void turnTo(Unit unit);
+    }
+
+    abstract class Player{
+        abstract SelfControl getSelfControl();
+        abstract World getWorld();
+
+        public abstract void init() throws java.util.concurrent.TimeoutException;
+        public abstract void move() throws java.util.concurrent.TimeoutException;
+    }
+
+    class Point {
+        public double x, y;
+        public double vectorx, vectory;
+        public int hp = 100;
+        public int shellCount=0;
+        public int timeToGo;
+
+
+        public Point(double x, double y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public Point(double x, double y, double vectorx, double vectory) {
+            this.x = x;
+            this.y = y;
+            this.vectorx = vectorx;
+            this.vectory = vectory;
+        }
+
+        public double distTo(Point otherPoint) {
+            return Math.sqrt((otherPoint.x - this.x) * (otherPoint.x - this.x)
+                    + (otherPoint.y - this.y) * (otherPoint.y - this.y));
+        }
+    }
+
+    class Node
+    {
+        public static final int STEP = 10;
+        public int graphX, graphY;
+        public int getRealX() { return graphX * STEP; }
+        public int getRealY() { return graphY * STEP; }
+
+        public Node parent;
+        public int enemy;
+        public boolean bonusDefence;
+        public boolean bonusBomb;
+        public int enemyVisible = -1;
+
+
+        public boolean ourBase;
+
+        public int depth;
+        boolean dangerous;
+
+        public double distTo(Point p)
+        {
+            return Math.sqrt((p.x - this.getRealX()) * (p.x - this.getRealX())  +
+                    (p.y - this.getRealY())*(p.y - this.getRealY()));
+        }
+    }
+
+    abstract class MyPlayer extends Player{
+        private List<Point> enemies, walls, shells, enemyBases;
+        private Point we, ourBase;
+        int arenaWidth = 1000;
+        int arenaHeight = 750;
+        final int HOW_HARD_ONLY_WALLS = 0;
+        final int HOW_HARD_ONLY_WALLS_FOR_SHELL = 1;
+        Comparator<Node> nodeComparator = new Comparator<Node>(){
+
+            @Override
+            public int compare(final Node o1, final Node o2){
+                return ((Double)o1.distTo(we)).compareTo(o2.distTo(we));
+            }
+        };
+
+        void Log(String message, int tick){
+            if (getWorld().getTick() == tick){
+                System.out.println(message);
+            }
+        }
+
+        List<Point> convertListToPoints(List list) {
+            List<Point> result = new ArrayList<>();
+            for (Object obj : list) {
+                if (obj instanceof MovableUnit) {
+                    Point p =new Point(((MovableUnit) obj).getX(), ((MovableUnit) obj).getY(),
+                            ((MovableUnit) obj).getHorizontalSpeed(), ((MovableUnit) obj).getVerticalSpeed());
+                    if (obj instanceof Enemy)
+                        p.hp = ((Enemy) obj).getHealth();
+
+                    result.add(p);
+                } else if (obj instanceof Unit) {
+                    result.add(new Point(((Unit) obj).getX(), ((Unit) obj).getY()));
+                }
+            }
+
+            return result;
+        }
+
+        private void loadWorldIntoVars() {
+            this.walls = this.convertListToPoints(this.getWorld().getObstacles());
+            this.shells = this.convertListToPoints(this.getWorld().getShells());
+            this.enemies = this.convertListToPoints(this.getWorld().getEnemies());
+            SelfControl us = this.getSelfControl();
+            this.we = new Point(us.getX(), us.getY(), us.getHorizontalSpeed(), us.getVerticalSpeed());
+            this.we.hp = us.getHealth();
+            this.we.shellCount = us.getBullets();
+            this.enemyBases = new ArrayList<>();
+
+            for (Object o : this.getWorld().getChargers()) {
+                if (!(o instanceof Charger))
+                    continue;
+                Charger c = (Charger) o;
+                Point p = new Point(c.getX(), c.getY());
+                if (c.getType() == this.getSelfControl().getPlayerType()) {
+                    this.ourBase = p;
+                } else {
+                    this.enemyBases.add(p);
+                }
+            }
+        }
+
+        void AnalyzeNode(Node node)
+        {
+            Point point = new Point(node.getRealX(), node.getRealY());
+            for(int i = 0 ; i < enemies.size(); i++)
+            {
+                if (point.distTo(enemies.get(i)) < 60)
+                {
+                    node.enemyVisible = i;
+                }
+            }
+
+            if (point.distTo(ourBase) < 70)
+                node.ourBase = true;
+        }
+
+        Node FindNearestPointToOurBase(List<Node> graph){
+            for(Node n : graph){
+                if (n.ourBase)
+                    return n;
+            }
+
+            return null;
+        }
+
+        Node FindPointToAttackAnyEnemyOrNull(List<Node> graph){
+            for(Node n : graph){
+                if (n.enemyVisible != -1 && this.enemies.get(n.enemyVisible).timeToGo == 0)
+                    return n;
+            }
+
+            return null;
+        }
+
+        List<Node> CreateGraph(double fromx, double fromy, int HOW_HARD)
+        {
+            List<Node> res = new ArrayList<Node>();
+            int widthInt = (int)(arenaWidth / Node.STEP);
+            int heightInt = (int)(arenaHeight / Node.STEP);
+
+            for (int x = 0; x < widthInt; x++)
+            {
+                for (int y = 0; y < heightInt; y++)
+                {
+                    Node newNode = new Node();
+                    newNode.graphX = x;
+                    newNode.graphY = y;
+                    res.add(newNode);
+                }
+            }
+
+            Collections.sort(res, nodeComparator);
+            for (Node n : res){
+                AnalyzeNode(n);
+            }
+
+            return res;
+        }
+
+        private void GoToNode(Node aim)
+        {
+            this.getSelfControl().turnTo(aim.getRealX(), aim.getRealY());
+            this.getSelfControl().stepForward();
+
+        }
+
+        @Override
+        public void init() throws TimeoutException {
+
+        }
+
+        @Override
+        public void move() throws TimeoutException {
+            this.loadWorldIntoVars();
+            List<Node> graph = this.CreateGraph(we.x, we.y, HOW_HARD_ONLY_WALLS);
+            Node pointToAttackAnyEnemyOrNull = FindPointToAttackAnyEnemyOrNull(graph);
+            Node pointToOurBaseOrNull = FindNearestPointToOurBase(graph);
+            boolean weAreDyingOrThereIsNoShells = we.hp <= 10 || we.shellCount == 0;
+            if (weAreDyingOrThereIsNoShells && pointToOurBaseOrNull != null)
+            {
+                //go to the base
+                GoToNode(pointToOurBaseOrNull);
+            }
+            else if (pointToAttackAnyEnemyOrNull != null)
+            {
+                GoToNode(pointToAttackAnyEnemyOrNull);
+            }
+            else
+            {
+                //shoot to the center of map
+            }
+        }
+    }
+
+
+
+    public static void main(String[] args) {
+
+        System.out.println("Hello World!");
+    }
+}
